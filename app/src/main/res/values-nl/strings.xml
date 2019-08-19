@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Yahtzee score</string>
+    <string name="aces">Enen</string>
+    <string name="twos">Tweeën</string>
+    <string name="threes">Drieën</string>
+    <string name="fours">Vieren</string>
+    <string name="fives">Vijven</string>
+    <string name="sixes">Zessen</string>
+    <string name="Total">Totaal:</string>
+    <string name="name_message">Voer een bijnaam in voor scores in de buurt. Als u geen naam invoert, werken scores in de buurt niet.</string>
+    <string name="change_nickname">Verander naam</string>
+    <string name="left">Links:</string>
+    <string name="right">Rechts:</string>
+    <string name="No_players_nearby">Geen spelers in de buurt. Druk hierop om handmatig een speler toe te voegen.</string>
+    <string name="name">Naam</string>
+    <string name="previous_scores">Opgeslagen scores</string>
+    <string name="saved_scores">Opgeslagen scores</string>
+    <string name="remove_score">Verwijder score</string>
+    <string name="remove">Verwijder</string>
+    <string name="average">Gemiddelde:</string>
+    <string name="clear_all" translatable="false">Alles wissen / opslaan</string>
+</resources>

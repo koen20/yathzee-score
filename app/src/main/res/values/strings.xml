@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">Yahtzee score</string>
+    <string name="aces">Aces</string>
+    <string name="twos">Twos</string>
+    <string name="threes">Threes</string>
+    <string name="fours">Fours</string>
+    <string name="fives">Fives</string>
+    <string name="sixes">Sixes</string>
+    <string name="_4_of_a_kind" translatable="false">4 of a kind</string>
+    <string name="_3_of_a_kind" translatable="false">3 of a kind</string>
+    <string name="full_house" translatable="false">Full house</string>
+    <string name="small_strt" translatable="false">Small strt</string>
+    <string name="yahtzee" translatable="false">Yahtzee</string>
+    <string name="large_strt" translatable="false">Large Strt</string>
+    <string name="chance" translatable="false">Chance</string>
+    <string name="Total">Total:</string>
+    <string name="name_message">Please enter a nickname for nearby scores. If you don\'t enter a name nearby scores won\'t work.</string>
+    <string name="clear_all">Clear all / save</string>
+    <string name="bonus" translatable="false">Bonus: </string>
+    <string name="change_nickname">Change nickname</string>
+    <string name="privacy_policy" translatable="false">Privacy policy</string>
+    <string name="left">Left:</string>
+    <string name="right">Right:</string>
+    <string name="No_players_nearby">No players nearby. Touch to manually add a player.</string>
+    <string name="name">Name</string>
+    <string name="previous_scores">Saved scores</string>
+    <string name="saved_scores">Saved scores</string>
+    <string name="remove_score">Remove score</string>
+    <string name="remove">Remove</string>
+    <string name="average">Average:</string>
+</resources>
