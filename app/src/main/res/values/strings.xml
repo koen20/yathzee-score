@@ -28,4 +28,9 @@
     <string name="remove_score">Remove score</string>
     <string name="remove">Remove</string>
     <string name="average">Average:</string>
+    <string name="dark_theme">Dark theme</string>
+    <string name="system_default">System default</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
+    <string name="settings">Settings</string>
 </resources>
