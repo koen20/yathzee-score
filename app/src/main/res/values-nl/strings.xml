@@ -20,4 +20,9 @@
     <string name="remove">Verwijder</string>
     <string name="average">Gemiddelde:</string>
     <string name="clear_all" translatable="false">Alles wissen / opslaan</string>
+    <string name="dark_theme">Donker thema</string>
+    <string name="system_default">Systeem standaard</string>
+    <string name="dark">Donker</string>
+    <string name="light">Licht</string>
+    <string name="settings">Instellingen</string>
 </resources>

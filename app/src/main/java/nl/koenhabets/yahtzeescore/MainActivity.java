@@ -7,7 +7,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.Editable;
@@ -19,6 +21,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -39,7 +42,6 @@ import org.json.JSONObject;
 import org.matomo.sdk.Matomo;
 import org.matomo.sdk.Tracker;
 import org.matomo.sdk.TrackerBuilder;
-import org.matomo.sdk.extra.MatomoApplication;
 import org.matomo.sdk.extra.TrackHelper;
 
 import java.util.ArrayList;
@@ -50,8 +52,10 @@ import java.util.TimerTask;
 import java.util.UUID;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
 public class MainActivity extends AppCompatActivity implements TextWatcher, GoogleApiClient.OnConnectionFailedListener, OnFailureListener {
     private EditText editText1;
@@ -80,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
 
     private MessageListener mMessageListener;
     private Message mMessage;
-    private static String name = "";
+    public static String name = "";
 
     private int totalLeft = 0;
     private int totalRight = 0;
@@ -97,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         return mMatomoTracker;
     }
 
-    public static Tracker getTracker2(){
+    public static Tracker getTracker2() {
         return mMatomoTracker;
     }
 
@@ -106,6 +110,23 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setSupportActionBar(findViewById(R.id.toolbar));
+        SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+        AppCompatDelegate.setDefaultNightMode(sharedPref.getInt("theme", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM));
+
+        int nightModeFlags =
+                this.getResources().getConfiguration().uiMode &
+                        Configuration.UI_MODE_NIGHT_MASK;
+        switch (nightModeFlags) {
+            case Configuration.UI_MODE_NIGHT_YES:
+                ActionBar actionBar = getSupportActionBar();
+                actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#121212")));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    Window window = this.getWindow();
+                    window.setStatusBarColor(Color.parseColor("#121212"));
+                }
+                break;
+        }
+
         try {
             FirebaseAnalytics mFirebaseAnalytics;
             mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
@@ -121,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         Tracker tracker = mMatomoTracker;
         TrackHelper.track().screen("/").title("Main screen").with(tracker);
         TrackHelper.track().download().with(tracker);
+
 
         editText1 = findViewById(R.id.editText);
         editText2 = findViewById(R.id.editText3);
@@ -164,10 +186,9 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         tvOp = findViewById(R.id.textViewOp);
         mMessage = new Message(("new player").getBytes());
 
-        SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         Log.i("name", sharedPref.getString("name", ""));
-            if (sharedPref.getString("name", "").equals("")) {
-            nameDialog();
+        if (sharedPref.getString("name", "").equals("")) {
+            nameDialog(this);
         } else {
             name = sharedPref.getString("name", "");
         }
@@ -239,15 +260,15 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
             public void onClick(View view) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setTitle("Clear all");
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User cancelled the dialog
+                    }
+                });
                 builder.setPositiveButton("Clear all", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         clearText();
                         TrackHelper.track().event("category", "action").name("clear").with(mMatomoTracker);
-                    }
-                });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // User cancelled the dialog
                     }
                 });
                 builder.setNeutralButton("Clear and save score", new DialogInterface.OnClickListener() {
@@ -359,7 +380,9 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
                 }
             }
         } catch (Exception e) {
-            tvOp.setText(message + "");
+            if (message != "") {
+                tvOp.setText(message + "");
+            }
             e.printStackTrace();
         }
     }
@@ -390,16 +413,18 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
 
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.name:
-                nameDialog();
-                return true;
             case R.id.privacy_policy:
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://koenhabets.nl/privacy_policy.html"));
                 startActivity(browserIntent);
                 return true;
-            case R.id.scores:
+            case R.id.scores2:
                 Intent myIntent = new Intent(this, ScoresActivity.class);
                 this.startActivity(myIntent);
+                return true;
+            case R.id.settings2:
+                Intent myIntent2 = new Intent(this, SettingsActivity.class);
+                this.startActivity(myIntent2);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -425,32 +450,27 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         }
     }
 
-    private void darkModeDialog(){
-
-    }
-
-    private void nameDialog() {
-        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+    private void nameDialog(Context context) {
+        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
         LayoutInflater inflater = this.getLayoutInflater();
 
         View view = inflater.inflate(R.layout.dialog_name, null);
         final EditText editTextName = view.findViewById(R.id.editText2);
+        SharedPreferences sharedPref2 = context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+        editTextName.setText(sharedPref2.getString("name", ""));
         builder.setView(view);
-        builder.setMessage(getString(R.string.name_message));
-        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
-                sharedPref.edit().putString("name", editTextName.getText().toString()).apply();
-                name = editTextName.getText().toString();
-                try {
-                    Mqtt.disconnectMqtt();
-                    Mqtt.connectMqtt(name, getApplicationContext());
-                } catch (MqttException e) {
-                    e.printStackTrace();
-                }
-                TrackHelper.track().event("category", "action").name("name changed").with(mMatomoTracker);
+        builder.setMessage(context.getString(R.string.name_message));
+        builder.setPositiveButton("Ok", (dialog, id) -> {
+            SharedPreferences sharedPref = context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+            sharedPref.edit().putString("name", editTextName.getText().toString()).apply();
+            name = editTextName.getText().toString();
+            try {
+                Mqtt.disconnectMqtt();
+                Mqtt.connectMqtt(name, context);
+            } catch (MqttException e) {
+                e.printStackTrace();
             }
+            TrackHelper.track().event("category", "action").name("name changed").with(mMatomoTracker);
         });
         builder.show();
     }
