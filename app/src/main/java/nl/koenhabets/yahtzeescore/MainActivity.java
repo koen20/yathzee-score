@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -104,6 +105,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setSupportActionBar(findViewById(R.id.toolbar));
         try {
             FirebaseAnalytics mFirebaseAnalytics;
             mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
@@ -164,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
 
         SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         Log.i("name", sharedPref.getString("name", ""));
-        if (sharedPref.getString("name", "").equals("")) {
+            if (sharedPref.getString("name", "").equals("")) {
             nameDialog();
         } else {
             name = sharedPref.getString("name", "");
@@ -523,55 +525,64 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         if (players.size() == 0) {
             tvOp.setText(R.string.No_players_nearby);
         }
+        int color = Color.BLACK;
+        int nightModeFlags =
+                this.getResources().getConfiguration().uiMode &
+                        Configuration.UI_MODE_NIGHT_MASK;
+        switch (nightModeFlags) {
+            case Configuration.UI_MODE_NIGHT_YES:
+                color = Color.WHITE;
+                break;
+        }
         if (getTextInt(editText1) > 5) {
             editText1.setTextColor(Color.RED);
         } else {
-            editText1.setTextColor(Color.BLACK);
+            editText1.setTextColor(color);
         }
         if (getTextInt(editText2) > 10) {
             editText2.setTextColor(Color.RED);
         } else {
-            editText2.setTextColor(Color.BLACK);
+            editText2.setTextColor(color);
         }
         if (getTextInt(editText3) > 15) {
             editText3.setTextColor(Color.RED);
         } else {
-            editText3.setTextColor(Color.BLACK);
+            editText3.setTextColor(color);
         }
         if (getTextInt(editText4) > 20) {
             editText4.setTextColor(Color.RED);
         } else {
-            editText4.setTextColor(Color.BLACK);
+            editText4.setTextColor(color);
         }
         if (getTextInt(editText5) > 25) {
             editText5.setTextColor(Color.RED);
         } else {
-            editText5.setTextColor(Color.BLACK);
+            editText5.setTextColor(color);
         }
         if (getTextInt(editText6) > 30) {
             editText6.setTextColor(Color.RED);
         } else {
-            editText6.setTextColor(Color.BLACK);
+            editText6.setTextColor(color);
         }
         if (getTextInt(editText23) != 25 && getTextInt(editText23) != 0) {
             editText23.setTextColor(Color.RED);
         } else {
-            editText23.setTextColor(Color.BLACK);
+            editText23.setTextColor(color);
         }
         if (getTextInt(editText24) != 30 && getTextInt(editText24) != 0) {
             editText24.setTextColor(Color.RED);
         } else {
-            editText24.setTextColor(Color.BLACK);
+            editText24.setTextColor(color);
         }
         if (getTextInt(editText25) != 40 && getTextInt(editText25) != 0) {
             editText25.setTextColor(Color.RED);
         } else {
-            editText25.setTextColor(Color.BLACK);
+            editText25.setTextColor(color);
         }
         if (getTextInt(editText26) != 50 && getTextInt(editText26) != 0) {
             editText26.setTextColor(Color.RED);
         } else {
-            editText26.setTextColor(Color.BLACK);
+            editText26.setTextColor(color);
         }
     }
 
