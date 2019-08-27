@@ -33,4 +33,6 @@
     <string name="light">Light</string>
     <string name="dark">Dark</string>
     <string name="settings">Settings</string>
+    <string name="rules">Rules</string>
+    <string name="enable_multiplayer">Enable multiplayer</string>
 </resources>

@@ -25,4 +25,6 @@
     <string name="dark">Donker</string>
     <string name="light">Licht</string>
     <string name="settings">Instellingen</string>
+    <string name="rules">Regels</string>
+    <string name="enable_multiplayer">Enable multiplayer</string>
 </resources>

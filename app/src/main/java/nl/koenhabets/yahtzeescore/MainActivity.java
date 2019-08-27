@@ -90,8 +90,10 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
     private int totalRight = 0;
     private static List<PlayerItem> players = new ArrayList<>();
     Timer updateTimer;
-    private int updateInterval = 18000;
+    private int updateInterval = 10000;
     private JSONArray playersM = new JSONArray();
+
+    static boolean multiplayer;
 
     private static Tracker mMatomoTracker;
 
@@ -184,51 +186,14 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         tvTotal = findViewById(R.id.textViewTotal);
         tvBonus = findViewById(R.id.textViewBonus);
         tvOp = findViewById(R.id.textViewOp);
-        mMessage = new Message(("new player").getBytes());
 
-        Log.i("name", sharedPref.getString("name", ""));
-        if (sharedPref.getString("name", "").equals("")) {
-            nameDialog(this);
-        } else {
-            name = sharedPref.getString("name", "");
-        }
         try {
             readScores(new JSONObject(sharedPref.getString("scores", "")));
         } catch (Exception e) {
             e.printStackTrace();
         }
-        try {
-            playersM = new JSONArray(sharedPref.getString("players", ""));
-            for (int i = 0; i < playersM.length(); i++) {
-                boolean exists = false;
-                for (int k = 0; k < players.size(); k++) {
-                    PlayerItem item = players.get(k);
-                    if (item.getName().equals(playersM.getString(i))) {
-                        exists = true;
-                    }
-                }
-                if (!exists) {
-                    PlayerItem playerItem = new PlayerItem(playersM.getString(i), 0, 0, false);
-                    players.add(playerItem);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         calculateTotal();
-        mMessageListener = new MessageListener() {
-            @Override
-            public void onFound(Message message) {
-                Log.d("t", "Found message: " + new String(message.getContent()));
-                proccessMessage(new String(message.getContent()), false);
-            }
-
-            @Override
-            public void onLost(Message message) {
-                Log.d("d", "Lost sight of message: " + new String(message.getContent()));
-            }
-        };
 
         tv11.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -265,32 +230,100 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
                         // User cancelled the dialog
                     }
                 });
-                builder.setPositiveButton("Clear all", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        clearText();
-                        TrackHelper.track().event("category", "action").name("clear").with(mMatomoTracker);
-                    }
+                builder.setPositiveButton("Clear all", (dialog, id) -> {
+                    clearText();
+                    TrackHelper.track().event("category", "action").name("clear").with(mMatomoTracker);
                 });
-                builder.setNeutralButton("Clear and save score", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        saveScore(totalLeft + totalRight);
-                        TrackHelper.track().event("category", "action").name("clear and save").with(mMatomoTracker);
-                        clearText();
-                    }
+                builder.setNeutralButton("Clear and save score", (dialogInterface, i) -> {
+                    saveScore(totalLeft + totalRight);
+                    TrackHelper.track().event("category", "action").name("clear and save").with(mMatomoTracker);
+                    clearText();
                 });
                 builder.show();
             }
         });
-        updateTimer = new Timer();
-        tvOp.setMovementMethod(new ScrollingMovementMethod());
-        tvOp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                addPlayerDialog();
-            }
+    }
+
+    private void permissionDialog() {
+        Context context = this;
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Multiplayer");
+        builder.setMessage("To automatically discover players nearby the app needs nearby permissions. Do you want to enable multiplayer?");
+        builder.setNegativeButton("No", (dialog, id) -> {
+            TrackHelper.track().event("multiplayer", "disable").name("disable").with(mMatomoTracker);
+            SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+            sharedPref.edit().putBoolean("multiplayer", false).apply();
+            sharedPref.edit().putBoolean("multiplayerAsked", true).apply();
         });
+        builder.setPositiveButton("Yes", (dialog, id) -> {
+            tvOp.setText(R.string.No_players_nearby);
+            TrackHelper.track().event("multiplayer", "enable").name("enable").with(mMatomoTracker);
+            SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+            sharedPref.edit().putBoolean("multiplayer", true).apply();
+            sharedPref.edit().putBoolean("multiplayerAsked", true).apply();
+            initMultiplayer();
+        });
+        builder.show();
+    }
+
+    private void initMultiplayer() {
+        multiplayer = true;
+        mMessage = new Message(("new player").getBytes());
+        mMessageListener = new MessageListener() {
+            @Override
+            public void onFound(Message message) {
+                Log.d("t", "Found message: " + new String(message.getContent()));
+                proccessMessage(new String(message.getContent()), false);
+            }
+
+            @Override
+            public void onLost(Message message) {
+                Log.d("d", "Lost sight of message: " + new String(message.getContent()));
+            }
+        };
+
+        Nearby.getMessagesClient(this).publish(mMessage).addOnFailureListener(this);
+        Nearby.getMessagesClient(this).subscribe(mMessageListener);
+        try {
+            Mqtt.connectMqtt(name, this);
+            updateTimer = new Timer();
+            updateTimer.scheduleAtFixedRate(new updateTask(), 6000, updateInterval);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+
+        Log.i("name", sharedPref.getString("name", ""));
+        if (sharedPref.getString("name", "").equals("")) {
+            nameDialog(this);
+        } else {
+            name = sharedPref.getString("name", "");
+        }
+
+        try {
+            playersM = new JSONArray(sharedPref.getString("players", ""));
+            for (int i = 0; i < playersM.length(); i++) {
+                boolean exists = false;
+                for (int k = 0; k < players.size(); k++) {
+                    PlayerItem item = players.get(k);
+                    if (item.getName().equals(playersM.getString(i))) {
+                        exists = true;
+                    }
+                }
+                if (!exists) {
+                    PlayerItem playerItem = new PlayerItem(playersM.getString(i), 0, 0, false);
+                    players.add(playerItem);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        tvOp.setMovementMethod(new ScrollingMovementMethod());
+        tvOp.setOnClickListener(view -> addPlayerDialog());
         Log.i("players", playersM.toString() + "");
+        calculateTotal();
     }
 
     private void saveScore(int score) {
@@ -352,7 +385,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
                         PlayerItem playerItem = players.get(i);
                         if (playerItem.getName().equals(messageSplit[0])) {
                             exists = true;
-                            if (playerItem.getLastUpdate() < Long.parseLong(messageSplit[2]) && mqtt) {
+                            if (playerItem.getLastUpdate() < Long.parseLong(messageSplit[2])) {
                                 Log.i("message", "newer message");
                                 players.remove(i);
                                 PlayerItem item = new PlayerItem(messageSplit[0], Integer.parseInt(messageSplit[1]), Long.parseLong(messageSplit[2]), true);
@@ -380,7 +413,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
                 }
             }
         } catch (Exception e) {
-            if (message != "") {
+            if (!message.equals("")) {
                 tvOp.setText(message + "");
             }
             e.printStackTrace();
@@ -425,6 +458,10 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
                 Intent myIntent2 = new Intent(this, SettingsActivity.class);
                 this.startActivity(myIntent2);
                 return true;
+            case R.id.rules:
+                Intent browserIntent2 = new Intent(Intent.ACTION_VIEW, Uri.parse("https://en.wikipedia.org/wiki/Yahtzee#Rules"));
+                startActivity(browserIntent2);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -432,21 +469,23 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
     }
 
     private void updateNearbyScore() {
-        Nearby.getMessagesClient(this).unpublish(mMessage);
-        Date date = new Date();
-        if (!name.equals("")) {
-            String text = name + ";" + (totalLeft + totalRight) + ";" + date.getTime();
-            mMessage = new Message((text).getBytes());
-            Log.i("tada", "score sent");
-            try {
-                if (!Mqtt.mqttAndroidClient.isConnected()) {
-                    Mqtt.connectMqtt(name, this);
+        if (multiplayer) {
+            Nearby.getMessagesClient(this).unpublish(mMessage);
+            Date date = new Date();
+            if (!name.equals("")) {
+                String text = name + ";" + (totalLeft + totalRight) + ";" + date.getTime();
+                mMessage = new Message((text).getBytes());
+                Log.i("tada", "score sent");
+                try {
+                    if (!Mqtt.mqttAndroidClient.isConnected()) {
+                        Mqtt.connectMqtt(name, this);
+                    }
+                    Mqtt.publish("score", text);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                Mqtt.publish("score", text);
-            } catch (Exception e) {
-                e.printStackTrace();
+                Nearby.getMessagesClient(this).publish(mMessage).addOnFailureListener(this);
             }
-            Nearby.getMessagesClient(this).publish(mMessage).addOnFailureListener(this);
         }
     }
 
@@ -478,40 +517,66 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
     @Override
     public void onStart() {
         super.onStart();
-        Nearby.getMessagesClient(this).publish(mMessage).addOnFailureListener(this);
-        Nearby.getMessagesClient(this).subscribe(mMessageListener);
-        try {
-            Mqtt.connectMqtt(name, this);
+        SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+        if (sharedPref.contains("scores") || sharedPref.contains("name")) {
+            if (!sharedPref.contains("version")) {
+                sharedPref.edit().putInt("version", 1).apply();
+                sharedPref.edit().putBoolean("multiplayer", true).apply();
+                sharedPref.edit().putBoolean("multiplayerAsked", true).apply();
+            }
+        } else {
+            sharedPref.edit().putInt("version", 1).apply();
+        }
+
+        if (sharedPref.getBoolean("multiplayer", false)) {
+            initMultiplayer();
+            multiplayer = true;
+            tvOp.setText(R.string.No_players_nearby);
+        } else {
+            multiplayer = false;
+            tvOp.setText("");
+        }
+
+        if (!sharedPref.getBoolean("multiplayerAsked", false)) {
+            permissionDialog();
+        }
+        if (multiplayer) {
+            try {
+                updateTimer.cancel();
+                updateTimer.purge();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             updateTimer = new Timer();
-            updateTimer.scheduleAtFixedRate(new updateTask(), 6000, updateInterval);
-        } catch (Exception e) {
-            e.printStackTrace();
+            updateTimer.scheduleAtFixedRate(new updateTask(), 3000, updateInterval);
         }
 
     }
 
     @Override
-    public void onStop() {
-        Log.i("onStop", "disconnecting");
-        try {
-            Nearby.getMessagesClient(this).unpublish(mMessage);
-            Nearby.getMessagesClient(this).unsubscribe(mMessageListener);
-        } catch (Exception e) {
-            e.printStackTrace();
+    public void onDestroy() {
+        if (multiplayer) {
+            Log.i("onStop", "disconnecting");
+            try {
+                Nearby.getMessagesClient(this).unpublish(mMessage);
+                Nearby.getMessagesClient(this).unsubscribe(mMessageListener);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            try {
+                Mqtt.disconnectMqtt();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            try {
+                updateTimer.cancel();
+                updateTimer.purge();
+                mMatomoTracker.dispatch();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-        try {
-            Mqtt.disconnectMqtt();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            updateTimer.cancel();
-            updateTimer.purge();
-            mMatomoTracker.dispatch();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        super.onStop();
+        super.onDestroy();
     }
 
     @Override
@@ -542,7 +607,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         tvTotalLeft.setText(getString(R.string.left) + totalLeft);
         tvTotalRight.setText(getString(R.string.right) + totalRight);
         tvTotal.setText(getString(R.string.Total) + (totalLeft + totalRight));
-        if (players.size() == 0) {
+        if (players.size() == 0 && multiplayer) {
             tvOp.setText(R.string.No_players_nearby);
         }
         int color = Color.BLACK;
@@ -629,6 +694,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         editText25.setText("");
         editText26.setText("");
         editText27.setText("");
+        updateNearbyScore();
     }
 
     private void saveScores() {
