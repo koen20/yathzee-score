@@ -4,8 +4,11 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -20,6 +23,8 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.matomo.sdk.Tracker;
 import org.matomo.sdk.extra.TrackHelper;
 
+import static nl.koenhabets.yahtzeescore.MainActivity.multiplayer;
+
 public class SettingsActivity extends AppCompatActivity {
 
     @Override
@@ -31,12 +36,24 @@ public class SettingsActivity extends AppCompatActivity {
         try {
             Tracker tracker = MainActivity.getTracker2();
             TrackHelper.track().screen("/settings").title("Settings").with(tracker);
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         Button buttonName = findViewById(R.id.buttonName);
         Button buttonTheme = findViewById(R.id.buttonTheme);
+        Button buttonMultiplayer = findViewById(R.id.buttonMultiplayer);
+
+        if (!multiplayer) {
+            buttonName.setVisibility(View.GONE);
+        } else {
+            buttonMultiplayer.setVisibility(View.GONE);
+        }
+
+        buttonMultiplayer.setOnClickListener(view -> {
+            SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+            sharedPref.edit().putBoolean("multiplayerAsked", false).apply();
+        });
 
         buttonName.setOnClickListener(view -> {
             final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
@@ -69,8 +86,7 @@ public class SettingsActivity extends AppCompatActivity {
         });
     }
 
-
-    private void darkModeDialog(){
+    private void darkModeDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Theme");
         SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);

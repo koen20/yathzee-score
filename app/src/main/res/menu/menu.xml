@@ -2,6 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/scores2"
     android:title="@string/previous_scores" />
+    <item android:id="@+id/rules"
+        android:title="@string/rules" />
     <item android:id="@+id/settings2"
         android:title="@string/settings" />
     <item android:id="@+id/privacy_policy"
