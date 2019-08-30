@@ -161,20 +161,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         editText26 = findViewById(R.id.editText13);
         editText27 = findViewById(R.id.editText14);
 
-        editText1.addTextChangedListener(this);
-        editText2.addTextChangedListener(this);
-        editText3.addTextChangedListener(this);
-        editText4.addTextChangedListener(this);
-        editText5.addTextChangedListener(this);
-        editText6.addTextChangedListener(this);
-        editText21.addTextChangedListener(this);
-        editText22.addTextChangedListener(this);
-        editText23.addTextChangedListener(this);
-        editText24.addTextChangedListener(this);
-        editText25.addTextChangedListener(this);
-        editText26.addTextChangedListener(this);
-        editText27.addTextChangedListener(this);
-
         tv11 = findViewById(R.id.textView11);
         tv12 = findViewById(R.id.textView12);
         tv13 = findViewById(R.id.textView13);
@@ -192,6 +178,20 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        editText1.addTextChangedListener(this);
+        editText2.addTextChangedListener(this);
+        editText3.addTextChangedListener(this);
+        editText4.addTextChangedListener(this);
+        editText5.addTextChangedListener(this);
+        editText6.addTextChangedListener(this);
+        editText21.addTextChangedListener(this);
+        editText22.addTextChangedListener(this);
+        editText23.addTextChangedListener(this);
+        editText24.addTextChangedListener(this);
+        editText25.addTextChangedListener(this);
+        editText26.addTextChangedListener(this);
+        editText27.addTextChangedListener(this);
 
         calculateTotal();
 
@@ -227,7 +227,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
                 builder.setTitle("Clear all");
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        // User cancelled the dialog
                     }
                 });
                 builder.setPositiveButton("Clear all", (dialog, id) -> {
@@ -248,7 +247,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         Context context = this;
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Multiplayer");
-        builder.setMessage("To automatically discover players nearby the app needs nearby permissions. Do you want to enable multiplayer?");
+        builder.setMessage(getString(R.string.multiplayer_permission_dialog));
         builder.setNegativeButton("No", (dialog, id) -> {
             TrackHelper.track().event("multiplayer", "disable").name("disable").with(mMatomoTracker);
             SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
@@ -385,7 +384,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
                         PlayerItem playerItem = players.get(i);
                         if (playerItem.getName().equals(messageSplit[0])) {
                             exists = true;
-                            if (playerItem.getLastUpdate() < Long.parseLong(messageSplit[2])) {
+                            if (playerItem.getLastUpdate() < Long.parseLong(messageSplit[2]) && mqtt) {
                                 Log.i("message", "newer message");
                                 players.remove(i);
                                 PlayerItem item = new PlayerItem(messageSplit[0], Integer.parseInt(messageSplit[1]), Long.parseLong(messageSplit[2]), true);
@@ -544,8 +543,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
             try {
                 updateTimer.cancel();
                 updateTimer.purge();
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception ignored) {
             }
             updateTimer = new Timer();
             updateTimer.scheduleAtFixedRate(new updateTask(), 3000, updateInterval);
@@ -681,6 +679,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
     }
 
     private void clearText() {
+        Log.i("clear", "tada");
         editText1.setText("");
         editText2.setText("");
         editText3.setText("");
@@ -699,6 +698,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
 
     private void saveScores() {
         JSONObject jsonObject = new JSONObject();
+        Log.i("score", "saving");
         try {
             jsonObject.put("1", editText1.getText().toString());
             jsonObject.put("2", editText2.getText().toString());
@@ -714,6 +714,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
             jsonObject.put("26", editText26.getText().toString());
             jsonObject.put("27", editText27.getText().toString());
             SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+            Log.i("saving", jsonObject.toString());
             sharedPref.edit().putString("scores", jsonObject.toString()).apply();
         } catch (JSONException e) {
             e.printStackTrace();
@@ -721,6 +722,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
     }
 
     private void readScores(JSONObject jsonObject) {
+        Log.i("score", "read" + jsonObject.toString());
         try {
             editText1.setText(jsonObject.getString("1"));
             editText2.setText(jsonObject.getString("2"));
