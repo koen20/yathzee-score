@@ -16,8 +16,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Switch;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.matomo.sdk.Tracker;
@@ -43,6 +45,16 @@ public class SettingsActivity extends AppCompatActivity {
         Button buttonName = findViewById(R.id.buttonName);
         Button buttonTheme = findViewById(R.id.buttonTheme);
         Button buttonMultiplayer = findViewById(R.id.buttonMultiplayer);
+        Switch switch1 = findViewById(R.id.switch1);
+
+        SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+        boolean yahtzeeBonus = sharedPref.getBoolean("yahtzeeBonus", false);
+        switch1.setChecked(yahtzeeBonus);
+        FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        switch1.setOnClickListener(view -> {
+            sharedPref.edit().putBoolean("yahtzeeBonus", switch1.isChecked()).apply();
+            mFirebaseAnalytics.setUserProperty("yahtzeeBonus", switch1.isChecked() + "");
+        });
 
         if (!multiplayer) {
             buttonName.setVisibility(View.GONE);
@@ -51,7 +63,6 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         buttonMultiplayer.setOnClickListener(view -> {
-            SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
             sharedPref.edit().putBoolean("multiplayerAsked", false).apply();
         });
 
@@ -66,8 +77,8 @@ public class SettingsActivity extends AppCompatActivity {
             builder.setView(view2);
             builder.setMessage(getString(R.string.name_message));
             builder.setPositiveButton("Ok", (dialog, id) -> {
-                SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
-                sharedPref.edit().putString("name", editTextName.getText().toString()).apply();
+                SharedPreferences sharedPref3 = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+                sharedPref3.edit().putString("name", editTextName.getText().toString()).apply();
                 MainActivity.name = editTextName.getText().toString();
                 try {
                     Mqtt.disconnectMqtt();

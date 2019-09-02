@@ -71,15 +71,13 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
     private EditText editText25;
     private EditText editText26;
     private EditText editText27;
+    private EditText editText28;
     private TextView tvTotalLeft;
     private TextView tvTotalRight;
     private TextView tvTotal;
     private TextView tvBonus;
     private static TextView tvOp;
-    private TextView tv11;
-    private TextView tv12;
-    private TextView tv13;
-    private TextView tv14;
+    private TextView tvYahtzeeBonus;
     private Button button;
 
     private MessageListener mMessageListener;
@@ -160,11 +158,8 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         editText25 = findViewById(R.id.editText12);
         editText26 = findViewById(R.id.editText13);
         editText27 = findViewById(R.id.editText14);
+        editText28 = findViewById(R.id.editText16);
 
-        tv11 = findViewById(R.id.textView11);
-        tv12 = findViewById(R.id.textView12);
-        tv13 = findViewById(R.id.textView13);
-        tv14 = findViewById(R.id.textView14);
         button = findViewById(R.id.button);
 
         tvTotalLeft = findViewById(R.id.textViewTotalLeft);
@@ -172,6 +167,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         tvTotal = findViewById(R.id.textViewTotal);
         tvBonus = findViewById(R.id.textViewBonus);
         tvOp = findViewById(R.id.textViewOp);
+        tvYahtzeeBonus = findViewById(R.id.textView7);
 
         try {
             readScores(new JSONObject(sharedPref.getString("scores", "")));
@@ -192,33 +188,23 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         editText25.addTextChangedListener(this);
         editText26.addTextChangedListener(this);
         editText27.addTextChangedListener(this);
+        editText28.addTextChangedListener(this);
 
         calculateTotal();
 
-        tv11.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                editText23.setText(25 + "");
-            }
+        editText23.setOnClickListener(view -> {
+            setDefaultValue(editText23, 25);
+
         });
-        tv12.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                editText24.setText(30 + "");
-            }
+        editText24.setOnClickListener(view -> {
+            setDefaultValue(editText24, 30);
+
         });
-        tv13.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                editText25.setText(40 + "");
-            }
+        editText25.setOnClickListener(view -> {
+            setDefaultValue(editText25, 40);
         });
-        tv14.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                editText26.setText(50 + "");
-            }
-        });
+        editText26.setOnClickListener(view -> setDefaultValue(editText26, 50));
+
         final Context context = this;
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -241,6 +227,20 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
                 builder.show();
             }
         });
+    }
+
+    private void setDefaultValue(EditText editTextD, int value){
+        int number = -1;
+        try {
+            number = Integer.parseInt(editTextD.getText().toString());
+        } catch (NumberFormatException ignored){}
+        if (number == value) {
+            editTextD.setText(0 + "");
+        } else if (number == 0) {
+            editTextD.setText("");
+        } else {
+            editTextD.setText(value + "");
+        }
     }
 
     private void permissionDialog() {
@@ -548,11 +548,16 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
             updateTimer = new Timer();
             updateTimer.scheduleAtFixedRate(new updateTask(), 3000, updateInterval);
         }
-
+        FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        mFirebaseAnalytics.setUserProperty("multiplayer", multiplayer + "");
+        if (!sharedPref.getBoolean("yahtzeeBonus", false)){
+            tvYahtzeeBonus.setVisibility(View.GONE);
+            editText28.setVisibility(View.GONE);
+        }
     }
 
     @Override
-    public void onDestroy() {
+    public void onStop() {
         if (multiplayer) {
             Log.i("onStop", "disconnecting");
             try {
@@ -574,7 +579,23 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
                 e.printStackTrace();
             }
         }
-        super.onDestroy();
+        super.onStop();
+    }
+
+    @Override
+    public void onResume(){
+        SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+        Log.i("onResume", "start");
+        if (!sharedPref.getBoolean("yahtzeeBonus", false)){
+            tvYahtzeeBonus.setVisibility(View.GONE);
+            editText28.setVisibility(View.GONE);
+        } else {
+            tvYahtzeeBonus.setVisibility(View.VISIBLE);
+            editText28.setVisibility(View.VISIBLE);
+        }
+        FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        mFirebaseAnalytics.setUserProperty("yahtzeeBonus", sharedPref.getBoolean("yahtzeeBonus", false) + "");
+        super.onResume();
     }
 
     @Override
@@ -595,7 +616,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
     private void calculateTotal() {
         totalLeft = getTextInt(editText1) + getTextInt(editText2) + getTextInt(editText3) + getTextInt(editText4) + getTextInt(editText5) + getTextInt(editText6);
         totalRight = getTextInt(editText21) + getTextInt(editText22) + getTextInt(editText23)
-                + getTextInt(editText24) + getTextInt(editText25) + getTextInt(editText26) + getTextInt(editText27);
+                + getTextInt(editText24) + getTextInt(editText25) + getTextInt(editText26) + getTextInt(editText27) + getTextInt(editText28);
         if (totalLeft >= 63) {
             tvBonus.setText(getString(R.string.bonus) + 35);
             totalLeft = totalLeft + 35;
@@ -622,31 +643,32 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         } else {
             editText1.setTextColor(color);
         }
-        if (getTextInt(editText2) > 10) {
+        if (getTextInt(editText2) > 10 || !(getTextInt(editText2) % 2 == 0)) {
             editText2.setTextColor(Color.RED);
         } else {
             editText2.setTextColor(color);
         }
-        if (getTextInt(editText3) > 15) {
+        if (getTextInt(editText3) > 15 || !(getTextInt(editText3) % 3 == 0)) {
             editText3.setTextColor(Color.RED);
         } else {
             editText3.setTextColor(color);
         }
-        if (getTextInt(editText4) > 20) {
+        if (getTextInt(editText4) > 20  || !(getTextInt(editText4) % 4 == 0)) {
             editText4.setTextColor(Color.RED);
         } else {
             editText4.setTextColor(color);
         }
-        if (getTextInt(editText5) > 25) {
+        if (getTextInt(editText5) > 25 || !(getTextInt(editText5) % 5 == 0)) {
             editText5.setTextColor(Color.RED);
         } else {
             editText5.setTextColor(color);
         }
-        if (getTextInt(editText6) > 30) {
+        if (getTextInt(editText6) > 30 || !(getTextInt(editText6) % 6 == 0)) {
             editText6.setTextColor(Color.RED);
         } else {
             editText6.setTextColor(color);
         }
+        /*
         if (getTextInt(editText23) != 25 && getTextInt(editText23) != 0) {
             editText23.setTextColor(Color.RED);
         } else {
@@ -666,7 +688,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
             editText26.setTextColor(Color.RED);
         } else {
             editText26.setTextColor(color);
-        }
+        }*/
     }
 
     private int getTextInt(EditText editText) {
@@ -693,6 +715,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         editText25.setText("");
         editText26.setText("");
         editText27.setText("");
+        editText28.setText("");
         updateNearbyScore();
     }
 
@@ -713,6 +736,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
             jsonObject.put("25", editText25.getText().toString());
             jsonObject.put("26", editText26.getText().toString());
             jsonObject.put("27", editText27.getText().toString());
+            jsonObject.put("28", editText28.getText().toString());
             SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
             Log.i("saving", jsonObject.toString());
             sharedPref.edit().putString("scores", jsonObject.toString()).apply();
@@ -737,6 +761,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
             editText25.setText(jsonObject.getString("25"));
             editText26.setText(jsonObject.getString("26"));
             editText27.setText(jsonObject.getString("27"));
+            editText28.setText(jsonObject.getString("28"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
