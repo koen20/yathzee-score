@@ -36,4 +36,5 @@
     <string name="rules">Rules</string>
     <string name="enable_multiplayer">Enable multiplayer</string>
     <string name="multiplayer_permission_dialog">To automatically discover players nearby the app needs Nearby permissions. Do you want to enable multiplayer?</string>
+    <string name="yahtzee_bonus" translatable="false">Yahtzee bonus</string>
 </resources>

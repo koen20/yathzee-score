@@ -7,10 +7,6 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
-    <meta-data
-        android:name="com.google.android.backup.api_key"
-        android:value="AEdPqrEAAAAItUHGDUFk65Ek36VPxKYlOSiYYmSmgN62zcV5zQ" />
-
     <application
         android:allowBackup="true"
         android:backupAgent=".MyBackupAgent"
@@ -20,8 +16,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApp"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".SettingsActivity"></activity>
+        <activity android:name=".SettingsActivity" />
         <activity android:name=".ScoresActivity" />
+
+        <meta-data
+            android:name="com.google.android.backup.api_key"
+            android:value="AEdPqrEAAAAItUHGDUFk65Ek36VPxKYlOSiYYmSmgN62zcV5zQ" />
 
         <meta-data
             android:name="com.google.android.nearby.messages.API_KEY"
