@@ -44,8 +44,8 @@ public class SettingsActivity extends AppCompatActivity {
 
         Button buttonName = findViewById(R.id.buttonName);
         Button buttonTheme = findViewById(R.id.buttonTheme);
-        Button buttonMultiplayer = findViewById(R.id.buttonMultiplayer);
         Switch switch1 = findViewById(R.id.switch1);
+        Switch switchMultiplayer = findViewById(R.id.switch2);
 
         SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         boolean yahtzeeBonus = sharedPref.getBoolean("yahtzeeBonus", false);
@@ -55,15 +55,13 @@ public class SettingsActivity extends AppCompatActivity {
             sharedPref.edit().putBoolean("yahtzeeBonus", switch1.isChecked()).apply();
             mFirebaseAnalytics.setUserProperty("yahtzeeBonus", switch1.isChecked() + "");
         });
-
-        if (!multiplayer) {
-            buttonName.setVisibility(View.GONE);
-        } else {
-            buttonMultiplayer.setVisibility(View.GONE);
-        }
-
-        buttonMultiplayer.setOnClickListener(view -> {
-            sharedPref.edit().putBoolean("multiplayerAsked", false).apply();
+        switchMultiplayer.setChecked(sharedPref.getBoolean("multiplayer", true));
+        switchMultiplayer.setOnClickListener(view -> {
+            if (switchMultiplayer.isChecked()) {
+                sharedPref.edit().putBoolean("multiplayerAsked", false).apply();
+            } else {
+                sharedPref.edit().putBoolean("multiplayer", false).apply();
+            }
         });
 
         buttonName.setOnClickListener(view -> {

@@ -33,6 +33,7 @@ import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -116,15 +117,13 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         int nightModeFlags =
                 this.getResources().getConfiguration().uiMode &
                         Configuration.UI_MODE_NIGHT_MASK;
-        switch (nightModeFlags) {
-            case Configuration.UI_MODE_NIGHT_YES:
-                ActionBar actionBar = getSupportActionBar();
-                actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#121212")));
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    Window window = this.getWindow();
-                    window.setStatusBarColor(Color.parseColor("#121212"));
-                }
-                break;
+        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+            ActionBar actionBar = getSupportActionBar();
+            actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#121212")));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                Window window = this.getWindow();
+                window.setStatusBarColor(Color.parseColor("#121212"));
+            }
         }
 
         try {
@@ -240,6 +239,12 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
             editTextD.setText("");
         } else {
             editTextD.setText(value + "");
+        }
+
+        SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+        if (!sharedPref.getBoolean("fieldHintShown", false)) {
+            Snackbar.make(findViewById(android.R.id.content), getString(R.string.press_again), Snackbar.LENGTH_LONG).show();
+            sharedPref.edit().putBoolean("fieldHintShown", true).apply();
         }
     }
 
@@ -623,9 +628,9 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         } else {
             tvBonus.setText(getString(R.string.bonus) + 0);
         }
-        tvTotalLeft.setText(getString(R.string.left) + totalLeft);
-        tvTotalRight.setText(getString(R.string.right) + totalRight);
-        tvTotal.setText(getString(R.string.Total) + (totalLeft + totalRight));
+        tvTotalLeft.setText(getString(R.string.left)+ " " + totalLeft);
+        tvTotalRight.setText(getString(R.string.right)+ " " + totalRight);
+        tvTotal.setText(getString(R.string.Total) + " " + (totalLeft + totalRight));
         if (players.size() == 0 && multiplayer) {
             tvOp.setText(R.string.No_players_nearby);
         }
@@ -668,27 +673,23 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         } else {
             editText6.setTextColor(color);
         }
-        /*
-        if (getTextInt(editText23) != 25 && getTextInt(editText23) != 0) {
-            editText23.setTextColor(Color.RED);
+
+        if (getTextInt(editText21) > 30){
+            editText21.setTextColor(Color.RED);
         } else {
-            editText23.setTextColor(color);
+            editText21.setTextColor(color);
         }
-        if (getTextInt(editText24) != 30 && getTextInt(editText24) != 0) {
-            editText24.setTextColor(Color.RED);
+
+        if (getTextInt(editText22) > 30){
+            editText22.setTextColor(Color.RED);
         } else {
-            editText24.setTextColor(color);
+            editText22.setTextColor(color);
         }
-        if (getTextInt(editText25) != 40 && getTextInt(editText25) != 0) {
-            editText25.setTextColor(Color.RED);
+        if (getTextInt(editText27) > 30){
+            editText27.setTextColor(Color.RED);
         } else {
-            editText25.setTextColor(color);
+            editText27.setTextColor(color);
         }
-        if (getTextInt(editText26) != 50 && getTextInt(editText26) != 0) {
-            editText26.setTextColor(Color.RED);
-        } else {
-            editText26.setTextColor(color);
-        }*/
     }
 
     private int getTextInt(EditText editText) {

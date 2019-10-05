@@ -19,13 +19,15 @@
     <string name="remove_score">Verwijder score</string>
     <string name="remove">Verwijder</string>
     <string name="average">Gemiddelde:</string>
-    <string name="clear_all" translatable="false">Alles wissen / opslaan</string>
-    <string name="dark_theme">Donker thema</string>
+    <string name="clear_all">Alles wissen / opslaan</string>
+    <string name="theme">Thema</string>
     <string name="system_default">Systeem standaard</string>
     <string name="dark">Donker</string>
     <string name="light">Licht</string>
     <string name="settings">Instellingen</string>
     <string name="rules">Regels</string>
     <string name="enable_multiplayer">Enable multiplayer</string>
-    <string name="multiplayer_permission_dialog">Om automatisch spelers in de buurt te vinden, heeft de app machtigingen voor Dichtbij nodig. Wil je multiplayer inschakelen?</string>
+    <string name="multiplayer_permission_dialog">Om automatisch spelers in de buurt te vinden, heeft de app machtigingen voor Dichtbij nodig. Wilt u multiplayer inschakelen?</string>
+    <string name="press_again">Druk opniew om 0 in te voeren</string>
+    <string name="multiplayer">Multiplayer</string>
 </resources>
