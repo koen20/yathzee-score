@@ -30,6 +30,7 @@ public class ScoresActivity extends AppCompatActivity {
     ListView listView;
     ScoreAdapter scoreAdapter;
     TextView textViewAverage;
+    TextView textViewAmount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +46,7 @@ public class ScoresActivity extends AppCompatActivity {
         }
         listView = findViewById(R.id.listViewScore);
         textViewAverage = findViewById(R.id.textViewAverage);
+        textViewAmount = findViewById(R.id.textViewAmount);
         SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         JSONArray jsonArray = new JSONArray();
         try {
@@ -134,6 +136,7 @@ public class ScoresActivity extends AppCompatActivity {
         }
         try {
             textViewAverage.setText(getString(R.string.average) + (total / count));
+            textViewAmount.setText(getString(R.string.total_games_played) + scoreItems.size());
         } catch (Exception ignored){
 
         }

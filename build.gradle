@@ -11,7 +11,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools:r8:522bd9fc1d398753fed5134b6c4fe32cdae482be'  // Must be before the Gradle Plugin for Android.         classpath 'com.android.tools:r8:522bd9fc1d398753fed5134b6c4fe32cdae482be'  // Must be before the Gradle Plugin for Android.
-        classpath 'com.android.tools.build:gradle:3.5.1'
+        classpath 'com.android.tools.build:gradle:3.5.3'
         classpath 'com.google.gms:google-services:4.3.0'
         classpath 'io.fabric.tools:gradle:1.26.1'
 

@@ -219,7 +219,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
                     TrackHelper.track().event("category", "action").name("clear").with(mMatomoTracker);
                 });
                 builder.setNeutralButton("Clear and save score", (dialogInterface, i) -> {
-                    saveScore(totalLeft + totalRight);
+                    saveScore(totalLeft + totalRight, createJsonScores());
                     TrackHelper.track().event("category", "action").name("clear and save").with(mMatomoTracker);
                     clearText();
                 });
@@ -228,11 +228,12 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         });
     }
 
-    private void setDefaultValue(EditText editTextD, int value){
+    private void setDefaultValue(EditText editTextD, int value) {
         int number = -1;
         try {
             number = Integer.parseInt(editTextD.getText().toString());
-        } catch (NumberFormatException ignored){}
+        } catch (NumberFormatException ignored) {
+        }
         if (number == value) {
             editTextD.setText(0 + "");
         } else if (number == 0) {
@@ -330,7 +331,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         calculateTotal();
     }
 
-    private void saveScore(int score) {
+    private void saveScore(int score, JSONObject jsonObjectScores) {
         SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         JSONArray jsonArray = new JSONArray();
         try {
@@ -344,6 +345,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
             jsonObject.put("score", score);
             jsonObject.put("date", new Date().getTime());
             jsonObject.put("id", UUID.randomUUID().toString());
+            jsonObject.put("allScores", jsonObjectScores);
             jsonArray.put(jsonObject);
             sharedPref.edit().putString("scoresSaved", jsonArray.toString()).apply();
         } catch (JSONException e) {
@@ -555,7 +557,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         }
         FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         mFirebaseAnalytics.setUserProperty("multiplayer", multiplayer + "");
-        if (!sharedPref.getBoolean("yahtzeeBonus", false)){
+        if (!sharedPref.getBoolean("yahtzeeBonus", false)) {
             tvYahtzeeBonus.setVisibility(View.GONE);
             editText28.setVisibility(View.GONE);
         }
@@ -588,10 +590,10 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         Log.i("onResume", "start");
-        if (!sharedPref.getBoolean("yahtzeeBonus", false)){
+        if (!sharedPref.getBoolean("yahtzeeBonus", false)) {
             tvYahtzeeBonus.setVisibility(View.GONE);
             editText28.setVisibility(View.GONE);
         } else {
@@ -628,8 +630,8 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         } else {
             tvBonus.setText(getString(R.string.bonus) + 0);
         }
-        tvTotalLeft.setText(getString(R.string.left)+ " " + totalLeft);
-        tvTotalRight.setText(getString(R.string.right)+ " " + totalRight);
+        tvTotalLeft.setText(getString(R.string.left) + " " + totalLeft);
+        tvTotalRight.setText(getString(R.string.right) + " " + totalRight);
         tvTotal.setText(getString(R.string.Total) + " " + (totalLeft + totalRight));
         if (players.size() == 0 && multiplayer) {
             tvOp.setText(R.string.No_players_nearby);
@@ -658,7 +660,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         } else {
             editText3.setTextColor(color);
         }
-        if (getTextInt(editText4) > 20  || !(getTextInt(editText4) % 4 == 0)) {
+        if (getTextInt(editText4) > 20 || !(getTextInt(editText4) % 4 == 0)) {
             editText4.setTextColor(Color.RED);
         } else {
             editText4.setTextColor(color);
@@ -674,18 +676,18 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
             editText6.setTextColor(color);
         }
 
-        if (getTextInt(editText21) > 30){
+        if (getTextInt(editText21) > 30) {
             editText21.setTextColor(Color.RED);
         } else {
             editText21.setTextColor(color);
         }
 
-        if (getTextInt(editText22) > 30){
+        if (getTextInt(editText22) > 30) {
             editText22.setTextColor(Color.RED);
         } else {
             editText22.setTextColor(color);
         }
-        if (getTextInt(editText27) > 30){
+        if (getTextInt(editText27) > 30) {
             editText27.setTextColor(Color.RED);
         } else {
             editText27.setTextColor(color);
@@ -720,7 +722,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         updateNearbyScore();
     }
 
-    private void saveScores() {
+    private JSONObject createJsonScores() {
         JSONObject jsonObject = new JSONObject();
         Log.i("score", "saving");
         try {
@@ -738,12 +740,19 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
             jsonObject.put("26", editText26.getText().toString());
             jsonObject.put("27", editText27.getText().toString());
             jsonObject.put("28", editText28.getText().toString());
-            SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
-            Log.i("saving", jsonObject.toString());
-            sharedPref.edit().putString("scores", jsonObject.toString()).apply();
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        return jsonObject;
+    }
+
+    //read the current scores from editText and save it to sharedpreferences.
+    private void saveScores() {
+        JSONObject jsonObject = createJsonScores();
+        Log.i("score", "saving");
+        SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+        Log.i("saving", jsonObject.toString());
+        sharedPref.edit().putString("scores", jsonObject.toString()).apply();
     }
 
     private void readScores(JSONObject jsonObject) {
