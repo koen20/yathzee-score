@@ -39,4 +39,5 @@
     <string name="yahtzee_bonus" translatable="false">Yahtzee bonus</string>
     <string name="press_again">Press again to enter 0</string>
     <string name="multiplayer">Multiplayer</string>
+    <string name="total_games_played">Games played:</string>
 </resources>
