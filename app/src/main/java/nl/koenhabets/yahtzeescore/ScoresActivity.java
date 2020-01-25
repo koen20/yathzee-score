@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.backup.BackupManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -58,7 +59,13 @@ public class ScoresActivity extends AppCompatActivity {
         for (int i = jsonArray.length(); i >= 0; i--) {
             try {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
-                ScoreItem scoreItem = new ScoreItem(jsonObject.getInt("score"), jsonObject.getLong("date"), jsonObject.getString("id"));
+                JSONObject allScores = new JSONObject();
+                try {
+                    allScores = jsonObject.getJSONObject("allScores");
+                } catch (JSONException ignored){
+                }
+
+                ScoreItem scoreItem = new ScoreItem(jsonObject.getInt("score"), jsonObject.getLong("date"), jsonObject.getString("id"), allScores);
                 scoreItems.add(scoreItem);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -71,11 +78,11 @@ public class ScoresActivity extends AppCompatActivity {
         listView.setAdapter(scoreAdapter);
         scoreAdapter.notifyDataSetChanged();
         final Context context = this;
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
+
             @Override
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-                final ScoreItem item = scoreItems.get(position);
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                final ScoreItem item = scoreItems.get(i);
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setTitle(getString(R.string.remove_score));
                 builder.setPositiveButton(getString(R.string.remove), new DialogInterface.OnClickListener() {
@@ -87,25 +94,25 @@ public class ScoresActivity extends AppCompatActivity {
                                 break;
                             }
                         }
-                        SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
-                        JSONArray jsonArray = new JSONArray();
+                        SharedPreferences sharedPref1 = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+                        JSONArray jsonArray1 = new JSONArray();
                         try {
-                            jsonArray = new JSONArray(sharedPref.getString("scoresSaved", ""));
+                            jsonArray1 = new JSONArray(sharedPref1.getString("scoresSaved", ""));
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        for (int i = 0; i < jsonArray.length(); i++) {
+                        for (int i = 0; i < jsonArray1.length(); i++) {
                             try {
-                                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                                JSONObject jsonObject = jsonArray1.getJSONObject(i);
                                 if (jsonObject.getString("id").equals(item.getId())) {
-                                    jsonArray.remove(i);
+                                    jsonArray1.remove(i);
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
 
                         }
-                        sharedPref.edit().putString("scoresSaved", jsonArray.toString()).apply();
+                        sharedPref1.edit().putString("scoresSaved", jsonArray1.toString()).apply();
                         scoreAdapter.notifyDataSetChanged();
                         updateAverageScore();
                         BackupManager backupManager = new BackupManager(context);
@@ -117,6 +124,16 @@ public class ScoresActivity extends AppCompatActivity {
                     }
                 });
                 builder.show();
+                return false;
+            }
+        });
+
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            final ScoreItem item = scoreItems.get(position);
+            if (!item.getAllScores().toString().equals("{}")) {
+                Intent myIntent = new Intent(getApplicationContext(), ScoreActivity.class);
+                myIntent.putExtra("data", item.getAllScores().toString());
+                startActivity(myIntent);
             }
         });
         updateAverageScore();

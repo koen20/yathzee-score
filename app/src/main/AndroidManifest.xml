@@ -16,13 +16,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApp"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".ScoreActivity"></activity>
         <activity android:name=".SettingsActivity" />
         <activity android:name=".ScoresActivity" />
 
         <meta-data
             android:name="com.google.android.backup.api_key"
             android:value="AEdPqrEAAAAItUHGDUFk65Ek36VPxKYlOSiYYmSmgN62zcV5zQ" />
-
         <meta-data
             android:name="com.google.android.nearby.messages.API_KEY"
             android:value="AIzaSyCKsr_z2xaIHOSXIMsUlTxrznVg2VLkZck" />
