@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
     private TextView tvTotalRight;
     private TextView tvTotal;
     private TextView tvBonus;
+    private TextView tvMultiScore;
     private static TextView tvOp;
     private TextView tvYahtzeeBonus;
     private Button button;
@@ -93,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
     private JSONArray playersM = new JSONArray();
 
     static boolean multiplayer;
+    static boolean playersNearby = false;
 
     private static Tracker mMatomoTracker;
 
@@ -167,6 +169,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         tvBonus = findViewById(R.id.textViewBonus);
         tvOp = findViewById(R.id.textViewOp);
         tvYahtzeeBonus = findViewById(R.id.textView7);
+        tvMultiScore = findViewById(R.id.textViewMultiScore); //player score below multiplayer field
 
         try {
             readScores(new JSONObject(sharedPref.getString("scores", "")));
@@ -346,6 +349,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
             jsonObject.put("date", new Date().getTime());
             jsonObject.put("id", UUID.randomUUID().toString());
             jsonObject.put("allScores", jsonObjectScores);
+            jsonObject.put("yahtzeeBonus", sharedPref.getBoolean("yahtzeeBonus", false));
             jsonArray.put(jsonObject);
             sharedPref.edit().putString("scoresSaved", jsonArray.toString()).apply();
         } catch (JSONException e) {
@@ -414,7 +418,9 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
                         }
                     }
                     if (players.size() != 0) {
+                        text = text.substring(0, (text.length() - 1));
                         tvOp.setText(text);
+                        playersNearby = true;
                     }
                 }
             }
@@ -636,6 +642,11 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         if (players.size() == 0 && multiplayer) {
             tvOp.setText(R.string.No_players_nearby);
         }
+
+        if (playersNearby) {
+            tvMultiScore.setText(name + ": " + (totalLeft + totalRight));
+        }
+
         int color = Color.BLACK;
         int nightModeFlags =
                 this.getResources().getConfiguration().uiMode &
