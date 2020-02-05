@@ -124,7 +124,7 @@ public class ScoresActivity extends AppCompatActivity {
                     }
                 });
                 builder.show();
-                return false;
+                return true;
             }
         });
 
