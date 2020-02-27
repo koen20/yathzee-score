@@ -389,7 +389,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
 
     public static void proccessMessage(String message, boolean mqtt) {
         try {
-            Log.i("message", message);
             if (!message.equals("new player")) {
                 String messageSplit[] = message.split(";");
                 boolean exists = false;
@@ -427,7 +426,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         for (int i = 0; i < players.size(); i++) {
             PlayerItem playerItem = players.get(i);
             if (playerItem.isVisible()) {
-                Log.i("player", "name: " + playerItem.getName());
                 if (playerItem.getName().equals(name)) {
                     text = text + "<b>" + playerItem.getName() + ": " + playerItem.getScore() + "</b><br>";
                 } else {
