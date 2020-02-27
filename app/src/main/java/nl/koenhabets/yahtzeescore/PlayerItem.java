@@ -1,12 +1,12 @@
 package nl.koenhabets.yahtzeescore;
 
-public class PlayerItem {
+public class PlayerItem implements Comparable<PlayerItem> {
     private String name;
-    private int score;
+    private Integer score;
     private long lastUpdate;
     private boolean visible;
 
-    public PlayerItem(String name, int score, long lastUpdate, boolean visible) {
+    public PlayerItem(String name, Integer score, long lastUpdate, boolean visible) {
         this.name = name;
         this.score = score;
         this.lastUpdate = lastUpdate;
@@ -17,7 +17,7 @@ public class PlayerItem {
         return name;
     }
 
-    public int getScore() {
+    public Integer getScore() {
         return score;
     }
 
@@ -27,5 +27,10 @@ public class PlayerItem {
 
     public boolean isVisible() {
         return visible;
+    }
+
+    @Override
+    public int compareTo(PlayerItem p) {
+        return p.getScore().compareTo(this.getScore());
     }
 }

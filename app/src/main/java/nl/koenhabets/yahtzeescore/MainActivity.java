@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.Editable;
+import android.text.Html;
 import android.text.TextWatcher;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -46,6 +47,7 @@ import org.matomo.sdk.TrackerBuilder;
 import org.matomo.sdk.extra.TrackHelper;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Timer;
@@ -387,10 +389,11 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
 
     public static void proccessMessage(String message, boolean mqtt) {
         try {
+            Log.i("message", message);
             if (!message.equals("new player")) {
                 String messageSplit[] = message.split(";");
                 boolean exists = false;
-                if (!messageSplit[0].equals(name)) {
+                if (!messageSplit[0].equals(name) && !messageSplit[0].equals("")) {
                     for (int i = 0; i < players.size(); i++) {
                         PlayerItem playerItem = players.get(i);
                         if (playerItem.getName().equals(messageSplit[0])) {
@@ -409,26 +412,33 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
                         PlayerItem item = new PlayerItem(messageSplit[0], Integer.parseInt(messageSplit[1]), Long.parseLong(messageSplit[2]), true);
                         players.add(item);
                     }
-                    String text = "Nearby: " + "\n";
 
-                    for (int i = 0; i < players.size(); i++) {
-                        PlayerItem playerItem = players.get(i);
-                        if (playerItem.isVisible()) {
-                            text = text + playerItem.getName() + ": " + playerItem.getScore() + "\n";
-                        }
-                    }
-                    if (players.size() != 0) {
-                        text = text.substring(0, (text.length() - 1));
-                        tvOp.setText(text);
-                        playersNearby = true;
-                    }
+                    updateMultiplayerText();
                 }
             }
         } catch (Exception e) {
-            if (!message.equals("")) {
-                tvOp.setText(message + "");
-            }
             e.printStackTrace();
+        }
+    }
+
+    public static void updateMultiplayerText() {
+        String text = "Nearby: " + "<br>";
+        Collections.sort(players);
+        for (int i = 0; i < players.size(); i++) {
+            PlayerItem playerItem = players.get(i);
+            if (playerItem.isVisible()) {
+                Log.i("player", "name: " + playerItem.getName());
+                if (playerItem.getName().equals(name)) {
+                    text = text + "<b>" + playerItem.getName() + ": " + playerItem.getScore() + "</b><br>";
+                } else {
+                    text = text + playerItem.getName() + ": " + playerItem.getScore() + "<br>";
+                }
+            }
+        }
+        if (players.size() != 0) {
+            text = text.substring(0, (text.length() - 1));
+            tvOp.setText(Html.fromHtml(text));
+            playersNearby = true;
         }
     }
 
@@ -643,11 +653,24 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
             tvOp.setText(R.string.No_players_nearby);
         }
 
-        if (playersNearby) {
-            tvMultiScore.setText(name + ": " + (totalLeft + totalRight));
+        // add the player to the players list and update it on screen
+        if (!name.equals("") && playersNearby) {
+            // remove player if name already exists
+            for (int i = 0; i < players.size(); i++) {
+                PlayerItem playerItem = players.get(i);
+                if (playerItem.getName().equals(name)) {
+                    players.remove(i);
+                    break;
+                }
+            }
+            PlayerItem item = new PlayerItem(name, (totalLeft + totalRight), new Date().getTime(), true);
+            players.add(item);
+            updateMultiplayerText();
         }
 
+
         int color = Color.BLACK;
+        // change editText color to white if there is a black theme
         int nightModeFlags =
                 this.getResources().getConfiguration().uiMode &
                         Configuration.UI_MODE_NIGHT_MASK;
