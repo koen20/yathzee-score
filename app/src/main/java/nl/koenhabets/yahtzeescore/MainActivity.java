@@ -11,6 +11,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.Html;
@@ -79,7 +80,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
     private TextView tvTotalRight;
     private TextView tvTotal;
     private TextView tvBonus;
-    private TextView tvMultiScore;
     private static TextView tvOp;
     private TextView tvYahtzeeBonus;
     private Button button;
@@ -171,7 +171,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         tvBonus = findViewById(R.id.textViewBonus);
         tvOp = findViewById(R.id.textViewOp);
         tvYahtzeeBonus = findViewById(R.id.textView7);
-        tvMultiScore = findViewById(R.id.textViewMultiScore); //player score below multiplayer field
 
         try {
             readScores(new JSONObject(sharedPref.getString("scores", "")));
@@ -214,19 +213,15 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle("Clear all");
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                builder.setTitle(R.string.clear_all);
+                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                     }
                 });
-                builder.setPositiveButton("Clear all", (dialog, id) -> {
+                builder.setPositiveButton(R.string.clear_and_save, (dialog, id) -> {
+                    DataManager.saveScore(totalLeft + totalRight, createJsonScores(), getApplicationContext());
                     clearText();
-                    TrackHelper.track().event("category", "action").name("clear").with(mMatomoTracker);
-                });
-                builder.setNeutralButton("Clear and save score", (dialogInterface, i) -> {
-                    saveScore(totalLeft + totalRight, createJsonScores());
                     TrackHelper.track().event("category", "action").name("clear and save").with(mMatomoTracker);
-                    clearText();
                 });
                 builder.show();
             }
@@ -336,31 +331,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         calculateTotal();
     }
 
-    private void saveScore(int score, JSONObject jsonObjectScores) {
-        SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
-        JSONArray jsonArray = new JSONArray();
-        try {
-            jsonArray = new JSONArray(sharedPref.getString("scoresSaved", ""));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        JSONObject jsonObject = new JSONObject();
-        try {
-            Log.i("scooree", score + "");
-            jsonObject.put("score", score);
-            jsonObject.put("date", new Date().getTime());
-            jsonObject.put("id", UUID.randomUUID().toString());
-            jsonObject.put("allScores", jsonObjectScores);
-            jsonObject.put("yahtzeeBonus", sharedPref.getBoolean("yahtzeeBonus", false));
-            jsonArray.put(jsonObject);
-            sharedPref.edit().putString("scoresSaved", jsonArray.toString()).apply();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        BackupManager backupManager = new BackupManager(this);
-        backupManager.dataChanged();
-    }
-
 
     private void addPlayerDialog() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -390,7 +360,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
     public static void proccessMessage(String message, boolean mqtt) {
         try {
             if (!message.equals("new player")) {
-                String messageSplit[] = message.split(";");
+                String[] messageSplit = message.split(";");
                 boolean exists = false;
                 if (!messageSplit[0].equals(name) && !messageSplit[0].equals("")) {
                     for (int i = 0; i < players.size(); i++) {
@@ -402,6 +372,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
                                 players.remove(i);
                                 PlayerItem item = new PlayerItem(messageSplit[0], Integer.parseInt(messageSplit[1]), Long.parseLong(messageSplit[2]), true);
                                 players.add(item);
+                                updateMultiplayerText();
                                 break;
                             }
                         }
@@ -410,9 +381,8 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
                         Log.i("New player", messageSplit[0]);
                         PlayerItem item = new PlayerItem(messageSplit[0], Integer.parseInt(messageSplit[1]), Long.parseLong(messageSplit[2]), true);
                         players.add(item);
+                        updateMultiplayerText();
                     }
-
-                    updateMultiplayerText();
                 }
             }
         } catch (Exception e) {
@@ -626,7 +596,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
     @Override
     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
         calculateTotal();
-        saveScores();
+        DataManager.saveScores(createJsonScores(), getApplicationContext());
         updateNearbyScore();
     }
 
@@ -778,14 +748,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         return jsonObject;
     }
 
-    //read the current scores from editText and save it to sharedpreferences.
-    private void saveScores() {
-        JSONObject jsonObject = createJsonScores();
-        Log.i("score", "saving");
-        SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
-        Log.i("saving", jsonObject.toString());
-        sharedPref.edit().putString("scores", jsonObject.toString()).apply();
-    }
+
 
     private void readScores(JSONObject jsonObject) {
         Log.i("score", "read" + jsonObject.toString());

@@ -40,4 +40,6 @@
     <string name="press_again">Press again to enter 0</string>
     <string name="multiplayer">Multiplayer</string>
     <string name="total_games_played">Games played:</string>
+    <string name="clear_and_save">Clear all and save score</string>
+    <string name="cancel">Cancel</string>
 </resources>
