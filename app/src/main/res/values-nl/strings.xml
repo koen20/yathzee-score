@@ -19,7 +19,7 @@
     <string name="remove_score">Verwijder score</string>
     <string name="remove">Verwijder</string>
     <string name="average">Gemiddelde:</string>
-    <string name="clear_all">Alles wissen / opslaan</string>
+    <string name="clear_all">Alles wissen en opslaan</string>
     <string name="theme">Thema</string>
     <string name="system_default">Systeem standaard</string>
     <string name="dark">Donker</string>
@@ -31,4 +31,6 @@
     <string name="press_again">Druk opniew om 0 in te voeren</string>
     <string name="multiplayer">Multiplayer</string>
     <string name="total_games_played">Spellen gespeeld:</string>
+    <string name="cancel">Annuleren</string>
+    <string name="clear_and_save">Alles wissen en opslaan</string>
 </resources>
