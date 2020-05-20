@@ -1,6 +1,5 @@
 package nl.koenhabets.yahtzeescore;
 
-import android.app.backup.BackupManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,7 +10,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.Html;
@@ -27,16 +25,29 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.json.JSONArray;
@@ -50,12 +61,14 @@ import org.matomo.sdk.extra.TrackHelper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.UUID;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -97,8 +110,14 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
 
     static boolean multiplayer;
     static boolean playersNearby = false;
+    private FirebaseUser firebaseUser;
+    private DatabaseReference database;
+    private FirebaseRemoteConfig firebaseRemoteConfig;
 
     private static Tracker mMatomoTracker;
+    private FirebaseAuth mAuth;
+    private Map<String, Object> defaultConfig = new HashMap<>();
+    private Boolean realtimeDatabaseEnabled;
 
     public synchronized Tracker getTracker() {
         if (mMatomoTracker != null) return mMatomoTracker;
@@ -115,6 +134,23 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setSupportActionBar(findViewById(R.id.toolbar));
+        try {
+            defaultConfig.put("realtimeDatabaseEnabled", true);
+            firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
+            FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
+                    .setMinimumFetchIntervalInSeconds(1)
+                    .build();
+            firebaseRemoteConfig.setDefaultsAsync(defaultConfig);
+            firebaseRemoteConfig.setConfigSettingsAsync(configSettings);
+            firebaseRemoteConfig.fetchAndActivate();
+            realtimeDatabaseEnabled = firebaseRemoteConfig.getBoolean("realtimeDatabaseEnabled");
+            Log.i("realtimeDatabaseEnabled", realtimeDatabaseEnabled.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+            realtimeDatabaseEnabled = true;
+        }
+        mAuth = FirebaseAuth.getInstance();
+        database = FirebaseDatabase.getInstance().getReference();
         SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         AppCompatDelegate.setDefaultNightMode(sharedPref.getInt("theme", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM));
 
@@ -213,15 +249,19 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle(R.string.clear_all);
-                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                builder.setTitle("Clear all");
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                     }
                 });
-                builder.setPositiveButton(R.string.clear_and_save, (dialog, id) -> {
-                    DataManager.saveScore(totalLeft + totalRight, createJsonScores(), getApplicationContext());
+                builder.setPositiveButton("Clear all", (dialog, id) -> {
                     clearText();
+                    TrackHelper.track().event("category", "action").name("clear").with(mMatomoTracker);
+                });
+                builder.setNeutralButton("Clear and save score", (dialogInterface, i) -> {
+                    DataManager.saveScore(totalLeft + totalRight, createJsonScores(), getApplicationContext());
                     TrackHelper.track().event("category", "action").name("clear and save").with(mMatomoTracker);
+                    clearText();
                 });
                 builder.show();
             }
@@ -274,6 +314,25 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
     private void initMultiplayer() {
         multiplayer = true;
         mMessage = new Message(("new player").getBytes());
+        if (realtimeDatabaseEnabled) {
+            firebaseUser = mAuth.getCurrentUser();
+            if (firebaseUser == null) {
+                mAuth.signInAnonymously()
+                        .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                if (task.isSuccessful()) {
+                                    Log.d("MainActivity", "signInAnonymously:success");
+                                    firebaseUser = mAuth.getCurrentUser();
+                                } else {
+                                    Log.w("MainActivity", "signInAnonymously:failure", task.getException());
+                                    Toast.makeText(MainActivity.this, "Authentication failed.",
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+            }
+        }
         mMessageListener = new MessageListener() {
             @Override
             public void onFound(Message message) {
@@ -329,6 +388,42 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         tvOp.setOnClickListener(view -> addPlayerDialog());
         Log.i("players", playersM.toString() + "");
         calculateTotal();
+
+        if (realtimeDatabaseEnabled) {
+            database.child("score").addChildEventListener(new ChildEventListener() {
+
+                @Override
+                public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                }
+
+                @Override
+                public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                    Log.i("Firebase Received", dataSnapshot.getValue().toString());
+                    try {
+                        proccessMessage(dataSnapshot.getValue().toString(), true);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+                @Override
+                public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+                }
+
+                @Override
+                public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError error) {
+                    Log.w("EditTagsActivity", "Failed to read scores.", error.toException());
+                }
+            });
+        }
     }
 
 
@@ -475,6 +570,13 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
                     e.printStackTrace();
                 }
                 Nearby.getMessagesClient(this).publish(mMessage).addOnFailureListener(this);
+                if (realtimeDatabaseEnabled) {
+                    try {
+                        database.child("score").child(firebaseUser.getUid()).setValue(text);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
     }
@@ -568,6 +670,13 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
                 mMatomoTracker.dispatch();
             } catch (Exception e) {
                 e.printStackTrace();
+            }
+            if (realtimeDatabaseEnabled) {
+                try {
+                    database.child("score").child(firebaseUser.getUid()).removeValue();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
         super.onStop();
@@ -747,7 +856,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         }
         return jsonObject;
     }
-
 
 
     private void readScores(JSONObject jsonObject) {
