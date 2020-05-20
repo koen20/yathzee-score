@@ -32,5 +32,5 @@
     <string name="multiplayer">Multiplayer</string>
     <string name="total_games_played">Spellen gespeeld:</string>
     <string name="cancel">Annuleren</string>
-    <string name="clear_and_save">Alles wissen en opslaan</string>
+    <string name="clear_and_save">Alles wissen / opslaan</string>
 </resources>

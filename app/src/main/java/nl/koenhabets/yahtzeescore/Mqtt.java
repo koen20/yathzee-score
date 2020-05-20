@@ -16,7 +16,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 class Mqtt {
     public static MqttAndroidClient mqttAndroidClient;
-    private final static String serverUri = "tcp://yahtzee.koenhabets.nl:1883";
+    private final static String serverUri = "tcp://yahtzee.koenhabets.nl:7829";
 
     private final static String clientId = "Yahtzee-" + ((int) (Math.random() * ((999999 - 1) + 1)) + 1) + "-";
 
