@@ -543,7 +543,12 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
                 Intent myIntent2 = new Intent(this, SettingsActivity.class);
                 this.startActivity(myIntent2);
                 return true;
+            case R.id.stats:
+                Intent myIntent3 = new Intent(this, StatsActivity.class);
+                this.startActivity(myIntent3);
+                return true;
             case R.id.rules:
+
                 Intent browserIntent2 = new Intent(Intent.ACTION_VIEW, Uri.parse("https://en.wikipedia.org/wiki/Yahtzee#Rules"));
                 startActivity(browserIntent2);
                 return true;
@@ -751,10 +756,8 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         int nightModeFlags =
                 this.getResources().getConfiguration().uiMode &
                         Configuration.UI_MODE_NIGHT_MASK;
-        switch (nightModeFlags) {
-            case Configuration.UI_MODE_NIGHT_YES:
-                color = Color.WHITE;
-                break;
+        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+            color = Color.WHITE;
         }
         if (getTextInt(editText1) > 5) {
             editText1.setTextColor(Color.RED);

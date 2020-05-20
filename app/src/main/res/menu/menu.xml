@@ -6,6 +6,8 @@
         android:title="@string/rules" />
     <item android:id="@+id/settings2"
         android:title="@string/settings" />
+    <item android:id="@+id/stats"
+        android:title="@string/stats" />
     <item android:id="@+id/privacy_policy"
         android:title="@string/privacy_policy" />
 </menu>

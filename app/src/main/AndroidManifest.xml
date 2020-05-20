@@ -16,7 +16,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApp"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".ScoreActivity"></activity>
+        <activity android:name=".StatsActivity"></activity>
+        <activity android:name=".ScoreActivity" />
         <activity android:name=".SettingsActivity" />
         <activity android:name=".ScoresActivity" />
 

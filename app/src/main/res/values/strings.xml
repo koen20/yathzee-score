@@ -42,4 +42,5 @@
     <string name="total_games_played">Games played:</string>
     <string name="clear_and_save">Clear all and save score</string>
     <string name="cancel">Cancel</string>
+    <string name="stats">Stats</string>
 </resources>
