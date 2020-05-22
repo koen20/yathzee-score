@@ -43,4 +43,6 @@
     <string name="clear_and_save">Clear all and save score</string>
     <string name="cancel">Cancel</string>
     <string name="stats">Stats</string>
+    <string name="export_scores">Export scores</string>
+    <string name="import_scores">Import scores</string>
 </resources>
