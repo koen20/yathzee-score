@@ -34,4 +34,6 @@
     <string name="cancel">Annuleren</string>
     <string name="clear_and_save">Alles wissen / opslaan</string>
     <string name="stats">Statistieken</string>
+    <string name="export_scores">Scores opslaan</string>
+    <string name="import_scores">Scores importeren</string>
 </resources>

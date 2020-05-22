@@ -124,18 +124,13 @@ public class StatsActivity extends AppCompatActivity {
                     scoreCount = scoreCount + 1;
                 }
                 scoreCountMax = scoreCountMax + 1;
-                //Log.i("tada", jsonObject.toString());
-            } catch (JSONException e) {
-                //e.printStackTrace();
+            } catch (JSONException ignored) {
             }
 
         }
-        Log.i("totalScore", totalScore + "");
-        Log.i("scorecountmax", scoreCountMax + "");
-        Log.i("scorecount", scoreCount + "");
-        double chance = (scoreCount / scoreCountMax) * 100.0;
+        int chance = (int) Math.round((scoreCount / scoreCountMax) * 100.0);
         double average = (totalScore / scoreCountMax);
-        return round(average, 1) + "(" + round(chance, 1) + ")";
+        return round(average, 1) + "(" + chance + ")";
     }
 
     public static double round(double value, int places) {
