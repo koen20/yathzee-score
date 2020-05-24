@@ -134,11 +134,15 @@ public class StatsActivity extends AppCompatActivity {
     }
 
     public static double round(double value, int places) {
-        if (places < 0) throw new IllegalArgumentException();
+        double res = 0;
+        if (value != 0.0 && !Double.isNaN(value)) {
+            if (places < 0) throw new IllegalArgumentException();
 
-        BigDecimal bd = new BigDecimal(value);
-        bd = bd.setScale(places, RoundingMode.HALF_UP);
-        return bd.doubleValue();
+            BigDecimal bd = new BigDecimal(value);
+            bd = bd.setScale(places, RoundingMode.HALF_UP);
+            res = bd.doubleValue();
+        }
+        return res;
     }
 
     private void readScores(JSONObject jsonObject) {
