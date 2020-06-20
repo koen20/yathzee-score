@@ -1,5 +1,6 @@
 package nl.koenhabets.yahtzeescore;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -532,8 +533,13 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.privacy_policy:
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://koenhabets.nl/privacy_policy.html"));
-                startActivity(browserIntent);
+                try {
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://koenhabets.nl/privacy_policy.html"));
+                    startActivity(browserIntent);
+                } catch (ActivityNotFoundException exception){
+                    Toast toast = Toast.makeText(this, "Unable to open web browser", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
                 return true;
             case R.id.scores2:
                 Intent myIntent = new Intent(this, ScoresActivity.class);
