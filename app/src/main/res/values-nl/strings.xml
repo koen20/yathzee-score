@@ -36,4 +36,6 @@
     <string name="stats">Statistieken</string>
     <string name="export_scores">Scores opslaan</string>
     <string name="import_scores">Scores importeren</string>
+    <string name="the_first_10_games_have_been_left_off_the_chart">De eerste 10 spellen zijn van de grafiek weggelaten</string>
+    <string name="average_score">Gemiddelde score</string>
 </resources>

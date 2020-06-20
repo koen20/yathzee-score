@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -12,6 +14,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 import com.google.android.material.appbar.AppBarLayout;
 
 import org.json.JSONArray;
@@ -23,6 +31,9 @@ import org.matomo.sdk.extra.TrackHelper;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class StatsActivity extends AppCompatActivity {
 
@@ -45,10 +56,11 @@ public class StatsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stats);
+        setTitle(getString(R.string.stats));
         try {
             Tracker tracker = MainActivity.getTracker2();
-            TrackHelper.track().screen("/saved_scores").title("Saved scores").with(tracker);
-        } catch (Exception e){
+            TrackHelper.track().screen("/stats").title("Stats").with(tracker);
+        } catch (Exception e) {
             e.printStackTrace();
         }
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -75,12 +87,52 @@ public class StatsActivity extends AppCompatActivity {
         editText26 = findViewById(R.id.editText13);
         editText27 = findViewById(R.id.editText14);
         editText28 = findViewById(R.id.editText16);
+        TextView textViewGraph = findViewById(R.id.textViewGraph);
+
+        LineChart lineChart = findViewById(R.id.chart);
+        List<Entry> entries = new ArrayList<Entry>();
 
         AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
         appBarLayout.setVisibility(View.GONE);
 
         JSONObject jsonObject = processScores(jsonArray);
         readScores(jsonObject);
+
+        List<ScoreItem> scoreItemsDate = DataManager.loadScores(this);
+        ;
+        Collections.sort(scoreItemsDate, (o1, o2) -> o1.getDate().compareTo(o2.getDate()));
+        float sum = 0;
+        for (int d = 0; d < scoreItemsDate.size(); d++) {
+            sum = sum + scoreItemsDate.get(d).getScore();
+            float value = sum / (d + 1);
+            if (scoreItemsDate.size() > 100) {
+                if (d > 9) {
+                    entries.add(new Entry(d + 10, value));
+                }
+            }
+        }
+        if (scoreItemsDate.size() > 100) {
+            textViewGraph.setVisibility(View.VISIBLE);
+        }
+        Log.i("entries", entries.size() + "size");
+        LineDataSet dataSet = new LineDataSet(entries, getString(R.string.average_score));
+        dataSet.setColor(Color.BLUE);
+        dataSet.setValueTextColor(Color.YELLOW);
+        LineData lineData = new LineData(dataSet);
+        lineChart.setData(lineData);
+        lineChart.getDescription().setText("Average score of last " + scoreItemsDate.size() + " games");
+        int nightModeFlags =
+                this.getResources().getConfiguration().uiMode &
+                        Configuration.UI_MODE_NIGHT_MASK;
+        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+            lineChart.getXAxis().setTextColor(Color.WHITE);
+            lineChart.getAxisLeft().setTextColor(Color.WHITE);
+            lineChart.getLegend().setTextColor(Color.WHITE);
+            lineChart.getDescription().setTextColor(Color.WHITE);
+        }
+
+        lineChart.invalidate();
+
         disableEdit();
     }
 

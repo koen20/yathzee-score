@@ -9,7 +9,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 public class DataManager {
@@ -44,5 +47,37 @@ public class DataManager {
         SharedPreferences sharedPref = context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         Log.i("saving", jsonObject.toString());
         sharedPref.edit().putString("scores", jsonObject.toString()).apply();
+    }
+
+    //load all scores from sharedprefrences, and sort them by descending by score
+    public static List<ScoreItem> loadScores(Context context) {
+        List<ScoreItem> scoreItems = new ArrayList<>();
+        scoreItems.clear();
+        SharedPreferences sharedPref = context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+        JSONArray jsonArray = new JSONArray();
+        try {
+            jsonArray = new JSONArray(sharedPref.getString("scoresSaved", ""));
+            Log.i("read", jsonArray.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        for (int i = jsonArray.length(); i >= 0; i--) {
+            try {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                JSONObject allScores = new JSONObject();
+                try {
+                    allScores = jsonObject.getJSONObject("allScores");
+                } catch (JSONException ignored) {
+                }
+
+                ScoreItem scoreItem = new ScoreItem(jsonObject.getInt("score"), jsonObject.getLong("date"), jsonObject.getString("id"), allScores);
+                scoreItems.add(scoreItem);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+        Collections.sort(scoreItems, new ScoreComparator());
+        return scoreItems;
     }
 }

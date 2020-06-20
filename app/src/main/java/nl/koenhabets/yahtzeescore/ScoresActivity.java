@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Activity;
 import android.app.backup.BackupManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -17,7 +16,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -33,7 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class ScoresActivity extends AppCompatActivity {
@@ -62,56 +59,49 @@ public class ScoresActivity extends AppCompatActivity {
 
         scoreAdapter = new ScoreAdapter(this, scoreItems);
         listView.setAdapter(scoreAdapter);
-        loadScores();
+        scoreItems.addAll(DataManager.loadScores(this));
+        scoreAdapter.notifyDataSetChanged();
         final Context context = this;
-        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-
-            @Override
-            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                final ScoreItem item = scoreItems.get(i);
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle(getString(R.string.remove_score));
-                builder.setPositiveButton(getString(R.string.remove), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        for (int i = 0; i < scoreItems.size(); i++) {
-                            ScoreItem scoreItem = scoreItems.get(i);
-                            if (item.getId().equals(scoreItem.getId())) {
-                                scoreItems.remove(i);
-                                break;
-                            }
-                        }
-                        SharedPreferences sharedPref1 = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
-                        JSONArray jsonArray1 = new JSONArray();
-                        try {
-                            jsonArray1 = new JSONArray(sharedPref1.getString("scoresSaved", ""));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        for (int i = 0; i < jsonArray1.length(); i++) {
-                            try {
-                                JSONObject jsonObject = jsonArray1.getJSONObject(i);
-                                if (jsonObject.getString("id").equals(item.getId())) {
-                                    jsonArray1.remove(i);
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-
-                        }
-                        sharedPref1.edit().putString("scoresSaved", jsonArray1.toString()).apply();
-                        scoreAdapter.notifyDataSetChanged();
-                        updateAverageScore();
-                        BackupManager backupManager = new BackupManager(context);
-                        backupManager.dataChanged();
+        listView.setOnItemLongClickListener((adapterView, view, i, l) -> {
+            final ScoreItem item = scoreItems.get(i);
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle(getString(R.string.remove_score));
+            builder.setPositiveButton(getString(R.string.remove), (dialog, id) -> {
+                for (int i1 = 0; i1 < scoreItems.size(); i1++) {
+                    ScoreItem scoreItem = scoreItems.get(i1);
+                    if (item.getId().equals(scoreItem.getId())) {
+                        scoreItems.remove(i1);
+                        break;
                     }
-                });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
+                }
+                SharedPreferences sharedPref1 = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+                JSONArray jsonArray1 = new JSONArray();
+                try {
+                    jsonArray1 = new JSONArray(sharedPref1.getString("scoresSaved", ""));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                for (int i1 = 0; i1 < jsonArray1.length(); i1++) {
+                    try {
+                        JSONObject jsonObject = jsonArray1.getJSONObject(i1);
+                        if (jsonObject.getString("id").equals(item.getId())) {
+                            jsonArray1.remove(i1);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                });
-                builder.show();
-                return true;
-            }
+
+                }
+                sharedPref1.edit().putString("scoresSaved", jsonArray1.toString()).apply();
+                scoreAdapter.notifyDataSetChanged();
+                updateAverageScore();
+                BackupManager backupManager = new BackupManager(context);
+                backupManager.dataChanged();
+            });
+            builder.setNegativeButton("Cancel", (dialog, id) -> {
+            });
+            builder.show();
+            return true;
         });
 
         listView.setOnItemClickListener((parent, view, position, id) -> {
@@ -125,39 +115,9 @@ public class ScoresActivity extends AppCompatActivity {
         updateAverageScore();
     }
 
-    //load all scores from sharedprefrences, sort them and display the scores.
-    private void loadScores(){
-        scoreItems.clear();
-        SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
-        JSONArray jsonArray = new JSONArray();
-        try {
-            jsonArray = new JSONArray(sharedPref.getString("scoresSaved", ""));
-            Log.i("read", jsonArray.toString());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        for (int i = jsonArray.length(); i >= 0; i--) {
-            try {
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
-                JSONObject allScores = new JSONObject();
-                try {
-                    allScores = jsonObject.getJSONObject("allScores");
-                } catch (JSONException ignored) {
-                }
-
-                ScoreItem scoreItem = new ScoreItem(jsonObject.getInt("score"), jsonObject.getLong("date"), jsonObject.getString("id"), allScores);
-                scoreItems.add(scoreItem);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-        }
-        Collections.sort(scoreItems, new ScoreComparator());
-        scoreAdapter.notifyDataSetChanged();
-    }
 
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.export_scores){
+        if (item.getItemId() == R.id.export_scores) {
             exportScores(findViewById(android.R.id.content).getRootView());
         } else if (item.getItemId() == R.id.import_scores) {
             importScores(findViewById(android.R.id.content).getRootView());
@@ -227,7 +187,8 @@ public class ScoresActivity extends AppCompatActivity {
                     try {
                         JSONArray jsonArray = new JSONArray(read);
                         sharedPref.edit().putString("scoresSaved", jsonArray.toString()).apply();
-                        loadScores();
+                        scoreItems = DataManager.loadScores(this);
+                        scoreAdapter.notifyDataSetChanged();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
