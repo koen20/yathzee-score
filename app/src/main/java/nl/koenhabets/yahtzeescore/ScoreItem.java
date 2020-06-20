@@ -4,11 +4,11 @@ import org.json.JSONObject;
 
 public class ScoreItem {
     private int score;
-    private long date;
+    private Long date;
     private String id;
     private JSONObject allScores;
 
-    public ScoreItem(int score, long date, String id, JSONObject allScores) {
+    public ScoreItem(int score, Long date, String id, JSONObject allScores) {
         this.score = score;
         this.date = date;
         this.id = id;
@@ -19,7 +19,7 @@ public class ScoreItem {
         return score;
     }
 
-    public long getDate() {
+    public Long getDate() {
         return date;
     }
 

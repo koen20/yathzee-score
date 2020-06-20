@@ -33,13 +33,10 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -47,8 +44,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
-import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.json.JSONArray;
@@ -113,12 +108,11 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
     static boolean playersNearby = false;
     private FirebaseUser firebaseUser;
     private DatabaseReference database;
-    private FirebaseRemoteConfig firebaseRemoteConfig;
 
     private static Tracker mMatomoTracker;
     private FirebaseAuth mAuth;
     private Map<String, Object> defaultConfig = new HashMap<>();
-    private Boolean realtimeDatabaseEnabled;
+    private Boolean realtimeDatabaseEnabled = true;
 
     public synchronized Tracker getTracker() {
         if (mMatomoTracker != null) return mMatomoTracker;
@@ -135,21 +129,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setSupportActionBar(findViewById(R.id.toolbar));
-        try {
-            defaultConfig.put("realtimeDatabaseEnabled", true);
-            firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
-            FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
-                    .setMinimumFetchIntervalInSeconds(1)
-                    .build();
-            firebaseRemoteConfig.setDefaultsAsync(defaultConfig);
-            firebaseRemoteConfig.setConfigSettingsAsync(configSettings);
-            firebaseRemoteConfig.fetchAndActivate();
-            realtimeDatabaseEnabled = firebaseRemoteConfig.getBoolean("realtimeDatabaseEnabled");
-            Log.i("realtimeDatabaseEnabled", realtimeDatabaseEnabled.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-            realtimeDatabaseEnabled = true;
-        }
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance().getReference();
         SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
@@ -246,26 +225,21 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         editText26.setOnClickListener(view -> setDefaultValue(editText26, 50));
 
         final Context context = this;
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle("Clear all");
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                    }
-                });
-                builder.setPositiveButton("Clear all", (dialog, id) -> {
-                    clearText();
-                    TrackHelper.track().event("category", "action").name("clear").with(mMatomoTracker);
-                });
-                builder.setNeutralButton("Clear and save score", (dialogInterface, i) -> {
-                    DataManager.saveScore(totalLeft + totalRight, createJsonScores(), getApplicationContext());
-                    TrackHelper.track().event("category", "action").name("clear and save").with(mMatomoTracker);
-                    clearText();
-                });
-                builder.show();
-            }
+        button.setOnClickListener(view -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle("Clear all");
+            builder.setNegativeButton("Cancel", (dialog, id) -> {
+            });
+            builder.setPositiveButton("Clear all", (dialog, id) -> {
+                clearText();
+                TrackHelper.track().event("category", "action").name("clear").with(mMatomoTracker);
+            });
+            builder.setNeutralButton("Clear and save score", (dialogInterface, i) -> {
+                DataManager.saveScore(totalLeft + totalRight, createJsonScores(), getApplicationContext());
+                TrackHelper.track().event("category", "action").name("clear and save").with(mMatomoTracker);
+                clearText();
+            });
+            builder.show();
         });
     }
 
@@ -319,17 +293,14 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
             firebaseUser = mAuth.getCurrentUser();
             if (firebaseUser == null) {
                 mAuth.signInAnonymously()
-                        .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (task.isSuccessful()) {
-                                    Log.d("MainActivity", "signInAnonymously:success");
-                                    firebaseUser = mAuth.getCurrentUser();
-                                } else {
-                                    Log.w("MainActivity", "signInAnonymously:failure", task.getException());
-                                    Toast.makeText(MainActivity.this, "Authentication failed.",
-                                            Toast.LENGTH_SHORT).show();
-                                }
+                        .addOnCompleteListener(this, task -> {
+                            if (task.isSuccessful()) {
+                                Log.d("MainActivity", "signInAnonymously:success");
+                                firebaseUser = mAuth.getCurrentUser();
+                            } else {
+                                Log.w("MainActivity", "signInAnonymously:failure", task.getException());
+                                Toast.makeText(MainActivity.this, "Authentication failed.",
+                                        Toast.LENGTH_SHORT).show();
                             }
                         });
             }
@@ -446,9 +417,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
                 players.add(playerItem);
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-            }
+        builder.setNegativeButton("Cancel", (dialog, id) -> {
         });
         builder.show();
     }
@@ -533,13 +502,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.privacy_policy:
-                try {
-                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://koenhabets.nl/privacy_policy.html"));
-                    startActivity(browserIntent);
-                } catch (ActivityNotFoundException exception){
-                    Toast toast = Toast.makeText(this, "Unable to open web browser", Toast.LENGTH_SHORT);
-                    toast.show();
-                }
+                openUrl("https://koenhabets.nl/privacy_policy.html");
                 return true;
             case R.id.scores2:
                 Intent myIntent = new Intent(this, ScoresActivity.class);
@@ -554,14 +517,22 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
                 this.startActivity(myIntent3);
                 return true;
             case R.id.rules:
-
-                Intent browserIntent2 = new Intent(Intent.ACTION_VIEW, Uri.parse("https://en.wikipedia.org/wiki/Yahtzee#Rules"));
-                startActivity(browserIntent2);
+                openUrl("https://en.wikipedia.org/wiki/Yahtzee#Rules");
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
 
+    }
+
+    private void openUrl(String url){
+        try {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            startActivity(browserIntent);
+        } catch (ActivityNotFoundException exception){
+            Toast toast = Toast.makeText(this, "Unable to open web browser", Toast.LENGTH_SHORT);
+            toast.show();
+        }
     }
 
     private void updateNearbyScore() {
