@@ -2,12 +2,15 @@ package nl.koenhabets.yahtzeescore;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -134,6 +137,20 @@ public class StatsActivity extends AppCompatActivity {
         lineChart.invalidate();
 
         disableEdit();
+
+        infoDialog();
+    }
+
+    private void infoDialog(){
+        LayoutInflater inflater = this.getLayoutInflater();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        View view = inflater.inflate(R.layout.dailog_stats, null);
+        builder.setView(view);
+        builder.setPositiveButton("Ok", (dialog, id) -> {
+
+        });
+        builder.show();
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {

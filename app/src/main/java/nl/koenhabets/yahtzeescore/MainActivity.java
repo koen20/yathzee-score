@@ -111,7 +111,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
 
     private static Tracker mMatomoTracker;
     private FirebaseAuth mAuth;
-    private Map<String, Object> defaultConfig = new HashMap<>();
     private Boolean realtimeDatabaseEnabled = true;
 
     public synchronized Tracker getTracker() {
