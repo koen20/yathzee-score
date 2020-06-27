@@ -47,4 +47,5 @@
     <string name="import_scores">Import scores</string>
     <string name="the_first_10_games_have_been_left_off_the_chart">The first 10 games have been omitted from the graph</string>
     <string name="average_score">Average score</string>
+    <string name="help">Help</string>
 </resources>
