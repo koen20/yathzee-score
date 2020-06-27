@@ -11,6 +11,8 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -137,11 +139,10 @@ public class StatsActivity extends AppCompatActivity {
         lineChart.invalidate();
 
         disableEdit();
-
         infoDialog();
     }
 
-    private void infoDialog(){
+    private void infoDialog() {
         LayoutInflater inflater = this.getLayoutInflater();
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
@@ -154,7 +155,17 @@ public class StatsActivity extends AppCompatActivity {
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
-        finish();
+        if (item.getItemId() == R.id.help) {
+            infoDialog();
+        } else {
+            finish();
+        }
+        return true;
+    }
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_stats, menu);
         return true;
     }
 
