@@ -14,7 +14,9 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-class Mqtt {
+import nl.koenhabets.yahtzeescore.activities.MainActivity;
+
+public class Mqtt {
     public static MqttAndroidClient mqttAndroidClient;
     private final static String serverUri = "tcp://yahtzee.koenhabets.nl:7829";
 

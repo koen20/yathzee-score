@@ -1,10 +1,9 @@
-package nl.koenhabets.yahtzeescore;
+package nl.koenhabets.yahtzeescore.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -15,14 +14,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
@@ -36,10 +32,13 @@ import org.matomo.sdk.extra.TrackHelper;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import nl.koenhabets.yahtzeescore.DataManager;
+import nl.koenhabets.yahtzeescore.R;
+import nl.koenhabets.yahtzeescore.ScoreItem;
 
 public class StatsActivity extends AppCompatActivity {
 
@@ -105,7 +104,7 @@ public class StatsActivity extends AppCompatActivity {
         readScores(jsonObject);
 
         List<ScoreItem> scoreItemsDate = DataManager.loadScores(this);
-        ;
+
         Collections.sort(scoreItemsDate, (o1, o2) -> o1.getDate().compareTo(o2.getDate()));
         float sum = 0;
         int gamesHidden;
@@ -125,7 +124,7 @@ public class StatsActivity extends AppCompatActivity {
             sum = sum + scoreItemsDate.get(d).getScore();
             float value = sum / (d + 1);
             if (d > gamesHidden - 1) {
-                entries.add(new Entry(d + 10, value));
+                entries.add(new Entry(d + gamesHidden, value));
             }
 
         }

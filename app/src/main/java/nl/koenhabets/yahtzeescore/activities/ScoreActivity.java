@@ -1,4 +1,4 @@
-package nl.koenhabets.yahtzeescore;
+package nl.koenhabets.yahtzeescore.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -14,6 +14,8 @@ import com.google.android.material.appbar.AppBarLayout;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import nl.koenhabets.yahtzeescore.R;
 
 public class ScoreActivity extends AppCompatActivity {
     private EditText editText1;

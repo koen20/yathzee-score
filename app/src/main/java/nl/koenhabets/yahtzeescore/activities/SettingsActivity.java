@@ -1,14 +1,10 @@
-package nl.koenhabets.yahtzeescore;
+package nl.koenhabets.yahtzeescore.activities;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -25,7 +21,8 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.matomo.sdk.Tracker;
 import org.matomo.sdk.extra.TrackHelper;
 
-import static nl.koenhabets.yahtzeescore.MainActivity.multiplayer;
+import nl.koenhabets.yahtzeescore.Mqtt;
+import nl.koenhabets.yahtzeescore.R;
 
 public class SettingsActivity extends AppCompatActivity {
 
