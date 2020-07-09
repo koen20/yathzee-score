@@ -7,13 +7,13 @@
     android:layout_height="match_parent">
 
     <EditText
-        android:id="@+id/editTextTextPersonName2"
+        android:id="@+id/editTextTextDialogStats1"
         android:layout_width="105dp"
         android:layout_height="46dp"
         android:layout_marginStart="12dp"
         android:layout_marginTop="8dp"
         android:ems="10"
-        android:inputType="textPersonName"
+        android:inputType="none"
         android:text="1.4(81)"
         app:layout_constraintStart_toEndOf="@+id/textView19"
         app:layout_constraintTop_toBottomOf="@+id/textView18" />
@@ -26,7 +26,7 @@
         android:layout_marginTop="12dp"
         android:text="@string/aces"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/editTextTextPersonName2" />
+        app:layout_constraintTop_toTopOf="@+id/editTextTextDialogStats1" />
 
     <ImageView
         android:id="@+id/imageView3"
@@ -34,8 +34,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="36dp"
         android:rotation="90"
-        app:layout_constraintStart_toStartOf="@+id/editTextTextPersonName2"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTextPersonName2"
+        app:layout_constraintStart_toStartOf="@+id/editTextTextDialogStats1"
+        app:layout_constraintTop_toBottomOf="@+id/editTextTextDialogStats1"
         app:srcCompat="?attr/homeAsUpIndicator" />
 
     <TextView
@@ -43,7 +43,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:text="Percentage of games this field was filled"
+        android:text="@string/percentage_of_games_this_field_was_filled"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView3" />
 
@@ -53,7 +53,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:text="You can view stats of all your saved games."
+        android:text="@string/you_can_view_stats_of_all_your_saved_games"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -62,18 +62,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:rotation="90"
-        app:layout_constraintStart_toStartOf="@+id/editTextTextPersonName"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTextPersonName"
+        app:layout_constraintStart_toStartOf="@+id/editTextTextDialogStats2"
+        app:layout_constraintTop_toBottomOf="@+id/editTextTextDialogStats2"
         app:srcCompat="?attr/homeAsUpIndicator" />
 
     <EditText
-        android:id="@+id/editTextTextPersonName"
+        android:id="@+id/editTextTextDialogStats2"
         android:layout_width="105dp"
         android:layout_height="46dp"
         android:layout_marginStart="12dp"
         android:layout_marginTop="12dp"
         android:ems="10"
-        android:inputType="textPersonName"
+        android:inputType="none"
         android:text="1.4(81)"
         app:layout_constraintStart_toEndOf="@+id/textView17"
         app:layout_constraintTop_toBottomOf="@+id/textView16" />
@@ -86,15 +86,25 @@
         android:layout_marginTop="12dp"
         android:text="@string/aces"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/editTextTextPersonName" />
+        app:layout_constraintTop_toTopOf="@+id/editTextTextDialogStats2" />
 
     <TextView
         android:id="@+id/textView18"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:text="Average scores of all your saved games"
+        android:text="@string/average_scores_of_all_your_saved_games"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView2" />
+
+    <CheckBox
+        android:id="@+id/checkBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/don_t_show_this_again"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView20" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -36,7 +36,11 @@
     <string name="stats">Statistieken</string>
     <string name="export_scores">Scores opslaan</string>
     <string name="import_scores">Scores importeren</string>
-    <string name="the_first_10_games_have_been_left_off_the_chart">De eerste 10 spellen zijn van de grafiek weggelaten</string>
     <string name="average_score">Gemiddelde score</string>
     <string name="help">Help</string>
+    <string name="don_t_show_this_again">Laat dit niet meer zien</string>
+    <string name="you_can_view_stats_of_all_your_saved_games">Je kunt de statistieken bekijken van al je opgeslagen spellen.</string>
+    <string name="percentage_of_games_this_field_was_filled">Percentage spellen waarbij dit veld ingevuld was</string>
+    <string name="average_scores_of_all_your_saved_games">Gemiddelde score van al je opgeslagen spellen</string>
+    <string name="games_hidden">De eerste %s spellen zijn van de grafiek weggelaten</string>
 </resources>
