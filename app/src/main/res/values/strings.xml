@@ -45,7 +45,12 @@
     <string name="stats">Stats</string>
     <string name="export_scores">Export scores</string>
     <string name="import_scores">Import scores</string>
-    <string name="the_first_10_games_have_been_left_off_the_chart">The first 10 games have been omitted from the graph</string>
     <string name="average_score">Average score</string>
     <string name="help">Help</string>
+    <string name="average_scores_of_all_your_saved_games">Average scores of all your saved games</string>
+    <string name="percentage_of_games_this_field_was_filled">Percentage of games this field was filled</string>
+    <string name="you_can_view_stats_of_all_your_saved_games">You can view stats of all your saved games.</string>
+    <string name="don_t_show_this_again">Don\'t show this again</string>
+    <string name="games_hidden">The first %s games have been omitted from the graph</string>
+
 </resources>

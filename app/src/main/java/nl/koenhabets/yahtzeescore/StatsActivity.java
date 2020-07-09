@@ -16,6 +16,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -92,10 +93,10 @@ public class StatsActivity extends AppCompatActivity {
         editText26 = findViewById(R.id.editText13);
         editText27 = findViewById(R.id.editText14);
         editText28 = findViewById(R.id.editText16);
-        TextView textViewGraph = findViewById(R.id.textViewGraph);
+        TextView textViewGraph = findViewById(R.id.textView8);
 
         LineChart lineChart = findViewById(R.id.chart);
-        List<Entry> entries = new ArrayList<Entry>();
+        List<Entry> entries = new ArrayList<>();
 
         AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
         appBarLayout.setVisibility(View.GONE);
@@ -107,17 +108,26 @@ public class StatsActivity extends AppCompatActivity {
         ;
         Collections.sort(scoreItemsDate, (o1, o2) -> o1.getDate().compareTo(o2.getDate()));
         float sum = 0;
+        int gamesHidden;
+        if (scoreItemsDate.size() > 200) {
+            textViewGraph.setText(getString(R.string.games_hidden, "30"));
+            gamesHidden = 30;
+        } else if (scoreItemsDate.size() > 100) {
+            textViewGraph.setText(getString(R.string.games_hidden, "10"));
+            gamesHidden = 10;
+        } else if (scoreItemsDate.size() > 50) {
+            textViewGraph.setText(getString(R.string.games_hidden, "5"));
+            gamesHidden = 5;
+        } else {
+            gamesHidden = 0;
+        }
         for (int d = 0; d < scoreItemsDate.size(); d++) {
             sum = sum + scoreItemsDate.get(d).getScore();
             float value = sum / (d + 1);
-            if (scoreItemsDate.size() > 100) {
-                if (d > 9) {
-                    entries.add(new Entry(d + 10, value));
-                }
+            if (d > gamesHidden - 1) {
+                entries.add(new Entry(d + 10, value));
             }
-        }
-        if (scoreItemsDate.size() > 100) {
-            textViewGraph.setVisibility(View.VISIBLE);
+
         }
         Log.i("entries", entries.size() + "size");
         LineDataSet dataSet = new LineDataSet(entries, getString(R.string.average_score));
@@ -139,24 +149,32 @@ public class StatsActivity extends AppCompatActivity {
         lineChart.invalidate();
 
         disableEdit();
-        infoDialog();
+        if (sharedPref.getBoolean("statsInfoDialog", true)) {
+            infoDialog(false);
+        }
     }
 
-    private void infoDialog() {
+    private void infoDialog(boolean checkboxChecked) {
         LayoutInflater inflater = this.getLayoutInflater();
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         View view = inflater.inflate(R.layout.dailog_stats, null);
+        CheckBox checkBox = view.findViewById(R.id.checkBox);
+        checkBox.setChecked(checkboxChecked);
         builder.setView(view);
         builder.setPositiveButton("Ok", (dialog, id) -> {
-
+        });
+        checkBox.setOnClickListener(view2 -> {
+            SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+            sharedPref.edit().putBoolean("statsInfoDialog", !checkBox.isChecked()).apply();
         });
         builder.show();
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.help) {
-            infoDialog();
+            SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+            infoDialog(!sharedPref.getBoolean("statsInfoDialog", true));
         } else {
             finish();
         }
