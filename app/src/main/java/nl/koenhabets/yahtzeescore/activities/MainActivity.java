@@ -1,4 +1,4 @@
-package nl.koenhabets.yahtzeescore;
+package nl.koenhabets.yahtzeescore.activities;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -57,9 +57,8 @@ import org.matomo.sdk.extra.TrackHelper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -69,6 +68,11 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+
+import nl.koenhabets.yahtzeescore.DataManager;
+import nl.koenhabets.yahtzeescore.Mqtt;
+import nl.koenhabets.yahtzeescore.PlayerItem;
+import nl.koenhabets.yahtzeescore.R;
 
 public class MainActivity extends AppCompatActivity implements TextWatcher, GoogleApiClient.OnConnectionFailedListener, OnFailureListener {
     private EditText editText1;
@@ -516,7 +520,14 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
                 this.startActivity(myIntent3);
                 return true;
             case R.id.rules:
-                openUrl("https://en.wikipedia.org/wiki/Yahtzee#Rules");
+                String language = Locale.getDefault().getLanguage();
+                if (language.equals("nl")) {
+                    openUrl("https://nl.wikipedia.org/wiki/Yahtzee#Spelverloop");
+                } else if (language.equals("fr")) {
+                    openUrl("https://fr.wikipedia.org/wiki/Yahtzee");
+                } else {
+                    openUrl("https://en.wikipedia.org/wiki/Yahtzee#Rules");
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -524,11 +535,11 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
 
     }
 
-    private void openUrl(String url){
+    private void openUrl(String url) {
         try {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             startActivity(browserIntent);
-        } catch (ActivityNotFoundException exception){
+        } catch (ActivityNotFoundException exception) {
             Toast toast = Toast.makeText(this, "Unable to open web browser", Toast.LENGTH_SHORT);
             toast.show();
         }

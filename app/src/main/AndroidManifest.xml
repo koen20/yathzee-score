@@ -16,10 +16,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApp"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".StatsActivity" />
-        <activity android:name=".ScoreActivity" />
-        <activity android:name=".SettingsActivity" />
-        <activity android:name=".ScoresActivity" />
+        <activity android:name=".activities.StatsActivity" />
+        <activity android:name=".activities.ScoreActivity" />
+        <activity android:name=".activities.SettingsActivity" />
+        <activity android:name=".activities.ScoresActivity" />
 
         <meta-data
             android:name="com.google.android.backup.api_key"
@@ -29,7 +29,7 @@
             android:value="AIzaSyCKsr_z2xaIHOSXIMsUlTxrznVg2VLkZck" />
 
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:theme="@style/Theme.MyApp.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

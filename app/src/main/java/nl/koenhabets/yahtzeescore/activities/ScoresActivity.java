@@ -1,4 +1,4 @@
-package nl.koenhabets.yahtzeescore;
+package nl.koenhabets.yahtzeescore.activities;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,6 +32,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+
+import nl.koenhabets.yahtzeescore.DataManager;
+import nl.koenhabets.yahtzeescore.R;
+import nl.koenhabets.yahtzeescore.ScoreAdapter;
+import nl.koenhabets.yahtzeescore.ScoreItem;
 
 public class ScoresActivity extends AppCompatActivity {
     private List<ScoreItem> scoreItems = new ArrayList<>();
