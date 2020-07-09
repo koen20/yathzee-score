@@ -24,6 +24,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -230,16 +231,25 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         final Context context = this;
         button.setOnClickListener(view -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            LayoutInflater inflater = this.getLayoutInflater();
+            View view2 = inflater.inflate(R.layout.dialog_clear, null);
+            builder.setView(view2);
+            CheckBox checkBoxSave = view2.findViewById(R.id.checkBoxSave);
             builder.setTitle("Clear all");
             builder.setNegativeButton("Cancel", (dialog, id) -> {
             });
-            builder.setPositiveButton("Clear all", (dialog, id) -> {
-                clearText();
-                TrackHelper.track().event("category", "action").name("clear").with(mMatomoTracker);
-            });
-            builder.setNeutralButton("Clear and save score", (dialogInterface, i) -> {
-                DataManager.saveScore(totalLeft + totalRight, createJsonScores(), getApplicationContext());
-                TrackHelper.track().event("category", "action").name("clear and save").with(mMatomoTracker);
+            builder.setPositiveButton("Clear", (dialog, id) -> {
+                if (checkBoxSave.isChecked()) {
+                    if((totalLeft + totalRight) < 5){
+                        Toast toast = Toast.makeText(this, R.string.score_too_low_save, Toast.LENGTH_SHORT);
+                        toast.show();
+                    } else {
+                        DataManager.saveScore(totalLeft + totalRight, createJsonScores(), getApplicationContext());
+                        TrackHelper.track().event("category", "action").name("clear and save").with(mMatomoTracker);
+                    }
+                } else {
+                    TrackHelper.track().event("category", "action").name("clear").with(mMatomoTracker);
+                }
                 clearText();
             });
             builder.show();
@@ -540,7 +550,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             startActivity(browserIntent);
         } catch (ActivityNotFoundException exception) {
-            Toast toast = Toast.makeText(this, "Unable to open web browser", Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(this, R.string.browser_fail, Toast.LENGTH_SHORT);
             toast.show();
         }
     }

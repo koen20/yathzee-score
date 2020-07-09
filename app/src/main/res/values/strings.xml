@@ -52,5 +52,8 @@
     <string name="you_can_view_stats_of_all_your_saved_games">You can view stats of all your saved games.</string>
     <string name="don_t_show_this_again">Don\'t show this again</string>
     <string name="games_hidden">The first %s games have been omitted from the graph</string>
+    <string name="save_score">Save score</string>
+    <string name="browser_fail">Unable to open web browser</string>
+    <string name="score_too_low_save">You can only save scores higher than 5</string>
 
 </resources>
