@@ -14,7 +14,8 @@
         android:layout_marginTop="8dp"
         android:ems="10"
         android:inputType="none"
-        android:text="1.4(81)"
+        android:focusable="false"
+        android:text="@string/_1_4_81"
         app:layout_constraintStart_toEndOf="@+id/textView19"
         app:layout_constraintTop_toBottomOf="@+id/textView18" />
 
@@ -74,7 +75,8 @@
         android:layout_marginTop="12dp"
         android:ems="10"
         android:inputType="none"
-        android:text="1.4(81)"
+        android:focusable="false"
+        android:text="@string/_1_4_81"
         app:layout_constraintStart_toEndOf="@+id/textView17"
         app:layout_constraintTop_toBottomOf="@+id/textView16" />
 

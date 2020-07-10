@@ -93,10 +93,10 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
     private TextView tvTotalLeft;
     private TextView tvTotalRight;
     private TextView tvTotal;
-    private TextView tvBonus;
     private static TextView tvOp;
     private TextView tvYahtzeeBonus;
     private Button button;
+    private EditText editTextBonus;
 
     private MessageListener mMessageListener;
     private Message mMessage;
@@ -182,13 +182,13 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         editText26 = findViewById(R.id.editText13);
         editText27 = findViewById(R.id.editText14);
         editText28 = findViewById(R.id.editText16);
+        editTextBonus = findViewById(R.id.editTextBonus);
 
         button = findViewById(R.id.button);
 
         tvTotalLeft = findViewById(R.id.textViewTotalLeft);
         tvTotalRight = findViewById(R.id.textViewTotalRight);
         tvTotal = findViewById(R.id.textViewTotal);
-        tvBonus = findViewById(R.id.textViewBonus);
         tvOp = findViewById(R.id.textViewOp);
         tvYahtzeeBonus = findViewById(R.id.textView7);
 
@@ -720,10 +720,10 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         totalRight = getTextInt(editText21) + getTextInt(editText22) + getTextInt(editText23)
                 + getTextInt(editText24) + getTextInt(editText25) + getTextInt(editText26) + getTextInt(editText27) + getTextInt(editText28);
         if (totalLeft >= 63) {
-            tvBonus.setText(getString(R.string.bonus) + 35);
+            editTextBonus.setText(35 + "");
             totalLeft = totalLeft + 35;
         } else {
-            tvBonus.setText(getString(R.string.bonus) + 0);
+            editTextBonus.setText(0 + "");
         }
         tvTotalLeft.setText(getString(R.string.left) + " " + totalLeft);
         tvTotalRight.setText(getString(R.string.right) + " " + totalRight);
