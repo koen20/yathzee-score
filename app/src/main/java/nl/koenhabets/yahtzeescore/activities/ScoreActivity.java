@@ -32,12 +32,11 @@ public class ScoreActivity extends AppCompatActivity {
     private EditText editText26;
     private EditText editText27;
     private EditText editText28;
+    private EditText editTextBonus;
     private TextView tvTotalLeft;
     private TextView tvTotalRight;
     private TextView tvTotal;
-    private TextView tvBonus;
     private static TextView tvOp;
-    private TextView tvYahtzeeBonus;
     private Button button;
 
     @Override
@@ -60,6 +59,7 @@ public class ScoreActivity extends AppCompatActivity {
         editText26 = findViewById(R.id.editText13);
         editText27 = findViewById(R.id.editText14);
         editText28 = findViewById(R.id.editText16);
+        editTextBonus = findViewById(R.id.editTextBonus);
 
         AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
         appBarLayout.setVisibility(View.GONE);
@@ -69,14 +69,11 @@ public class ScoreActivity extends AppCompatActivity {
         tvTotalLeft = findViewById(R.id.textViewTotalLeft);
         tvTotalRight = findViewById(R.id.textViewTotalRight);
         tvTotal = findViewById(R.id.textViewTotal);
-        tvBonus = findViewById(R.id.textViewBonus);
         tvOp = findViewById(R.id.textViewOp);
-        tvYahtzeeBonus = findViewById(R.id.textView7);
 
         tvTotalLeft.setVisibility(View.GONE);
         tvTotalRight.setVisibility(View.GONE);
         tvTotal.setVisibility(View.GONE);
-        tvBonus.setVisibility(View.GONE);
         tvOp.setVisibility(View.GONE);
         button.setVisibility(View.GONE);
 
@@ -113,6 +110,16 @@ public class ScoreActivity extends AppCompatActivity {
             editText26.setText(jsonObject.getString("26"));
             editText27.setText(jsonObject.getString("27"));
             editText28.setText(jsonObject.getString("28"));
+
+            int totalLeft = 0;
+            for(int i = 1; i < 7; i++){
+                try {
+                    totalLeft = totalLeft + Integer.parseInt(jsonObject.getString(i + ""));
+                } catch (NumberFormatException ignored){}
+            }
+            if (totalLeft >= 63) {
+                editTextBonus.setText("35");
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
