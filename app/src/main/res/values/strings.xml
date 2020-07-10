@@ -15,7 +15,7 @@
     <string name="chance" translatable="false">Chance</string>
     <string name="Total">Total:</string>
     <string name="name_message">Please enter a name for multiplayer. If you don\'t enter a name, multiplayer will not work.</string>
-    <string name="clear_all">Clear all / save</string>
+    <string name="clear_all_save">Clear all / save</string>
     <string name="bonus" translatable="false">Bonus: </string>
     <string name="change_nickname">Change nickname</string>
     <string name="privacy_policy" translatable="false">Privacy policy</string>
@@ -51,9 +51,13 @@
     <string name="percentage_of_games_this_field_was_filled">Percentage of games this field was filled</string>
     <string name="you_can_view_stats_of_all_your_saved_games">You can view stats of all your saved games.</string>
     <string name="don_t_show_this_again">Don\'t show this again</string>
-    <string name="games_hidden">The first %s games have been omitted from the graph</string>
+    <string name="games_hidden">The first %d games have been omitted from the graph</string>
     <string name="save_score">Save score</string>
     <string name="browser_fail">Unable to open web browser</string>
     <string name="score_too_low_save">You can only save scores higher than 5</string>
+    <string name="clear_all">Clear all</string>
+    <string name="clear">Clear</string>
+    <string name="add_player">Add player</string>
+    <string name="average_score_of_last">Average score of last %d games</string>
 
 </resources>
