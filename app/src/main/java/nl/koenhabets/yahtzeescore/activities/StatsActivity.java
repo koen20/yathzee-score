@@ -109,14 +109,14 @@ public class StatsActivity extends AppCompatActivity {
         float sum = 0;
         int gamesHidden;
         if (scoreItemsDate.size() > 200) {
-            textViewGraph.setText(getString(R.string.games_hidden, "30"));
             gamesHidden = 30;
+            textViewGraph.setText(getString(R.string.games_hidden, gamesHidden));
         } else if (scoreItemsDate.size() > 100) {
-            textViewGraph.setText(getString(R.string.games_hidden, "10"));
             gamesHidden = 10;
+            textViewGraph.setText(getString(R.string.games_hidden, gamesHidden));
         } else if (scoreItemsDate.size() > 50) {
-            textViewGraph.setText(getString(R.string.games_hidden, "5"));
             gamesHidden = 5;
+            textViewGraph.setText(getString(R.string.games_hidden, gamesHidden));
         } else {
             gamesHidden = 0;
         }
@@ -134,7 +134,7 @@ public class StatsActivity extends AppCompatActivity {
         dataSet.setValueTextColor(Color.YELLOW);
         LineData lineData = new LineData(dataSet);
         lineChart.setData(lineData);
-        lineChart.getDescription().setText("Average score of last " + scoreItemsDate.size() + " games");
+        lineChart.getDescription().setText(getString(R.string.average_score_of_last, scoreItemsDate.size()));
         int nightModeFlags =
                 this.getResources().getConfiguration().uiMode &
                         Configuration.UI_MODE_NIGHT_MASK;

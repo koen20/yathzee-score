@@ -19,7 +19,7 @@
     <string name="remove_score">Verwijder score</string>
     <string name="remove">Verwijder</string>
     <string name="average">Gemiddelde:</string>
-    <string name="clear_all">Alles wissen en opslaan</string>
+    <string name="clear_all_save">Alles wissen / opslaan</string>
     <string name="theme">Thema</string>
     <string name="system_default">Systeem standaard</string>
     <string name="dark">Donker</string>
@@ -42,8 +42,12 @@
     <string name="you_can_view_stats_of_all_your_saved_games">Je kunt de statistieken bekijken van al je opgeslagen spellen.</string>
     <string name="percentage_of_games_this_field_was_filled">Percentage spellen waarbij dit veld ingevuld was</string>
     <string name="average_scores_of_all_your_saved_games">Gemiddelde score van al je opgeslagen spellen</string>
-    <string name="games_hidden">De eerste %s spellen zijn van de grafiek weggelaten</string>
+    <string name="games_hidden">De eerste %d spellen zijn van de grafiek weggelaten</string>
     <string name="save_score">Score opslaan</string>
     <string name="browser_fail">Kan web browser niet openen</string>
     <string name="score_too_low_save">Je kunt alleen scores hoger dan 5 opslaan</string>
+    <string name="clear_all">Alles wissen</string>
+    <string name="clear">Wissen</string>
+    <string name="add_player">Speler toevoegen</string>
+    <string name="average_score_of_last">Gemiddelde score van de laaste %d spellen</string>
 </resources>

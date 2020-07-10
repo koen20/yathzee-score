@@ -235,10 +235,10 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
             View view2 = inflater.inflate(R.layout.dialog_clear, null);
             builder.setView(view2);
             CheckBox checkBoxSave = view2.findViewById(R.id.checkBoxSave);
-            builder.setTitle("Clear all");
-            builder.setNegativeButton("Cancel", (dialog, id) -> {
+            builder.setTitle(R.string.clear_all);
+            builder.setNegativeButton(R.string.cancel, (dialog, id) -> {
             });
-            builder.setPositiveButton("Clear", (dialog, id) -> {
+            builder.setPositiveButton(R.string.clear, (dialog, id) -> {
                 if (checkBoxSave.isChecked()) {
                     if((totalLeft + totalRight) < 5){
                         Toast toast = Toast.makeText(this, R.string.score_too_low_save, Toast.LENGTH_SHORT);
@@ -280,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
     private void permissionDialog() {
         Context context = this;
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("Multiplayer");
+        builder.setTitle(R.string.multiplayer);
         builder.setMessage(getString(R.string.multiplayer_permission_dialog));
         builder.setNegativeButton("No", (dialog, id) -> {
             TrackHelper.track().event("multiplayer", "disable").name("disable").with(mMatomoTracker);
@@ -419,7 +419,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         View view = inflater.inflate(R.layout.dialog_name, null);
         final EditText editTextName = view.findViewById(R.id.editText2);
         builder.setView(view);
-        builder.setMessage("Add player");
+        builder.setMessage(R.string.add_player);
         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
@@ -430,7 +430,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
                 players.add(playerItem);
             }
         });
-        builder.setNegativeButton("Cancel", (dialog, id) -> {
+        builder.setNegativeButton(R.string.cancel, (dialog, id) -> {
         });
         builder.show();
     }
