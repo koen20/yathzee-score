@@ -92,6 +92,7 @@ public class StatsActivity extends AppCompatActivity {
         editText26 = findViewById(R.id.editText13);
         editText27 = findViewById(R.id.editText14);
         editText28 = findViewById(R.id.editText16);
+        TextView tVYBonus = findViewById(R.id.textView7);
         TextView textViewGraph = findViewById(R.id.textView8);
 
         LineChart lineChart = findViewById(R.id.chart);
@@ -99,6 +100,11 @@ public class StatsActivity extends AppCompatActivity {
 
         AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
         appBarLayout.setVisibility(View.GONE);
+
+        if(!sharedPref.getBoolean("yahtzeeBonus", false)){
+            tVYBonus.setVisibility(View.GONE);
+            editText28.setVisibility(View.GONE);
+        }
 
         JSONObject jsonObject = processScores(jsonArray);
         readScores(jsonObject);
@@ -124,7 +130,7 @@ public class StatsActivity extends AppCompatActivity {
             sum = sum + scoreItemsDate.get(d).getScore();
             float value = sum / (d + 1);
             if (d > gamesHidden - 1) {
-                entries.add(new Entry(d + gamesHidden, value));
+                entries.add(new Entry(d, value));
             }
 
         }
