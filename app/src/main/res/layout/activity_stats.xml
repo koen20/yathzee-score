@@ -411,19 +411,6 @@
                 app:layout_constraintStart_toStartOf="@+id/guideline2"
                 app:layout_constraintTop_toBottomOf="@+id/editText" />
 
-            <TextView
-                android:id="@+id/textViewBonus"
-                android:layout_width="0dp"
-                android:layout_height="25dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="8dp"
-                android:text="@string/bonus"
-                android:textSize="16.5sp"
-                app:layout_constraintEnd_toStartOf="@+id/guideline"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/editText7" />
-
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/guideline"
                 android:layout_width="wrap_content"
@@ -476,9 +463,9 @@
                 android:id="@+id/chart"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="12dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView7" >
+                app:layout_constraintTop_toBottomOf="@+id/editText16">
 
             </com.github.mikephil.charting.charts.LineChart>
 

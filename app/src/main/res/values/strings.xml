@@ -59,6 +59,6 @@
     <string name="clear">Clear</string>
     <string name="add_player">Add player</string>
     <string name="average_score_of_last">Average score of last %d games</string>
-    <string name="_1_4_81">1.4(81)</string>
+    <string name="_1_4_81" translatable="false">1.4(81)</string>
 
 </resources>
