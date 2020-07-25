@@ -231,26 +231,22 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
         final Context context = this;
         button.setOnClickListener(view -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            LayoutInflater inflater = this.getLayoutInflater();
-            View view2 = inflater.inflate(R.layout.dialog_clear, null);
-            builder.setView(view2);
-            CheckBox checkBoxSave = view2.findViewById(R.id.checkBoxSave);
-            builder.setTitle(R.string.clear_all);
-            builder.setNegativeButton(R.string.cancel, (dialog, id) -> {
+            builder.setTitle(R.string.save_score);
+            builder.setNegativeButton(R.string.no, (dialog, id) -> {
+                clearText();
+                TrackHelper.track().event("category", "action").name("clear").with(mMatomoTracker);
             });
-            builder.setPositiveButton(R.string.clear, (dialog, id) -> {
-                if (checkBoxSave.isChecked()) {
-                    if((totalLeft + totalRight) < 5){
-                        Toast toast = Toast.makeText(this, R.string.score_too_low_save, Toast.LENGTH_SHORT);
-                        toast.show();
-                    } else {
-                        DataManager.saveScore(totalLeft + totalRight, createJsonScores(), getApplicationContext());
-                        TrackHelper.track().event("category", "action").name("clear and save").with(mMatomoTracker);
-                    }
+            builder.setPositiveButton(R.string.yes, (dialog, id) -> {
+                if((totalLeft + totalRight) < 5){
+                    Toast toast = Toast.makeText(this, R.string.score_too_low_save, Toast.LENGTH_SHORT);
+                    toast.show();
                 } else {
-                    TrackHelper.track().event("category", "action").name("clear").with(mMatomoTracker);
+                    DataManager.saveScore(totalLeft + totalRight, createJsonScores(), getApplicationContext());
+                    TrackHelper.track().event("category", "action").name("clear and save").with(mMatomoTracker);
                 }
                 clearText();
+            });
+            builder.setNeutralButton(R.string.cancel, (dialogInterface, i) -> {
             });
             builder.show();
         });

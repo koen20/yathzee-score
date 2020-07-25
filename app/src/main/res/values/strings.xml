@@ -40,7 +40,6 @@
     <string name="press_again">Press again to enter 0</string>
     <string name="multiplayer">Multiplayer</string>
     <string name="total_games_played">Games played:</string>
-    <string name="clear_and_save">Clear all and save score</string>
     <string name="cancel">Cancel</string>
     <string name="stats">Stats</string>
     <string name="export_scores">Export scores</string>
@@ -60,5 +59,8 @@
     <string name="add_player">Add player</string>
     <string name="average_score_of_last">Average score of last %d games</string>
     <string name="_1_4_81" translatable="false">1.4(81)</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="stop_game">Stop game</string>
 
 </resources>
