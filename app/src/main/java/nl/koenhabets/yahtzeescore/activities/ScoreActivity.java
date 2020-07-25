@@ -79,8 +79,10 @@ public class ScoreActivity extends AppCompatActivity {
 
         String data = getIntent().getStringExtra("data");
         try {
-            JSONObject allScores = new JSONObject(data);
-            readScores(allScores);
+            if (data != null) {
+                JSONObject allScores = new JSONObject(data);
+                readScores(allScores);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }

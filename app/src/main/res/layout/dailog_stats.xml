@@ -11,13 +11,12 @@
         android:layout_width="105dp"
         android:layout_height="46dp"
         android:layout_marginStart="12dp"
-        android:layout_marginTop="8dp"
         android:ems="10"
-        android:inputType="none"
         android:focusable="false"
+        android:inputType="none"
         android:text="@string/_1_4_81"
         app:layout_constraintStart_toEndOf="@+id/textView19"
-        app:layout_constraintTop_toBottomOf="@+id/textView18" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView4" />
 
     <TextView
         android:id="@+id/textView19"
@@ -108,5 +107,14 @@
         android:text="@string/don_t_show_this_again"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView20" />
+
+    <ImageView
+        android:id="@+id/imageView4"
+        android:layout_width="0dp"
+        android:layout_height="21dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView18"
+        android:src="@drawable/ic_line" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
