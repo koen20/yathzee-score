@@ -59,7 +59,7 @@ public class Mqtt {
     public static void disconnectMqtt() {
         try {
             mqttAndroidClient.disconnect();
-        } catch (Exception e){
+        } catch (Exception ignored){
 
         }
     }

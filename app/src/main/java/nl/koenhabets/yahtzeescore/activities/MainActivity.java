@@ -24,13 +24,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
@@ -75,7 +72,7 @@ import nl.koenhabets.yahtzeescore.Mqtt;
 import nl.koenhabets.yahtzeescore.PlayerItem;
 import nl.koenhabets.yahtzeescore.R;
 
-public class MainActivity extends AppCompatActivity implements TextWatcher, GoogleApiClient.OnConnectionFailedListener, OnFailureListener {
+public class MainActivity extends AppCompatActivity implements TextWatcher, OnFailureListener {
     private EditText editText1;
     private EditText editText2;
     private EditText editText3;
@@ -237,7 +234,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
                 TrackHelper.track().event("category", "action").name("clear").with(mMatomoTracker);
             });
             builder.setPositiveButton(R.string.yes, (dialog, id) -> {
-                if((totalLeft + totalRight) < 5){
+                if ((totalLeft + totalRight) < 5) {
                     Toast toast = Toast.makeText(this, R.string.score_too_low_save, Toast.LENGTH_SHORT);
                     toast.show();
                 } else {
@@ -482,11 +479,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Goog
             tvOp.setText(Html.fromHtml(text));
             playersNearby = true;
         }
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.i("error", connectionResult.getErrorMessage());
     }
 
     @Override
