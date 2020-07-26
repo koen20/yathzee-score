@@ -33,7 +33,7 @@
     <string name="total_games_played">Spellen gespeeld:</string>
     <string name="cancel">Annuleren</string>
     <string name="stats">Statistieken</string>
-    <string name="export_scores">Scores opslaan</string>
+    <string name="export_scores">Scores exporteren</string>
     <string name="import_scores">Scores importeren</string>
     <string name="average_score">Gemiddelde score</string>
     <string name="help">Help</string>
@@ -52,4 +52,6 @@
     <string name="yes">Ja</string>
     <string name="no">Nee</string>
     <string name="stop_game">Stop spel</string>
+    <string name="sort_by_date">Sorteer op datum</string>
+    <string name="sort_by_score">Sorteer op score</string>
 </resources>
