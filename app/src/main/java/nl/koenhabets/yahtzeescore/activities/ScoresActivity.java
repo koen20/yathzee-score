@@ -31,11 +31,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import nl.koenhabets.yahtzeescore.DataManager;
 import nl.koenhabets.yahtzeescore.R;
 import nl.koenhabets.yahtzeescore.ScoreAdapter;
+import nl.koenhabets.yahtzeescore.ScoreComparator;
+import nl.koenhabets.yahtzeescore.ScoreComparatorDate;
 import nl.koenhabets.yahtzeescore.ScoreItem;
 
 public class ScoresActivity extends AppCompatActivity {
@@ -44,6 +47,7 @@ public class ScoresActivity extends AppCompatActivity {
     ScoreAdapter scoreAdapter;
     TextView textViewAverage;
     TextView textViewAmount;
+    int sort = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,9 +127,21 @@ public class ScoresActivity extends AppCompatActivity {
 
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.export_scores) {
-            exportScores(findViewById(android.R.id.content).getRootView());
+            exportScores();
         } else if (item.getItemId() == R.id.import_scores) {
             importScores(findViewById(android.R.id.content).getRootView());
+        } else if (item.getItemId() == R.id.change_sort) {
+            if (sort == 1) {
+                Collections.sort(scoreItems, new ScoreComparatorDate());
+                scoreAdapter.notifyDataSetChanged();
+                sort = 2; // date
+                item.setTitle(R.string.sort_by_score);
+            } else if (sort == 2){
+                Collections.sort(scoreItems, new ScoreComparator());
+                scoreAdapter.notifyDataSetChanged();
+                sort = 1; // highest score
+                item.setTitle(R.string.sort_by_date);
+            }
         } else {
             finish();
         }
@@ -139,7 +155,7 @@ public class ScoresActivity extends AppCompatActivity {
         return true;
     }
 
-    public void exportScores(View view) {
+    public void exportScores() {
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
 
         intent.addCategory(Intent.CATEGORY_OPENABLE);
