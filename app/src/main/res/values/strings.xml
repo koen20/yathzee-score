@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Yahtzee score</string>
+    <string name="app_name">Yatzy score</string>
     <string name="aces">Aces</string>
     <string name="twos">Twos</string>
     <string name="threes">Threes</string>
