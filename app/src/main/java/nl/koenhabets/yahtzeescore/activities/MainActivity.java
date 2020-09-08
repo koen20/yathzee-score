@@ -2,7 +2,6 @@ package nl.koenhabets.yahtzeescore.activities;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -28,22 +27,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.nearby.Nearby;
-import com.google.android.gms.nearby.messages.Message;
-import com.google.android.gms.nearby.messages.MessageListener;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
-import org.eclipse.paho.client.mqttv3.MqttException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -52,27 +43,27 @@ import org.matomo.sdk.Tracker;
 import org.matomo.sdk.TrackerBuilder;
 import org.matomo.sdk.extra.TrackHelper;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
 import nl.koenhabets.yahtzeescore.DataManager;
-import nl.koenhabets.yahtzeescore.Mqtt;
+import nl.koenhabets.yahtzeescore.Multiplayer;
 import nl.koenhabets.yahtzeescore.PlayerItem;
 import nl.koenhabets.yahtzeescore.R;
 
 public class MainActivity extends AppCompatActivity implements TextWatcher, OnFailureListener {
+    public static String name = "";
+    static boolean playersNearby = false;
+    private static Tracker mMatomoTracker;
+    Multiplayer multiplayer;
+    boolean multiplayerEnabled;
     private EditText editText1;
     private EditText editText2;
     private EditText editText3;
@@ -90,38 +81,24 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
     private TextView tvTotalLeft;
     private TextView tvTotalRight;
     private TextView tvTotal;
-    private static TextView tvOp;
+    private TextView tvOp;
     private TextView tvYahtzeeBonus;
     private Button button;
     private EditText editTextBonus;
-
-    private MessageListener mMessageListener;
-    private Message mMessage;
-    public static String name = "";
-
     private int totalLeft = 0;
     private int totalRight = 0;
-    private static List<PlayerItem> players = new ArrayList<>();
-    Timer updateTimer;
-    private int updateInterval = 10000;
     private JSONArray playersM = new JSONArray();
-
-    static boolean multiplayer;
-    static boolean playersNearby = false;
     private FirebaseUser firebaseUser;
-    private DatabaseReference database;
-
-    private static Tracker mMatomoTracker;
     private FirebaseAuth mAuth;
     private Boolean realtimeDatabaseEnabled = true;
+
+    public static Tracker getTracker2() {
+        return mMatomoTracker;
+    }
 
     public synchronized Tracker getTracker() {
         if (mMatomoTracker != null) return mMatomoTracker;
         mMatomoTracker = TrackerBuilder.createDefault("https://analytics.koenhabets.nl/matomo.php", 6).build(Matomo.getInstance(this));
-        return mMatomoTracker;
-    }
-
-    public static Tracker getTracker2() {
         return mMatomoTracker;
     }
 
@@ -131,7 +108,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         setContentView(R.layout.activity_main);
         setSupportActionBar(findViewById(R.id.toolbar));
         mAuth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance().getReference();
         SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         AppCompatDelegate.setDefaultNightMode(sharedPref.getInt("theme", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM));
 
@@ -212,17 +188,9 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
 
         calculateTotal();
 
-        editText23.setOnClickListener(view -> {
-            setDefaultValue(editText23, 25);
-
-        });
-        editText24.setOnClickListener(view -> {
-            setDefaultValue(editText24, 30);
-
-        });
-        editText25.setOnClickListener(view -> {
-            setDefaultValue(editText25, 40);
-        });
+        editText23.setOnClickListener(view -> setDefaultValue(editText23, 25));
+        editText24.setOnClickListener(view -> setDefaultValue(editText24, 30));
+        editText25.setOnClickListener(view -> setDefaultValue(editText25, 40));
         editText26.setOnClickListener(view -> setDefaultValue(editText26, 50));
 
         final Context context = this;
@@ -293,8 +261,14 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
     }
 
     private void initMultiplayer() {
-        multiplayer = true;
-        mMessage = new Message(("new player").getBytes());
+        SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+
+        Log.i("name", sharedPref.getString("name", ""));
+        if (sharedPref.getString("name", "").equals("")) {
+            nameDialog(this);
+        } else {
+            name = sharedPref.getString("name", "");
+        }
         if (realtimeDatabaseEnabled) {
             firebaseUser = mAuth.getCurrentUser();
             if (firebaseUser == null) {
@@ -311,97 +285,14 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                         });
             }
         }
-        mMessageListener = new MessageListener() {
-            @Override
-            public void onFound(Message message) {
-                Log.d("t", "Found message: " + new String(message.getContent()));
-                proccessMessage(new String(message.getContent()), false);
-            }
 
-            @Override
-            public void onLost(Message message) {
-                Log.d("d", "Lost sight of message: " + new String(message.getContent()));
-            }
-        };
-
-        Nearby.getMessagesClient(this).publish(mMessage).addOnFailureListener(this);
-        Nearby.getMessagesClient(this).subscribe(mMessageListener);
-        try {
-            Mqtt.connectMqtt(name, this);
-            updateTimer = new Timer();
-            updateTimer.scheduleAtFixedRate(new updateTask(), 6000, updateInterval);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
-
-        Log.i("name", sharedPref.getString("name", ""));
-        if (sharedPref.getString("name", "").equals("")) {
-            nameDialog(this);
-        } else {
-            name = sharedPref.getString("name", "");
-        }
-
-        try {
-            playersM = new JSONArray(sharedPref.getString("players", ""));
-            for (int i = 0; i < playersM.length(); i++) {
-                boolean exists = false;
-                for (int k = 0; k < players.size(); k++) {
-                    PlayerItem item = players.get(k);
-                    if (item.getName().equals(playersM.getString(i))) {
-                        exists = true;
-                    }
-                }
-                if (!exists) {
-                    PlayerItem playerItem = new PlayerItem(playersM.getString(i), 0, 0, false);
-                    players.add(playerItem);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        multiplayer = new Multiplayer(this, name, (totalLeft + totalRight), firebaseUser);
+        multiplayer.setMultiplayerListener(players -> {
+            updateMultiplayerText(players);
+        });
 
         tvOp.setMovementMethod(new ScrollingMovementMethod());
         tvOp.setOnClickListener(view -> addPlayerDialog());
-        Log.i("players", playersM.toString() + "");
-        calculateTotal();
-
-        if (realtimeDatabaseEnabled) {
-            database.child("score").addChildEventListener(new ChildEventListener() {
-
-                @Override
-                public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-                }
-
-                @Override
-                public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                    Log.i("Firebase Received", dataSnapshot.getValue().toString());
-                    try {
-                        proccessMessage(dataSnapshot.getValue().toString(), true);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                }
-
-                @Override
-                public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-                }
-
-                @Override
-                public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-                }
-
-                @Override
-                public void onCancelled(DatabaseError error) {
-                    Log.w("EditTagsActivity", "Failed to read scores.", error.toException());
-                }
-            });
-        }
     }
 
 
@@ -413,64 +304,28 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         final EditText editTextName = view.findViewById(R.id.editText2);
         builder.setView(view);
         builder.setMessage(R.string.add_player);
-        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                playersM.put(editTextName.getText().toString());
-                SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
-                sharedPref.edit().putString("players", playersM.toString()).apply();
-                PlayerItem playerItem = new PlayerItem(editTextName.getText().toString(), 0, 0, true);
-                players.add(playerItem);
-            }
+        builder.setPositiveButton("Ok", (dialog, id) -> {
+            playersM.put(editTextName.getText().toString());
+            SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+            sharedPref.edit().putString("players", playersM.toString()).apply();
+            PlayerItem playerItem = new PlayerItem(editTextName.getText().toString(), 0, 0, true);
+            multiplayer.addPlayer(playerItem);
         });
         builder.setNegativeButton(R.string.cancel, (dialog, id) -> {
         });
         builder.show();
     }
 
-    public static void proccessMessage(String message, boolean mqtt) {
-        try {
-            if (!message.equals("new player")) {
-                String[] messageSplit = message.split(";");
-                boolean exists = false;
-                if (!messageSplit[0].equals(name) && !messageSplit[0].equals("")) {
-                    for (int i = 0; i < players.size(); i++) {
-                        PlayerItem playerItem = players.get(i);
-                        if (playerItem.getName().equals(messageSplit[0])) {
-                            exists = true;
-                            if (playerItem.getLastUpdate() < Long.parseLong(messageSplit[2]) && mqtt) {
-                                Log.i("message", "newer message");
-                                players.remove(i);
-                                PlayerItem item = new PlayerItem(messageSplit[0], Integer.parseInt(messageSplit[1]), Long.parseLong(messageSplit[2]), true);
-                                players.add(item);
-                                updateMultiplayerText();
-                                break;
-                            }
-                        }
-                    }
-                    if (!exists && !mqtt) {
-                        Log.i("New player", messageSplit[0]);
-                        PlayerItem item = new PlayerItem(messageSplit[0], Integer.parseInt(messageSplit[1]), Long.parseLong(messageSplit[2]), true);
-                        players.add(item);
-                        updateMultiplayerText();
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void updateMultiplayerText() {
+    public void updateMultiplayerText(List<PlayerItem> players) {
         String text = "Nearby: " + "<br>";
         Collections.sort(players);
         for (int i = 0; i < players.size(); i++) {
             PlayerItem playerItem = players.get(i);
             if (playerItem.isVisible()) {
                 if (playerItem.getName().equals(name)) {
-                    text = text + "<b>" + playerItem.getName() + ": " + playerItem.getScore() + "</b><br>";
+                    text += "<b>" + playerItem.getName() + ": " + playerItem.getScore() + "</b><br>";
                 } else {
-                    text = text + playerItem.getName() + ": " + playerItem.getScore() + "<br>";
+                    text += playerItem.getName() + ": " + playerItem.getScore() + "<br>";
                 }
             }
         }
@@ -486,12 +341,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         e.printStackTrace();
     }
 
-    private class updateTask extends TimerTask {
-        @Override
-        public void run() {
-            updateNearbyScore();
-        }
-    }
 
     public boolean onCreateOptionsMenu(Menu menu) {
 
@@ -543,34 +392,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         }
     }
 
-    private void updateNearbyScore() {
-        if (multiplayer) {
-            Nearby.getMessagesClient(this).unpublish(mMessage);
-            Date date = new Date();
-            if (!name.equals("")) {
-                String text = name + ";" + (totalLeft + totalRight) + ";" + date.getTime();
-                mMessage = new Message((text).getBytes());
-                Log.i("tada", "score sent");
-                try {
-                    if (!Mqtt.mqttAndroidClient.isConnected()) {
-                        Mqtt.connectMqtt(name, this);
-                    }
-                    Mqtt.publish("score", text);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                Nearby.getMessagesClient(this).publish(mMessage).addOnFailureListener(this);
-                if (realtimeDatabaseEnabled) {
-                    try {
-                        database.child("score").child(firebaseUser.getUid()).setValue(text);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-    }
-
     private void nameDialog(Context context) {
         final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
         LayoutInflater inflater = this.getLayoutInflater();
@@ -585,12 +406,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
             SharedPreferences sharedPref = context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
             sharedPref.edit().putString("name", editTextName.getText().toString()).apply();
             name = editTextName.getText().toString();
-            try {
-                Mqtt.disconnectMqtt();
-                Mqtt.connectMqtt(name, context);
-            } catch (MqttException e) {
-                e.printStackTrace();
-            }
             TrackHelper.track().event("category", "action").name("name changed").with(mMatomoTracker);
         });
         builder.show();
@@ -612,25 +427,17 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
 
         if (sharedPref.getBoolean("multiplayer", false)) {
             initMultiplayer();
-            multiplayer = true;
+            multiplayerEnabled = true;
             tvOp.setText(R.string.No_players_nearby);
         } else {
-            multiplayer = false;
+            multiplayerEnabled = false;
             tvOp.setText("");
         }
 
         if (!sharedPref.getBoolean("multiplayerAsked", false)) {
             permissionDialog();
         }
-        if (multiplayer) {
-            try {
-                updateTimer.cancel();
-                updateTimer.purge();
-            } catch (Exception ignored) {
-            }
-            updateTimer = new Timer();
-            updateTimer.scheduleAtFixedRate(new updateTask(), 3000, updateInterval);
-        }
+
         FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         mFirebaseAnalytics.setUserProperty("multiplayer", multiplayer + "");
         if (!sharedPref.getBoolean("yahtzeeBonus", false)) {
@@ -641,33 +448,9 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
 
     @Override
     public void onStop() {
-        if (multiplayer) {
+        if (multiplayerEnabled) {
             Log.i("onStop", "disconnecting");
-            try {
-                Nearby.getMessagesClient(this).unpublish(mMessage);
-                Nearby.getMessagesClient(this).unsubscribe(mMessageListener);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            try {
-                Mqtt.disconnectMqtt();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            try {
-                updateTimer.cancel();
-                updateTimer.purge();
-                mMatomoTracker.dispatch();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            if (realtimeDatabaseEnabled) {
-                try {
-                    database.child("score").child(firebaseUser.getUid()).removeValue();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+            multiplayer.stopMultiplayer();
         }
         super.onStop();
     }
@@ -696,7 +479,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
         calculateTotal();
         DataManager.saveScores(createJsonScores(), getApplicationContext());
-        updateNearbyScore();
+        multiplayer.updateNearbyScore();
     }
 
     @Override
@@ -708,33 +491,20 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         totalRight = getTextInt(editText21) + getTextInt(editText22) + getTextInt(editText23)
                 + getTextInt(editText24) + getTextInt(editText25) + getTextInt(editText26) + getTextInt(editText27) + getTextInt(editText28);
         if (totalLeft >= 63) {
-            editTextBonus.setText(35 + "");
+            editTextBonus.setText(String.valueOf(35));
             totalLeft = totalLeft + 35;
         } else {
-            editTextBonus.setText(0 + "");
+            editTextBonus.setText(String.valueOf(0));
         }
-        tvTotalLeft.setText(getString(R.string.left) + " " + totalLeft);
-        tvTotalRight.setText(getString(R.string.right) + " " + totalRight);
-        tvTotal.setText(getString(R.string.Total) + " " + (totalLeft + totalRight));
-        if (players.size() == 0 && multiplayer) {
-            tvOp.setText(R.string.No_players_nearby);
-        }
-
-        // add the player to the players list and update it on screen
-        if (!name.equals("") && playersNearby) {
-            // remove player if name already exists
-            for (int i = 0; i < players.size(); i++) {
-                PlayerItem playerItem = players.get(i);
-                if (playerItem.getName().equals(name)) {
-                    players.remove(i);
-                    break;
-                }
+        tvTotalLeft.setText(getString(R.string.left, totalLeft));
+        tvTotalRight.setText(getString(R.string.right, totalRight));
+        tvTotal.setText(getString(R.string.Total, (totalLeft + totalRight)));
+        if (multiplayerEnabled) {
+            if (multiplayer.getPlayerAmount() == 0) {
+                tvOp.setText(R.string.No_players_nearby);
             }
-            PlayerItem item = new PlayerItem(name, (totalLeft + totalRight), new Date().getTime(), true);
-            players.add(item);
-            updateMultiplayerText();
+            multiplayer.setScore(totalLeft + totalRight);
         }
-
 
         int color = Color.BLACK;
         // change editText color to white if there is a black theme
@@ -818,7 +588,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         editText26.setText("");
         editText27.setText("");
         editText28.setText("");
-        updateNearbyScore();
+        multiplayer.updateNearbyScore();
     }
 
     private JSONObject createJsonScores() {
