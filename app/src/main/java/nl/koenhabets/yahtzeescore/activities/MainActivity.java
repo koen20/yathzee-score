@@ -43,6 +43,7 @@ import org.matomo.sdk.Tracker;
 import org.matomo.sdk.TrackerBuilder;
 import org.matomo.sdk.extra.TrackHelper;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -52,15 +53,17 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import nl.koenhabets.yahtzeescore.DataManager;
 import nl.koenhabets.yahtzeescore.Multiplayer;
+import nl.koenhabets.yahtzeescore.PlayerAdapter;
 import nl.koenhabets.yahtzeescore.PlayerItem;
 import nl.koenhabets.yahtzeescore.R;
 
 public class MainActivity extends AppCompatActivity implements TextWatcher, OnFailureListener {
     public static String name = "";
-    static boolean playersNearby = false;
     private static Tracker mMatomoTracker;
     Multiplayer multiplayer;
     boolean multiplayerEnabled;
@@ -82,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
     private TextView tvTotalRight;
     private TextView tvTotal;
     private TextView tvOp;
+    private RecyclerView recyclerView;
     private TextView tvYahtzeeBonus;
     private Button button;
     private EditText editTextBonus;
@@ -90,6 +94,8 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
     private FirebaseUser firebaseUser;
     private FirebaseAuth mAuth;
     private Boolean realtimeDatabaseEnabled = true;
+    private PlayerAdapter playerAdapter;
+    private List<PlayerItem> players2 = new ArrayList<>();
 
     public static Tracker getTracker2() {
         return mMatomoTracker;
@@ -163,6 +169,13 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         tvTotal = findViewById(R.id.textViewTotal);
         tvOp = findViewById(R.id.textViewOp);
         tvYahtzeeBonus = findViewById(R.id.textView7);
+        recyclerView = findViewById(R.id.reyclerViewMultiplayer);
+
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        playerAdapter = new PlayerAdapter(this, players2);
+        recyclerView.setAdapter(playerAdapter);
+
 
         try {
             readScores(new JSONObject(sharedPref.getString("scores", "")));
@@ -311,7 +324,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
             }
             playersM.put(editTextName.getText().toString());
             sharedPref.edit().putString("players", playersM.toString()).apply();
-            PlayerItem playerItem = new PlayerItem(editTextName.getText().toString(), 0, 0, true);
+            PlayerItem playerItem = new PlayerItem(editTextName.getText().toString(), 0, 0, true, false);
             multiplayer.addPlayer(playerItem);
             updateMultiplayerText(multiplayer.getPlayers());
         });
@@ -321,23 +334,17 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
     }
 
     public void updateMultiplayerText(List<PlayerItem> players) {
-        String text = "Nearby: " + "<br>";
+        recyclerView.setVisibility(View.VISIBLE);
+        tvOp.setVisibility(View.GONE);
+        players2.clear();
         Collections.sort(players);
         for (int i = 0; i < players.size(); i++) {
             PlayerItem playerItem = players.get(i);
             if (playerItem.isVisible()) {
-                if (playerItem.getName().equals(name)) {
-                    text += "<b>" + playerItem.getName() + ": " + playerItem.getScore() + "</b><br>";
-                } else {
-                    text += playerItem.getName() + ": " + playerItem.getScore() + "<br>";
-                }
+                players2.add(playerItem);
             }
         }
-        if (players.size() != 0) {
-            text = text.substring(0, (text.length() - 1));
-            tvOp.setText(Html.fromHtml(text));
-            playersNearby = true;
-        }
+        playerAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -432,6 +439,8 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         if (sharedPref.getBoolean("multiplayer", false)) {
             initMultiplayer();
             multiplayerEnabled = true;
+            recyclerView.setVisibility(View.GONE);
+            tvOp.setVisibility(View.VISIBLE);
             tvOp.setText(R.string.No_players_nearby);
         } else {
             multiplayerEnabled = false;

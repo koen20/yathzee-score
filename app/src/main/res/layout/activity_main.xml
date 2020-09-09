@@ -549,6 +549,18 @@
                 app:layout_constraintStart_toStartOf="@+id/guideline2"
                 app:layout_constraintTop_toBottomOf="@+id/editText7" />
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/reyclerViewMultiplayer"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="8dp"
+                android:visibility="visible"
+                app:layout_constraintEnd_toStartOf="@+id/textViewTotal"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textViewTotalLeft" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 

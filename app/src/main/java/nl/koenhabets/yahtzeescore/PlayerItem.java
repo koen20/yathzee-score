@@ -5,12 +5,14 @@ public class PlayerItem implements Comparable<PlayerItem> {
     private Integer score;
     private long lastUpdate;
     private boolean visible;
+    private boolean local;
 
-    public PlayerItem(String name, Integer score, long lastUpdate, boolean visible) {
+    public PlayerItem(String name, Integer score, long lastUpdate, boolean visible, boolean local) {
         this.name = name;
         this.score = score;
         this.lastUpdate = lastUpdate;
         this.visible = visible;
+        this.local = local;
     }
 
     public String getName() {
@@ -36,5 +38,9 @@ public class PlayerItem implements Comparable<PlayerItem> {
     @Override
     public int compareTo(PlayerItem p) {
         return p.getScore().compareTo(this.getScore());
+    }
+
+    public boolean isLocal() {
+        return local;
     }
 }

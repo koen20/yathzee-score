@@ -11,7 +11,6 @@ import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -90,7 +89,7 @@ public class Multiplayer implements OnFailureListener {
                     }
                 }
                 if (!exists) {
-                    PlayerItem playerItem = new PlayerItem(playersM.getString(i), 0, 0, false);
+                    PlayerItem playerItem = new PlayerItem(playersM.getString(i), 0, 0, false, false);
                     players.add(playerItem);
                 }
             }
@@ -161,7 +160,7 @@ public class Multiplayer implements OnFailureListener {
 
     public void setScore(int score) {
         this.score = score;
-        // add the player to the players list and update it on screen
+        // add the local player to the players list and update it on screen
         if (!name.equals("") && getPlayerAmount() != 0) {
             // remove player if name already exists
             for (int i = 0; i < players.size(); i++) {
@@ -171,7 +170,7 @@ public class Multiplayer implements OnFailureListener {
                     break;
                 }
             }
-            PlayerItem item = new PlayerItem(name, score, new Date().getTime(), true);
+            PlayerItem item = new PlayerItem(name, score, new Date().getTime(), true, true);
             players.add(item);
             listener.onChange(players);
         }
@@ -245,6 +244,7 @@ public class Multiplayer implements OnFailureListener {
             for (int i = 0; i < players.size(); i++) {
                 if (date.getTime() - players.get(i).getLastUpdate() > 120000) {
                     players.get(i).setVisible(false);
+                    Log.i("players", "Making player invisible: " + players.get(i).getName());
                 }
             }
         }
@@ -263,7 +263,7 @@ public class Multiplayer implements OnFailureListener {
                             if (playerItem.getLastUpdate() < Long.parseLong(messageSplit[2]) && mqtt) {
                                 Log.i("message", "newer message");
                                 players.remove(i);
-                                PlayerItem item = new PlayerItem(messageSplit[0], Integer.parseInt(messageSplit[1]), Long.parseLong(messageSplit[2]), true);
+                                PlayerItem item = new PlayerItem(messageSplit[0], Integer.parseInt(messageSplit[1]), Long.parseLong(messageSplit[2]), true, false);
                                 players.add(item);
                                 listener.onChange(players);
                                 break;
@@ -272,7 +272,7 @@ public class Multiplayer implements OnFailureListener {
                     }
                     if (!exists && !mqtt) {
                         Log.i("New player", messageSplit[0]);
-                        PlayerItem item = new PlayerItem(messageSplit[0], Integer.parseInt(messageSplit[1]), Long.parseLong(messageSplit[2]), true);
+                        PlayerItem item = new PlayerItem(messageSplit[0], Integer.parseInt(messageSplit[1]), Long.parseLong(messageSplit[2]), true, false);
                         players.add(item);
                         listener.onChange(players);
                     }
