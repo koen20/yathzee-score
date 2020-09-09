@@ -36,7 +36,7 @@ public class ScoreActivity extends AppCompatActivity {
     private TextView tvTotalLeft;
     private TextView tvTotalRight;
     private TextView tvTotal;
-    private static TextView tvOp;
+    private TextView tvOp;
     private Button button;
 
     @Override

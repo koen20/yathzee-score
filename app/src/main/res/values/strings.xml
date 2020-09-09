@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Yahtzee score</string>
+    <string name="app_name">Yatzy score</string>
     <string name="aces">Aces</string>
     <string name="twos">Twos</string>
     <string name="threes">Threes</string>
@@ -13,14 +13,14 @@
     <string name="yahtzee" translatable="false">Yahtzee</string>
     <string name="large_strt" translatable="false">Large Strt</string>
     <string name="chance" translatable="false">Chance</string>
-    <string name="Total">Total:</string>
+    <string name="Total">Total: %d</string>
     <string name="name_message">Please enter a name for multiplayer. If you don\'t enter a name, multiplayer will not work.</string>
     <string name="clear_all_save">Clear all / save</string>
     <string name="bonus" translatable="false">Bonus</string>
     <string name="change_nickname">Change nickname</string>
     <string name="privacy_policy" translatable="false">Privacy policy</string>
-    <string name="left">Left:</string>
-    <string name="right">Right:</string>
+    <string name="left">Left: %d</string>
+    <string name="right">Right: %d</string>
     <string name="No_players_nearby">No players nearby. Touch to manually add a player.</string>
     <string name="name">Name</string>
     <string name="previous_scores">Saved scores</string>
@@ -61,7 +61,6 @@
     <string name="_1_4_81" translatable="false">1.4(81)</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="stop_game">Stop game</string>
     <string name="sort_by_date">Sort by date</string>
     <string name="sort_by_score">Sort by score</string>
 
