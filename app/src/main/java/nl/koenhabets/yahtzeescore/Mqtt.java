@@ -16,10 +16,10 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 
 public class Mqtt {
-    public MqttAndroidClient mqttAndroidClient;
-    private final static String serverUri = "tcp://yahtzee.koenhabets.nl:7829";
+    private MqttAndroidClient mqttAndroidClient;
+    private final String serverUri = "tcp://yahtzee.koenhabets.nl:7829";
 
-    private final static String clientId = "Yahtzee-" + ((int) (Math.random() * ((999999 - 1) + 1)) + 1) + "-";
+    private final String clientId = "Yahtzee-" + ((int) (Math.random() * ((999999 - 1) + 1)) + 1) + "-";
     private MqttListener listener;
 
     public interface MqttListener {

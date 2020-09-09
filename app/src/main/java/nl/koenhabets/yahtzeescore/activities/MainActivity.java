@@ -87,7 +87,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
     private EditText editTextBonus;
     private int totalLeft = 0;
     private int totalRight = 0;
-    private JSONArray playersM = new JSONArray();
     private FirebaseUser firebaseUser;
     private FirebaseAuth mAuth;
     private Boolean realtimeDatabaseEnabled = true;
@@ -287,9 +286,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         }
 
         multiplayer = new Multiplayer(this, name, (totalLeft + totalRight), firebaseUser);
-        multiplayer.setMultiplayerListener(players -> {
-            updateMultiplayerText(players);
-        });
+        multiplayer.setMultiplayerListener(this::updateMultiplayerText);
 
         tvOp.setMovementMethod(new ScrollingMovementMethod());
         tvOp.setOnClickListener(view -> addPlayerDialog());
@@ -305,11 +302,18 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         builder.setView(view);
         builder.setMessage(R.string.add_player);
         builder.setPositiveButton("Ok", (dialog, id) -> {
-            playersM.put(editTextName.getText().toString());
             SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+            JSONArray playersM = new JSONArray();
+            try {
+                playersM = new JSONArray(sharedPref.getString("players", "[]"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            playersM.put(editTextName.getText().toString());
             sharedPref.edit().putString("players", playersM.toString()).apply();
             PlayerItem playerItem = new PlayerItem(editTextName.getText().toString(), 0, 0, true);
             multiplayer.addPlayer(playerItem);
+            updateMultiplayerText(multiplayer.getPlayers());
         });
         builder.setNegativeButton(R.string.cancel, (dialog, id) -> {
         });
