@@ -29,6 +29,10 @@ public class PlayerItem implements Comparable<PlayerItem> {
         return visible;
     }
 
+    public void setVisible (boolean visible) {
+        this.visible = visible;
+    }
+
     @Override
     public int compareTo(PlayerItem p) {
         return p.getScore().compareTo(this.getScore());

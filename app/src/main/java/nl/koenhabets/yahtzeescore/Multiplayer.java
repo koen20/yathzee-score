@@ -31,15 +31,14 @@ public class Multiplayer implements OnFailureListener {
     private MultiplayerListener listener;
     private MessageListener mMessageListener;
     private Message mMessage;
-    private FirebaseAuth mAuth;
     private Boolean realtimeDatabaseEnabled = true;
     private FirebaseUser firebaseUser;
     private DatabaseReference database;
 
-    private static List<PlayerItem> players = new ArrayList<>();
-    Timer updateTimer;
+    private List<PlayerItem> players = new ArrayList<>();
+    private Timer updateTimer;
+    private Timer updateTimer2;
     private int updateInterval = 10000;
-    private JSONArray playersM = new JSONArray();
     private Context context;
     private String name;
     private int score;
@@ -47,12 +46,12 @@ public class Multiplayer implements OnFailureListener {
 
     public Multiplayer(Context context, String name, int score, FirebaseUser firebaseUser) {
         database = FirebaseDatabase.getInstance().getReference();
-        initMultiplayer(context, name);
         this.context = context;
         this.name = name;
         this.listener = null;
         this.score = score;
         this.firebaseUser = firebaseUser;
+        initMultiplayer(context, name);
     }
 
 
@@ -65,34 +64,23 @@ public class Multiplayer implements OnFailureListener {
     }
 
     public void initMultiplayer(Context context, String name) {
-        mMessageListener = new MessageListener() {
-            @Override
-            public void onFound(Message message) {
-                Log.d("t", "Found message: " + new String(message.getContent()));
-                proccessMessage(new String(message.getContent()), false);
-            }
-
-            @Override
-            public void onLost(Message message) {
-                Log.d("d", "Lost sight of message: " + new String(message.getContent()));
-            }
-        };
-        mMessage = new Message(("new player").getBytes());
-
-        Nearby.getMessagesClient(context).publish(mMessage).addOnFailureListener(this);
-        Nearby.getMessagesClient(context).subscribe(mMessageListener);
+        initNearby();
         try {
             mqtt = new Mqtt(context, name);
             mqtt.setMqttListener(message -> proccessMessage(message, true));
-            updateTimer = new Timer();
-            updateTimer.scheduleAtFixedRate(new updateTask(), 6000, updateInterval);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        SharedPreferences sharedPref = context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+        updateTimer = new Timer();
+        updateTimer.scheduleAtFixedRate(new updateTask(), 6000, updateInterval);
 
+        updateTimer2 = new Timer();
+        updateTimer2.scheduleAtFixedRate(new autoRemove(), 60000, 60000);
+
+        //get manually added players and add them to the players list
+        SharedPreferences sharedPref = context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         try {
-            playersM = new JSONArray(sharedPref.getString("players", ""));
+            JSONArray playersM = new JSONArray(sharedPref.getString("players", ""));
             for (int i = 0; i < playersM.length(); i++) {
                 boolean exists = false;
                 for (int k = 0; k < players.size(); k++) {
@@ -110,8 +98,31 @@ public class Multiplayer implements OnFailureListener {
             e.printStackTrace();
         }
 
-        Log.i("players", playersM.toString() + "");
+        Log.i("players", players.toString() + "");
 
+        initDatabase();
+    }
+
+    public void initNearby() {
+        mMessageListener = new MessageListener() {
+            @Override
+            public void onFound(Message message) {
+                Log.d("t", "Found message: " + new String(message.getContent()));
+                proccessMessage(new String(message.getContent()), false);
+            }
+
+            @Override
+            public void onLost(Message message) {
+                Log.d("d", "Lost sight of message: " + new String(message.getContent()));
+            }
+        };
+        mMessage = new Message(("new player").getBytes());
+
+        Nearby.getMessagesClient(context).publish(mMessage).addOnFailureListener(this);
+        Nearby.getMessagesClient(context).subscribe(mMessageListener);
+    }
+
+    public void initDatabase() {
         if (realtimeDatabaseEnabled) {
             database.child("score").addChildEventListener(new ChildEventListener() {
 
@@ -151,7 +162,7 @@ public class Multiplayer implements OnFailureListener {
     public void setScore(int score) {
         this.score = score;
         // add the player to the players list and update it on screen
-        if (!name.equals("") && players.size() != 0) { ///todo players nearby
+        if (!name.equals("") && getPlayerAmount() != 0) {
             // remove player if name already exists
             for (int i = 0; i < players.size(); i++) {
                 PlayerItem playerItem = players.get(i);
@@ -168,11 +179,21 @@ public class Multiplayer implements OnFailureListener {
     }
 
     public int getPlayerAmount() {
-        return players.size();
+        int count = 0;
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i).isVisible()){
+                count++;
+            }
+        }
+        return count;
     }
 
     public void addPlayer(PlayerItem playerItem) {
         players.add(playerItem);
+    }
+
+    public List<PlayerItem> getPlayers() {
+        return players;
     }
 
     public void stopMultiplayer() {
@@ -190,6 +211,8 @@ public class Multiplayer implements OnFailureListener {
         try {
             updateTimer.cancel();
             updateTimer.purge();
+            updateTimer2.cancel();
+            updateTimer2.purge();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -204,7 +227,6 @@ public class Multiplayer implements OnFailureListener {
 
     @Override
     public void onFailure(Exception e) {
-        Log.e("Nearby asdf", "iohawehfpv");
         e.printStackTrace();
     }
 
@@ -212,6 +234,19 @@ public class Multiplayer implements OnFailureListener {
         @Override
         public void run() {
             updateNearbyScore();
+        }
+    }
+
+    //make player invisible if there are no messages for two minutes
+    private class autoRemove extends TimerTask {
+        @Override
+        public void run() {
+            Date date = new Date();
+            for (int i = 0; i < players.size(); i++) {
+                if (date.getTime() - players.get(i).getLastUpdate() > 120000) {
+                    players.get(i).setVisible(false);
+                }
+            }
         }
     }
 
@@ -253,13 +288,12 @@ public class Multiplayer implements OnFailureListener {
         Date date = new Date();
         if (!name.equals("")) {
             String text = name + ";" + (score) + ";" + date.getTime();
-            mMessage = new Message((text).getBytes());
-            Log.i("tada", "score sent");
             try {
                 mqtt.publish("score", text);
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            mMessage = new Message((text).getBytes());
             Nearby.getMessagesClient(context).publish(mMessage).addOnFailureListener(this);
             if (realtimeDatabaseEnabled) {
                 try {
