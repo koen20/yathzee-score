@@ -14,15 +14,28 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import nl.koenhabets.yahtzeescore.activities.MainActivity;
 
 public class Mqtt {
-    public static MqttAndroidClient mqttAndroidClient;
+    public MqttAndroidClient mqttAndroidClient;
     private final static String serverUri = "tcp://yahtzee.koenhabets.nl:7829";
 
     private final static String clientId = "Yahtzee-" + ((int) (Math.random() * ((999999 - 1) + 1)) + 1) + "-";
+    private MqttListener listener;
 
-    public static void connectMqtt(String name, Context context) throws MqttException {
+    public interface MqttListener {
+        void onMessage(String message);
+    }
+
+    public Mqtt(Context context, String name) throws MqttException {
+        connectMqtt(context, name);
+        this.listener = null;
+    }
+
+    public void setMqttListener(MqttListener listener) {
+        this.listener = listener;
+    }
+
+    public void connectMqtt(Context context, String name) throws MqttException {
         Crashlytics.setUserIdentifier(clientId);
         mqttAndroidClient = new MqttAndroidClient(context, serverUri, clientId + name);
         mqttAndroidClient.setCallback(new MqttCallbackExtended() {
@@ -40,7 +53,7 @@ public class Mqtt {
             @Override
             public void messageArrived(String topic, MqttMessage mqttMessage) {
                 Log.w("Mqtt", mqttMessage.toString());
-                MainActivity.proccessMessage(mqttMessage.toString(), true);
+                listener.onMessage(mqttMessage.toString());
             }
 
             @Override
@@ -56,15 +69,15 @@ public class Mqtt {
         mqttAndroidClient.connect(mqttConnectOptions);
     }
 
-    public static void disconnectMqtt() {
+    public void disconnectMqtt() {
         try {
             mqttAndroidClient.disconnect();
-        } catch (Exception ignored){
+        } catch (Exception ignored) {
 
         }
     }
 
-    private static void mqttSubscribe() {
+    private void mqttSubscribe() {
         try {
             mqttAndroidClient.subscribe("score", 0, null, new IMqttActionListener() {
                 @Override
@@ -85,8 +98,8 @@ public class Mqtt {
 
     }
 
-    public static void publish(String topic, String message) throws MqttException {
+    public void publish(String topic, String message) throws MqttException {
+        //todo check if reconnect is necessary
         mqttAndroidClient.publish(topic, new MqttMessage(message.getBytes()));
-
     }
 }

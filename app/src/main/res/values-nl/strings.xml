@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Yahtzee score</string>
+    <string name="app_name">Yatzy score</string>
     <string name="aces">Enen</string>
     <string name="twos">Tweeën</string>
     <string name="threes">Drieën</string>
     <string name="fours">Vieren</string>
     <string name="fives">Vijven</string>
     <string name="sixes">Zessen</string>
-    <string name="Total">Totaal:</string>
+    <string name="Total">Totaal: %d</string>
     <string name="name_message">Voer een naam in voor multiplayer. Als u geen naam invoert werkt multiplayer niet.</string>
     <string name="change_nickname">Verander naam</string>
-    <string name="left">Links:</string>
-    <string name="right">Rechts:</string>
+    <string name="left">Links: %d</string>
+    <string name="right">Rechts: %d</string>
     <string name="No_players_nearby">Geen spelers in de buurt. Druk hierop om handmatig een speler toe te voegen.</string>
     <string name="name">Naam</string>
     <string name="previous_scores">Opgeslagen scores</string>
@@ -51,7 +51,6 @@
     <string name="average_score_of_last">Gemiddelde score van de laaste %d spellen</string>
     <string name="yes">Ja</string>
     <string name="no">Nee</string>
-    <string name="stop_game">Stop spel</string>
     <string name="sort_by_date">Sorteer op datum</string>
     <string name="sort_by_score">Sorteer op score</string>
 </resources>

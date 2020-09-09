@@ -17,11 +17,9 @@ import android.widget.Switch;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
-import org.eclipse.paho.client.mqttv3.MqttException;
 import org.matomo.sdk.Tracker;
 import org.matomo.sdk.extra.TrackHelper;
 
-import nl.koenhabets.yahtzeescore.Mqtt;
 import nl.koenhabets.yahtzeescore.R;
 
 public class SettingsActivity extends AppCompatActivity {
@@ -75,21 +73,13 @@ public class SettingsActivity extends AppCompatActivity {
                 SharedPreferences sharedPref3 = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
                 sharedPref3.edit().putString("name", editTextName.getText().toString()).apply();
                 MainActivity.name = editTextName.getText().toString();
-                try {
-                    Mqtt.disconnectMqtt();
-                    Mqtt.connectMqtt(MainActivity.name, getApplicationContext());
-                } catch (MqttException e) {
-                    e.printStackTrace();
-                }
                 Tracker tracker = MainActivity.getTracker2();
                 TrackHelper.track().event("category", "action").name("name changed").with(tracker);
             });
             builder.show();
         });
 
-        buttonTheme.setOnClickListener(view -> {
-            darkModeDialog();
-        });
+        buttonTheme.setOnClickListener(view -> darkModeDialog());
     }
 
     private void darkModeDialog() {
