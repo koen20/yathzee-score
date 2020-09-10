@@ -19,6 +19,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -66,7 +68,7 @@ public class Multiplayer implements OnFailureListener {
         initNearby();
         try {
             mqtt = new Mqtt(context, name);
-            mqtt.setMqttListener(message -> proccessMessage(message, true));
+            mqtt.setMqttListener(message -> proccessMessage(message, true, ""));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -107,7 +109,7 @@ public class Multiplayer implements OnFailureListener {
             @Override
             public void onFound(Message message) {
                 Log.d("t", "Found message: " + new String(message.getContent()));
-                proccessMessage(new String(message.getContent()), false);
+                proccessMessage(new String(message.getContent()), false, "");
             }
 
             @Override
@@ -134,7 +136,39 @@ public class Multiplayer implements OnFailureListener {
                 public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                     Log.i("Firebase Received", dataSnapshot.getValue().toString());
                     try {
-                        proccessMessage(dataSnapshot.getValue().toString(), true);
+                        proccessMessage(dataSnapshot.getValue().toString(), true, dataSnapshot.getKey());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+                }
+
+                @Override
+                public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError error) {
+                    Log.w("EditTagsActivity", "Failed to read scores.", error.toException());
+                }
+            });
+            database.child("scoreFull").addChildEventListener(new ChildEventListener() {
+
+                @Override
+                public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                }
+
+                @Override
+                public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                    Log.i("Firebase Received", dataSnapshot.getValue().toString());
+                    try {
+                        proccessFullScore(dataSnapshot.getValue().toString(), dataSnapshot.getKey());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -175,6 +209,16 @@ public class Multiplayer implements OnFailureListener {
             listener.onChange(players);
         }
         updateNearbyScore();
+    }
+
+    public void setFullScore(JSONObject jsonObject){
+        if (realtimeDatabaseEnabled) {
+            try {
+                database.child("scoreFull").child(firebaseUser.getUid()).setValue(jsonObject.toString());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public int getPlayerAmount() {
@@ -237,12 +281,12 @@ public class Multiplayer implements OnFailureListener {
     }
 
     //make player invisible if there are no messages for two minutes
-    private class autoRemove extends TimerTask {
+    private class autoRemove extends TimerTask {//todo autoremove doesn't work
         @Override
         public void run() {
             Date date = new Date();
             for (int i = 0; i < players.size(); i++) {
-                if (date.getTime() - players.get(i).getLastUpdate() > 120000) {
+                if (date.getTime() - players.get(i).getLastUpdate() > 120000 && !players.get(i).getName().equals(name)) {
                     players.get(i).setVisible(false);
                     Log.i("players", "Making player invisible: " + players.get(i).getName());
                 }
@@ -250,7 +294,7 @@ public class Multiplayer implements OnFailureListener {
         }
     }
 
-    public void proccessMessage(String message, boolean mqtt) {
+    public void proccessMessage(String message, boolean mqtt, String id) {
         try {
             if (!message.equals("new player")) {
                 String[] messageSplit = message.split(";");
@@ -262,9 +306,16 @@ public class Multiplayer implements OnFailureListener {
                             exists = true;
                             if (playerItem.getLastUpdate() < Long.parseLong(messageSplit[2]) && mqtt) {
                                 Log.i("message", "newer message");
-                                players.remove(i);
-                                PlayerItem item = new PlayerItem(messageSplit[0], Integer.parseInt(messageSplit[1]), Long.parseLong(messageSplit[2]), true, false);
-                                players.add(item);
+                                players.get(i).setLastUpdate(Long.parseLong(messageSplit[2]));
+                                players.get(i).setScore(Integer.parseInt(messageSplit[1]));
+                                players.get(i).setVisible(true);
+
+                                //PlayerItem item = new PlayerItem(messageSplit[0], Integer.parseInt(messageSplit[1]), Long.parseLong(messageSplit[2]), true, false);
+                                Log.i("id", id);
+                                if (!id.equals("")){
+                                    players.get(i).setId(id);
+                                }
+                                //players.add(item);
                                 listener.onChange(players);
                                 break;
                             }
@@ -280,6 +331,20 @@ public class Multiplayer implements OnFailureListener {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public void proccessFullScore(String score, String id) {
+        for (int i = 0; i < players.size(); i++) {
+            if(players.get(i).getId() != null) {
+                if (players.get(i).getId().equals(id)) {
+                    try {
+                        players.get(i).setFullScore(new JSONObject(score));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
     }
 
