@@ -361,7 +361,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
 
     public void updateMultiplayerText(List<PlayerItem> players) {
         recyclerView.setVisibility(View.VISIBLE);
-        //tvOp.setVisibility(View.GONE);
         tvOp.setText("Nearby:");
         players2.clear();
         Collections.sort(players);
@@ -537,7 +536,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
             editTextBonus.setText(String.valueOf(35));
             totalLeft = totalLeft + 35;
         } else {
-            editTextBonus.setText(String.valueOf(0));
+            editTextBonus.setText(0 + " (" + (63 - totalLeft) + ")");
         }
         tvTotalLeft.setText(getString(R.string.left, totalLeft));
         tvTotalRight.setText(getString(R.string.right, totalRight));
@@ -545,6 +544,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         if (multiplayerEnabled) {
             if (multiplayer.getPlayerAmount() == 0) {
                 tvOp.setText(R.string.No_players_nearby);
+                recyclerView.setVisibility(View.GONE);
             }
             multiplayer.setScore(totalLeft + totalRight);
         }

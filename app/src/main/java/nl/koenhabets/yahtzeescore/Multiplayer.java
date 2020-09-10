@@ -283,7 +283,7 @@ public class Multiplayer implements OnFailureListener {
     }
 
     //make player invisible if there are no messages for two minutes
-    private class autoRemove extends TimerTask {//todo autoremove doesn't work
+    private class autoRemove extends TimerTask {
         @Override
         public void run() {
             Date date = new Date();

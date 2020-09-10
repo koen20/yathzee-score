@@ -2,7 +2,6 @@ package nl.koenhabets.yahtzeescore;
 
 import android.content.Context;
 import android.text.Html;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,7 +43,6 @@ public class PlayerAdapter extends RecyclerView.Adapter<PlayerAdapter.ViewHolder
 
     @Override
     public int getItemCount() {
-        Log.i("asdfe", mData.size() + "");
         return mData.size();
     }
 
