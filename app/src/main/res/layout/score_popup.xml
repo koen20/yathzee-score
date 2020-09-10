@@ -3,32 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fillViewport="true"
-    android:keepScreenOn="true"
-    tools:context=".activities.MainActivity">
-
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/Theme.MyApp.AppBarOverlay"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:popupTheme="@style/Theme.MyApp.PopupOverlay" />
-
-    </com.google.android.material.appbar.AppBarLayout>
+    android:layout_height="match_parent">
 
     <ScrollView
+        android:id="@+id/scrollView3"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/button"
+        android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
 
@@ -364,7 +344,7 @@
                 app:layout_constraintHorizontal_chainStyle="spread"
                 app:layout_constraintStart_toStartOf="parent" />
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -410,67 +390,6 @@
                 app:layout_constraintEnd_toStartOf="@+id/guideline"
                 app:layout_constraintStart_toStartOf="@+id/guideline2"
                 app:layout_constraintTop_toBottomOf="@+id/editText" />
-
-            <TextView
-                android:id="@+id/textViewTotalLeft"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:text=""
-                android:textSize="16.5sp"
-                app:layout_constraintBaseline_toBaselineOf="@+id/textViewTotalRight"
-                app:layout_constraintEnd_toStartOf="@+id/guideline"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="@+id/guideline2" />
-
-            <TextView
-                android:id="@+id/textViewTotalRight"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:layout_marginEnd="16dp"
-                android:text=""
-                android:textSize="16sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/editText16" />
-
-            <TextView
-                android:id="@+id/textViewTotal"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="28dp"
-                android:layout_marginEnd="8dp"
-                android:text="@string/Total"
-                android:textSize="20sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="@+id/guideline"
-                app:layout_constraintTop_toBottomOf="@+id/textViewTotalRight" />
-
-            <TextView
-                android:id="@+id/textViewOp"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="8dp"
-                android:scrollbars="vertical"
-                android:text="@string/No_players_nearby"
-                android:textSize="16sp"
-                app:layout_constraintEnd_toStartOf="@+id/guideline"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textViewTotalLeft" />
-
-            <TextView
-                android:id="@+id/textViewMultiScore"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:textSize="16sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textViewOp" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/guideline"
@@ -521,56 +440,24 @@
                 app:layout_constraintStart_toStartOf="@+id/guideline" />
 
             <TextView
-                android:id="@+id/textViewBonus"
-                android:layout_width="0dp"
+                android:id="@+id/textViewDiaRight"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:text="@string/bonus"
-                android:gravity="bottom"
-                android:textSize="16.5sp"
-                app:layout_constraintBaseline_toBaselineOf="@+id/editTextBonus"
-                app:layout_constraintEnd_toStartOf="@+id/guideline2"
-                app:layout_constraintStart_toStartOf="parent"
-                tools:layout_editor_absoluteY="328dp" />
-
-            <EditText
-                android:id="@+id/editTextBonus"
-                android:layout_width="0dp"
-                android:layout_height="41dp"
-                android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
-                android:ems="10"
-                android:inputType="none"
-                android:focusable="false"
                 android:textSize="16.5sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/editText16" />
+
+            <TextView
+                android:id="@+id/textViewDiaLeft"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 app:layout_constraintEnd_toStartOf="@+id/guideline"
                 app:layout_constraintStart_toStartOf="@+id/guideline2"
-                app:layout_constraintTop_toBottomOf="@+id/editText7" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/reyclerViewMultiplayer"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:visibility="visible"
-                app:layout_constraintEnd_toStartOf="@+id/textViewTotal"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textViewOp" />
+                app:layout_constraintTop_toTopOf="@+id/textViewDiaRight"
+                android:textSize="16.5sp" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
-
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginBottom="10dp"
-        android:text="@string/clear_all_save"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
