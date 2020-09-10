@@ -176,6 +176,9 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         playerAdapter = new PlayerAdapter(this, players2);
         recyclerView.setAdapter(playerAdapter);
 
+        playerAdapter.setClickListener((view, position) -> {
+                Log.i("click", players2.get(position).getFullScore().toString());
+        });
 
         try {
             readScores(new JSONObject(sharedPref.getString("scores", "")));
@@ -386,6 +389,9 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                 } else {
                     openUrl("https://en.wikipedia.org/wiki/Yahtzee#Rules");
                 }
+                return true;
+            case R.id.add_player:
+                addPlayerDialog();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -625,6 +631,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        multiplayer.setFullScore(jsonObject);
         return jsonObject;
     }
 
