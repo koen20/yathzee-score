@@ -3,6 +3,7 @@ package nl.koenhabets.yahtzeescore.activities;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -128,20 +129,19 @@ public class ScoreActivity extends AppCompatActivity {
     }
 
     private void disableEdit(){
-        editText1.setEnabled(false);
-        editText2.setEnabled(false);
-        editText3.setEnabled(false);
-        editText4.setEnabled(false);
-        editText5.setEnabled(false);
-        editText6.setEnabled(false);
-        editText21.setEnabled(false);
-        editText22.setEnabled(false);
-        editText23.setEnabled(false);
-        editText24.setEnabled(false);
-        editText25.setEnabled(false);
-        editText26.setEnabled(false);
-        editText27.setEnabled(false);
-        editText28.setEnabled(false);
-
+        editText1.setInputType(InputType.TYPE_NULL);
+        editText2.setInputType(InputType.TYPE_NULL);
+        editText3.setInputType(InputType.TYPE_NULL);
+        editText4.setInputType(InputType.TYPE_NULL);
+        editText5.setInputType(InputType.TYPE_NULL);
+        editText6.setInputType(InputType.TYPE_NULL);
+        editText21.setInputType(InputType.TYPE_NULL);
+        editText22.setInputType(InputType.TYPE_NULL);
+        editText23.setInputType(InputType.TYPE_NULL);
+        editText24.setInputType(InputType.TYPE_NULL);
+        editText25.setInputType(InputType.TYPE_NULL);
+        editText26.setInputType(InputType.TYPE_NULL);
+        editText27.setInputType(InputType.TYPE_NULL);
+        editText28.setInputType(InputType.TYPE_NULL);
     }
 }

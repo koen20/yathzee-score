@@ -58,6 +58,7 @@ public class Multiplayer implements OnFailureListener {
 
     public interface MultiplayerListener {
         void onChange(List<PlayerItem> players);
+        void onChangeFullScore(List<PlayerItem> players);
     }
 
     public void setMultiplayerListener(MultiplayerListener listener) {
@@ -124,7 +125,7 @@ public class Multiplayer implements OnFailureListener {
     }
 
     public void initDatabase() {
-        if (realtimeDatabaseEnabled) {
+        if (realtimeDatabaseEnabled) {//todo only listen to players nearby
             database.child("score").addChildEventListener(new ChildEventListener() {
 
                 @Override
@@ -262,6 +263,7 @@ public class Multiplayer implements OnFailureListener {
         if (realtimeDatabaseEnabled) {
             try {
                 database.child("score").child(firebaseUser.getUid()).removeValue();
+                database.child("scoreFull").child(firebaseUser.getUid()).removeValue();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -304,18 +306,14 @@ public class Multiplayer implements OnFailureListener {
                         PlayerItem playerItem = players.get(i);
                         if (playerItem.getName().equals(messageSplit[0])) {
                             exists = true;
+                            if (!id.equals("")) {
+                                players.get(i).setId(id);
+                            }
                             if (playerItem.getLastUpdate() < Long.parseLong(messageSplit[2]) && mqtt) {
                                 Log.i("message", "newer message");
                                 players.get(i).setLastUpdate(Long.parseLong(messageSplit[2]));
                                 players.get(i).setScore(Integer.parseInt(messageSplit[1]));
                                 players.get(i).setVisible(true);
-
-                                //PlayerItem item = new PlayerItem(messageSplit[0], Integer.parseInt(messageSplit[1]), Long.parseLong(messageSplit[2]), true, false);
-                                Log.i("id", id);
-                                if (!id.equals("")){
-                                    players.get(i).setId(id);
-                                }
-                                //players.add(item);
                                 listener.onChange(players);
                                 break;
                             }
@@ -340,12 +338,14 @@ public class Multiplayer implements OnFailureListener {
                 if (players.get(i).getId().equals(id)) {
                     try {
                         players.get(i).setFullScore(new JSONObject(score));
+                        break;
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
             }
         }
+        listener.onChangeFullScore(players);
     }
 
     public void updateNearbyScore() {

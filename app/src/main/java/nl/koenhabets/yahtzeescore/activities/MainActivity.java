@@ -12,7 +12,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.Editable;
-import android.text.Html;
 import android.text.TextWatcher;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -60,6 +59,7 @@ import nl.koenhabets.yahtzeescore.DataManager;
 import nl.koenhabets.yahtzeescore.Multiplayer;
 import nl.koenhabets.yahtzeescore.PlayerAdapter;
 import nl.koenhabets.yahtzeescore.PlayerItem;
+import nl.koenhabets.yahtzeescore.PlayerScoreDialog;
 import nl.koenhabets.yahtzeescore.R;
 
 public class MainActivity extends AppCompatActivity implements TextWatcher, OnFailureListener {
@@ -96,6 +96,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
     private Boolean realtimeDatabaseEnabled = true;
     private PlayerAdapter playerAdapter;
     private List<PlayerItem> players2 = new ArrayList<>();
+    PlayerScoreDialog playerScoreDialog;
 
     public static Tracker getTracker2() {
         return mMatomoTracker;
@@ -143,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         Tracker tracker = mMatomoTracker;
         TrackHelper.track().screen("/").title("Main screen").with(tracker);
         TrackHelper.track().download().with(tracker);
-
+        playerScoreDialog = new PlayerScoreDialog(this);
 
         editText1 = findViewById(R.id.editText);
         editText2 = findViewById(R.id.editText3);
@@ -177,7 +178,15 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         recyclerView.setAdapter(playerAdapter);
 
         playerAdapter.setClickListener((view, position) -> {
-                Log.i("click", players2.get(position).getFullScore().toString());
+            Log.i("click", players2.get(position).getFullScore().toString());
+            if (!players2.get(position).getName().equals(name)) {
+                if (!players2.get(position).getFullScore().toString().equals("{}")) {
+                    playerScoreDialog.showDialog(this, players2, position);
+                } else {
+                    Toast.makeText(MainActivity.this, "The score of this player is not yet available",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
         });
 
         try {
@@ -302,7 +311,21 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         }
 
         multiplayer = new Multiplayer(this, name, (totalLeft + totalRight), firebaseUser);
-        multiplayer.setMultiplayerListener(this::updateMultiplayerText);
+        multiplayer.setMultiplayerListener(new Multiplayer.MultiplayerListener() {
+            @Override
+            public void onChange(List<PlayerItem> players) {
+                updateMultiplayerText(players);
+            }
+
+            @Override
+            public void onChangeFullScore(List<PlayerItem> players) {
+                if(playerScoreDialog.getPlayerShown() != null) {
+                    if (!playerScoreDialog.getPlayerShown().equals("")) {
+                        playerScoreDialog.updateScore(players);
+                    }
+                }
+            }
+        });
 
         tvOp.setMovementMethod(new ScrollingMovementMethod());
         tvOp.setOnClickListener(view -> addPlayerDialog());
@@ -338,7 +361,8 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
 
     public void updateMultiplayerText(List<PlayerItem> players) {
         recyclerView.setVisibility(View.VISIBLE);
-        tvOp.setVisibility(View.GONE);
+        //tvOp.setVisibility(View.GONE);
+        tvOp.setText("Nearby:");
         players2.clear();
         Collections.sort(players);
         for (int i = 0; i < players.size(); i++) {
