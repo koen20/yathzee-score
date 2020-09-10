@@ -23,8 +23,8 @@ android {
         applicationId "nl.koenhabets.yahtzeescore"
         minSdkVersion 19
         targetSdkVersion 30
-        versionCode 23
-        versionName "1.9"
+        versionCode 24
+        versionName "1.10"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
