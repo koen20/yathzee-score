@@ -35,6 +35,8 @@ public class Multiplayer implements OnFailureListener {
     private Boolean realtimeDatabaseEnabled = true;
     private FirebaseUser firebaseUser;
     private DatabaseReference database;
+    private ChildEventListener childEventListener;
+    private ChildEventListener childEventListener2;
 
     private List<PlayerItem> players = new ArrayList<>();
     private Timer updateTimer;
@@ -126,7 +128,7 @@ public class Multiplayer implements OnFailureListener {
 
     public void initDatabase() {
         if (realtimeDatabaseEnabled) {//todo only listen to players nearby
-            database.child("score").addChildEventListener(new ChildEventListener() {
+            childEventListener = database.child("score").addChildEventListener(new ChildEventListener() {
 
                 @Override
                 public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
@@ -158,7 +160,7 @@ public class Multiplayer implements OnFailureListener {
                     Log.w("EditTagsActivity", "Failed to read scores.", error.toException());
                 }
             });
-            database.child("scoreFull").addChildEventListener(new ChildEventListener() {
+            childEventListener2 = database.child("scoreFull").addChildEventListener(new ChildEventListener() {
 
                 @Override
                 public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
@@ -225,7 +227,7 @@ public class Multiplayer implements OnFailureListener {
     public int getPlayerAmount() {
         int count = 0;
         for (int i = 0; i < players.size(); i++) {
-            if (players.get(i).isVisible()){
+            if (players.get(i).isVisible() && !players.get(i).isLocal()){
                 count++;
             }
         }
@@ -264,6 +266,8 @@ public class Multiplayer implements OnFailureListener {
             try {
                 database.child("score").child(firebaseUser.getUid()).removeValue();
                 database.child("scoreFull").child(firebaseUser.getUid()).removeValue();
+                database.removeEventListener(childEventListener);
+                database.removeEventListener(childEventListener2);
             } catch (Exception e) {
                 e.printStackTrace();
             }

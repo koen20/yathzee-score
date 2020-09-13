@@ -547,6 +547,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                 recyclerView.setVisibility(View.GONE);
             }
             multiplayer.setScore(totalLeft + totalRight);
+            playerAdapter.notifyDataSetChanged();
         }
 
         int color = Color.BLACK;
