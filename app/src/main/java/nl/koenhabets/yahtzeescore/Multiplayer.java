@@ -197,7 +197,7 @@ public class Multiplayer implements OnFailureListener {
 
     public void setScore(int score) {
         this.score = score;
-
+        listener.onChange(players);
         updateNearbyScore();
     }
 
