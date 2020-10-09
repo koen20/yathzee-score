@@ -3,8 +3,6 @@ package nl.koenhabets.yahtzeescore;
 import android.content.Context;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
-
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -36,7 +34,6 @@ public class Mqtt {
     }
 
     public void connectMqtt(Context context, String name) throws MqttException {
-        Crashlytics.setUserIdentifier(clientId);
         mqttAndroidClient = new MqttAndroidClient(context, serverUri, clientId + name);
         mqttAndroidClient.setCallback(new MqttCallbackExtended() {
             @Override
