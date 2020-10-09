@@ -44,6 +44,7 @@ import org.matomo.sdk.extra.TrackHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -314,6 +315,19 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         multiplayer.setMultiplayerListener(new Multiplayer.MultiplayerListener() {
             @Override
             public void onChange(List<PlayerItem> players) {
+                // add the local player to the players list and update it on screen
+                if (!name.equals("") && multiplayer.getPlayerAmount() != 0) {
+                    // remove player if name already exists
+                    for (int i = 0; i < players.size(); i++) {
+                        PlayerItem playerItem = players.get(i);
+                        if (playerItem.getName().equals(name)) {
+                            players.remove(i);
+                            break;
+                        }
+                    }
+                    PlayerItem item = new PlayerItem(name, (totalLeft + totalRight), new Date().getTime(), true, true);
+                    players.add(item);
+                }
                 updateMultiplayerText(players);
             }
 
@@ -547,7 +561,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                 recyclerView.setVisibility(View.GONE);
             }
             multiplayer.setScore(totalLeft + totalRight);
-            playerAdapter.notifyDataSetChanged();
         }
 
         int color = Color.BLACK;

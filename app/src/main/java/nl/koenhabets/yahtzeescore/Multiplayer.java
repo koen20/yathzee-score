@@ -197,20 +197,7 @@ public class Multiplayer implements OnFailureListener {
 
     public void setScore(int score) {
         this.score = score;
-        // add the local player to the players list and update it on screen
-        if (!name.equals("") && getPlayerAmount() != 0) {
-            // remove player if name already exists
-            for (int i = 0; i < players.size(); i++) {
-                PlayerItem playerItem = players.get(i);
-                if (playerItem.getName().equals(name)) {
-                    players.remove(i);
-                    break;
-                }
-            }
-            PlayerItem item = new PlayerItem(name, score, new Date().getTime(), true, true);
-            players.add(item);
-            listener.onChange(players);
-        }
+
         updateNearbyScore();
     }
 
