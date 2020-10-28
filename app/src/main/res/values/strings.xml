@@ -64,5 +64,6 @@
     <string name="sort_by_date">Sort by date</string>
     <string name="sort_by_score">Sort by score</string>
     <string name="nearby">Nearby:</string>
+    <string name="score_nearby_unavailable">The score of this player is not yet available. Please make sure everyone is using the latest version and try again after using the app for a few minutes.</string>
 
 </resources>
