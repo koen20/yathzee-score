@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                 if (!players2.get(position).getFullScore().toString().equals("{}")) {
                     playerScoreDialog.showDialog(this, players2, position);
                 } else {
-                    Toast.makeText(MainActivity.this, "The score of this player is not yet available",
+                    Toast.makeText(MainActivity.this, R.string.score_nearby_unavailable,
                             Toast.LENGTH_SHORT).show();
                 }
             }
