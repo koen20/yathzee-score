@@ -375,7 +375,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
 
     public void updateMultiplayerText(List<PlayerItem> players) {
         recyclerView.setVisibility(View.VISIBLE);
-        tvOp.setText("Nearby:");
+        tvOp.setText(R.string.nearby);
         players2.clear();
         Collections.sort(players);
         for (int i = 0; i < players.size(); i++) {

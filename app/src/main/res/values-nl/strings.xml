@@ -53,4 +53,5 @@
     <string name="no">Nee</string>
     <string name="sort_by_date">Sorteer op datum</string>
     <string name="sort_by_score">Sorteer op score</string>
+    <string name="nearby">In de buurt:</string>
 </resources>
