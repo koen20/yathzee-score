@@ -238,14 +238,14 @@ public class ScoresActivity extends AppCompatActivity {
     }
 
     private void updateAverageScore() {
-        int total = 0;
-        int count = 0;
+        double total = 0;
+        double count = 0;
         for (int i = 0; i < scoreItems.size(); i++) {
             total = total + scoreItems.get(i).getScore();
             count++;
         }
         try {
-            textViewAverage.setText(getString(R.string.average) + (total / count));
+            textViewAverage.setText(getString(R.string.average) + (double)Math.round((total / count) * 10) / 10d);
             textViewAmount.setText(getString(R.string.total_games_played) + scoreItems.size());
         } catch (Exception ignored) {
 
