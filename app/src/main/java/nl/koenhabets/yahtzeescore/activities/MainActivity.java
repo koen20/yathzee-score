@@ -322,14 +322,14 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                         }
                         PlayerItem item = new PlayerItem(name, (totalLeft + totalRight), new Date().getTime(), true, true);
                         players.add(item);
+                        updateMultiplayerText(players);
                     }
-                    updateMultiplayerText(players);
                 }
             }
 
             @Override
             public void onChangeFullScore(List<PlayerItem> players) {
-                if(playerScoreDialog.getPlayerShown() != null) {
+                if (playerScoreDialog.getPlayerShown() != null) {
                     if (!playerScoreDialog.getPlayerShown().equals("")) {
                         playerScoreDialog.updateScore(players);
                     }
@@ -425,8 +425,10 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                 }
                 return true;
             case R.id.add_player:
-                addPlayerDialog();
-                return true;
+                if (multiplayerEnabled) {
+                    addPlayerDialog();
+                    return true;
+                }
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -534,7 +536,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
         calculateTotal();
         DataManager.saveScores(createJsonScores(), getApplicationContext());
-        if(multiplayerEnabled) {
+        if (multiplayerEnabled) {
             multiplayer.updateNearbyScore();
         }
     }
