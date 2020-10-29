@@ -271,6 +271,9 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
             sharedPref.edit().putBoolean("multiplayer", true).apply();
             sharedPref.edit().putBoolean("multiplayerAsked", true).apply();
             initMultiplayer();
+            recyclerView.setVisibility(View.GONE);
+            tvOp.setVisibility(View.VISIBLE);
+            tvOp.setText(R.string.No_players_nearby);
             multiplayerEnabled = true;
         });
         builder.show();
@@ -306,20 +309,22 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         multiplayer.setMultiplayerListener(new Multiplayer.MultiplayerListener() {
             @Override
             public void onChange(List<PlayerItem> players) {
-                // add the local player to the players list and update it on screen
-                if (!name.equals("") && multiplayer.getPlayerAmount() != 0) {
-                    // remove player if name already exists
-                    for (int i = 0; i < players.size(); i++) {
-                        PlayerItem playerItem = players.get(i);
-                        if (playerItem.getName().equals(name)) {
-                            players.remove(i);
-                            break;
+                if (multiplayerEnabled) {
+                    // add the local player to the players list and update it on screen
+                    if (!name.equals("") && multiplayer.getPlayerAmount() != 0) {
+                        // remove player if name already exists
+                        for (int i = 0; i < players.size(); i++) {
+                            PlayerItem playerItem = players.get(i);
+                            if (playerItem.getName().equals(name)) {
+                                players.remove(i);
+                                break;
+                            }
                         }
+                        PlayerItem item = new PlayerItem(name, (totalLeft + totalRight), new Date().getTime(), true, true);
+                        players.add(item);
                     }
-                    PlayerItem item = new PlayerItem(name, (totalLeft + totalRight), new Date().getTime(), true, true);
-                    players.add(item);
+                    updateMultiplayerText(players);
                 }
-                updateMultiplayerText(players);
             }
 
             @Override
@@ -460,6 +465,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
     @Override
     public void onStart() {
         super.onStart();
+        Log.i("onStart", "start");
         SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         if (sharedPref.contains("scores") || sharedPref.contains("name")) {
             if (!sharedPref.contains("version")) {
@@ -479,7 +485,8 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
             tvOp.setText(R.string.No_players_nearby);
         } else {
             multiplayerEnabled = false;
-            tvOp.setText("");
+            recyclerView.setVisibility(View.GONE);
+            tvOp.setVisibility(View.GONE);
         }
 
         if (!sharedPref.getBoolean("multiplayerAsked", false)) {
