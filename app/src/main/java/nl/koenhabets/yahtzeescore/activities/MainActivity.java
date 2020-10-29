@@ -130,17 +130,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
             }
         }
 
-        try {
-            FirebaseAnalytics mFirebaseAnalytics;
-            mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
-
-            String testLabSetting = Settings.System.getString(getContentResolver(), "firebase.test.lab");
-            if ("true".equals(testLabSetting)) {
-                mFirebaseAnalytics.setAnalyticsCollectionEnabled(false);  //Disable Analytics Collection
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         getTracker();
         Tracker tracker = mMatomoTracker;
         TrackHelper.track().screen("/").title("Main screen").with(tracker);
@@ -273,6 +262,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
             SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
             sharedPref.edit().putBoolean("multiplayer", false).apply();
             sharedPref.edit().putBoolean("multiplayerAsked", true).apply();
+            multiplayerEnabled = false;
         });
         builder.setPositiveButton("Yes", (dialog, id) -> {
             tvOp.setText(R.string.No_players_nearby);
@@ -281,6 +271,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
             sharedPref.edit().putBoolean("multiplayer", true).apply();
             sharedPref.edit().putBoolean("multiplayerAsked", true).apply();
             initMultiplayer();
+            multiplayerEnabled = true;
         });
         builder.show();
     }
