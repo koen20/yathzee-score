@@ -54,5 +54,5 @@
     <string name="sort_by_date">Sorteer op datum</string>
     <string name="sort_by_score">Sorteer op score</string>
     <string name="nearby">In de buurt:</string>
-    <string name="score_nearby_unavailable">De score van deze speler is niet beschikbaar. Controleer of iedereen de laatste versie van de app gebruikt en probeer het opnieuw over een paar minuten.</string>
+    <string name="score_nearby_unavailable">De score van deze speler is niet beschikbaar. Probeer het opnieuw tijdens het spelen.</string>
 </resources>
