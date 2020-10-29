@@ -397,6 +397,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
 
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
+        menu.findItem(R.id.add_player).setVisible(multiplayerEnabled);
         return true;
     }
 
@@ -535,7 +536,9 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
         calculateTotal();
         DataManager.saveScores(createJsonScores(), getApplicationContext());
-        multiplayer.updateNearbyScore();
+        if(multiplayerEnabled) {
+            multiplayer.updateNearbyScore();
+        }
     }
 
     @Override
@@ -560,7 +563,9 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                 tvOp.setText(R.string.No_players_nearby);
                 recyclerView.setVisibility(View.GONE);
             }
-            multiplayer.setScore(totalLeft + totalRight);
+            if (multiplayerEnabled) {
+                multiplayer.setScore(totalLeft + totalRight);
+            }
         }
 
         int color = Color.BLACK;
@@ -669,7 +674,9 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        multiplayer.setFullScore(jsonObject);
+        if (multiplayerEnabled) {
+            multiplayer.setFullScore(jsonObject);
+        }
         return jsonObject;
     }
 
