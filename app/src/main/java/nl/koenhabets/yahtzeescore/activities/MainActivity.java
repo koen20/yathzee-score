@@ -649,7 +649,9 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         editText26.setText("");
         editText27.setText("");
         editText28.setText("");
-        multiplayer.updateNearbyScore();
+        if(multiplayerEnabled) {
+            multiplayer.updateNearbyScore();
+        }
     }
 
     private JSONObject createJsonScores() {
