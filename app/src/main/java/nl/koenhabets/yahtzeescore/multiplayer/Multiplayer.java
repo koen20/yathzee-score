@@ -14,6 +14,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,8 +25,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import nl.koenhabets.yahtzeescore.PlayerItem;
 
 public class Multiplayer {
     private MultiplayerListener listener;
@@ -140,38 +139,27 @@ public class Multiplayer {
                     Log.w("EditTagsActivity", "Failed to read scores.", error.toException());
                 }
             });
-            childEventListener2 = database.child("scoreFull").addChildEventListener(new ChildEventListener() {
-                @Override
-                public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-                }
-
-                @Override
-                public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                    Log.i("Firebase Received", dataSnapshot.getValue().toString());
-                    try {
-                        proccessFullScore(dataSnapshot.getValue().toString(), dataSnapshot.getKey());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                @Override
-                public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-                }
-
-                @Override
-                public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-                }
-
-                @Override
-                public void onCancelled(DatabaseError error) {
-                    Log.w("EditTagsActivity", "Failed to read scores.", error.toException());
-                }
-            });
         }
+    }
+
+    public void addDatabaseListener(String id) {
+        ValueEventListener valueEventListener = database.child("scoreFull").child(id).addValueEventListener(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Log.i("Firebase Received", snapshot.getValue().toString());
+                try {
+                    proccessFullScore(snapshot.getValue().toString(), snapshot.getKey());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                Log.w("EditTagsActivity", "Failed to read scores.", error.toException());
+            }
+        });
     }
 
     public void setScore(int score) {
@@ -268,6 +256,7 @@ public class Multiplayer {
                             exists = true;
                             if (!id.equals("")) {
                                 players.get(i).setId(id);
+                                addDatabaseListener(id);
                             }
                             if (playerItem.getLastUpdate() < Long.parseLong(messageSplit[2]) && mqtt) {
                                 Log.i("message", "newer message");
@@ -282,8 +271,9 @@ public class Multiplayer {
                     if (!exists && !mqtt) {
                         Log.i("New player", messageSplit[0]);
                         PlayerItem item = new PlayerItem(messageSplit[0], Integer.parseInt(messageSplit[1]), Long.parseLong(messageSplit[2]), true, false);
-                        try{
+                        try {
                             item.setId(messageSplit[3]);
+                            addDatabaseListener(id);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }

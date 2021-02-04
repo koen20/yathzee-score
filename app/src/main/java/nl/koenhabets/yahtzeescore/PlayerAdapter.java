@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+import nl.koenhabets.yahtzeescore.multiplayer.PlayerItem;
+
 public class PlayerAdapter extends RecyclerView.Adapter<PlayerAdapter.ViewHolder> {
     private List<PlayerItem> mData;
     private LayoutInflater mInflater;

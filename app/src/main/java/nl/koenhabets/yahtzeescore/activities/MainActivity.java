@@ -58,7 +58,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import nl.koenhabets.yahtzeescore.DataManager;
 import nl.koenhabets.yahtzeescore.multiplayer.Multiplayer;
 import nl.koenhabets.yahtzeescore.PlayerAdapter;
-import nl.koenhabets.yahtzeescore.PlayerItem;
+import nl.koenhabets.yahtzeescore.multiplayer.PlayerItem;
 import nl.koenhabets.yahtzeescore.PlayerScoreDialog;
 import nl.koenhabets.yahtzeescore.R;
 
@@ -295,6 +295,39 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                             if (task.isSuccessful()) {
                                 Log.d("MainActivity", "signInAnonymously:success");
                                 firebaseUser = mAuth.getCurrentUser();
+
+                                multiplayer = new Multiplayer(this, name, (totalLeft + totalRight), firebaseUser);
+                                multiplayer.setMultiplayerListener(new Multiplayer.MultiplayerListener() {
+                                    @Override
+                                    public void onChange(List<PlayerItem> players) {
+                                        if (multiplayerEnabled) {
+                                            // add the local player to the players list and update it on screen
+                                            if (!name.equals("") && multiplayer.getPlayerAmount() != 0) {
+                                                // remove player if name already exists
+                                                for (int i = 0; i < players.size(); i++) {
+                                                    PlayerItem playerItem = players.get(i);
+                                                    if (playerItem.getName().equals(name)) {
+                                                        players.remove(i);
+                                                        break;
+                                                    }
+                                                }
+                                                PlayerItem item = new PlayerItem(name, (totalLeft + totalRight), new Date().getTime(), true, true);
+                                                players.add(item);
+                                                updateMultiplayerText(players);
+                                            }
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onChangeFullScore(List<PlayerItem> players) {
+                                        if (playerScoreDialog.getPlayerShown() != null) {
+                                            if (!playerScoreDialog.getPlayerShown().equals("")) {
+                                                playerScoreDialog.updateScore(players);
+                                            }
+                                        }
+                                    }
+                                });
+
                             } else {
                                 Log.w("MainActivity", "signInAnonymously:failure", task.getException());
                                 Toast.makeText(MainActivity.this, "Authentication failed.",
@@ -303,39 +336,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                         });
             }
         }
-
-        multiplayer = new Multiplayer(this, name, (totalLeft + totalRight), firebaseUser);
-        multiplayer.setMultiplayerListener(new Multiplayer.MultiplayerListener() {
-            @Override
-            public void onChange(List<PlayerItem> players) {
-                if (multiplayerEnabled) {
-                    // add the local player to the players list and update it on screen
-                    if (!name.equals("") && multiplayer.getPlayerAmount() != 0) {
-                        // remove player if name already exists
-                        for (int i = 0; i < players.size(); i++) {
-                            PlayerItem playerItem = players.get(i);
-                            if (playerItem.getName().equals(name)) {
-                                players.remove(i);
-                                break;
-                            }
-                        }
-                        PlayerItem item = new PlayerItem(name, (totalLeft + totalRight), new Date().getTime(), true, true);
-                        players.add(item);
-                        updateMultiplayerText(players);
-                    }
-                }
-            }
-
-            @Override
-            public void onChangeFullScore(List<PlayerItem> players) {
-                if (playerScoreDialog.getPlayerShown() != null) {
-                    if (!playerScoreDialog.getPlayerShown().equals("")) {
-                        playerScoreDialog.updateScore(players);
-                    }
-                }
-            }
-        });
-
         tvOp.setMovementMethod(new ScrollingMovementMethod());
         tvOp.setOnClickListener(view -> addPlayerDialog());
     }
