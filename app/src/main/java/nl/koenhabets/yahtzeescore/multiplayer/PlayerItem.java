@@ -1,4 +1,4 @@
-package nl.koenhabets.yahtzeescore;
+package nl.koenhabets.yahtzeescore.multiplayer;
 
 import org.json.JSONObject;
 

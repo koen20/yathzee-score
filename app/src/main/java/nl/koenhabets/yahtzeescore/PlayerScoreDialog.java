@@ -1,7 +1,6 @@
 package nl.koenhabets.yahtzeescore;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +13,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
+
+import nl.koenhabets.yahtzeescore.multiplayer.PlayerItem;
 
 public class PlayerScoreDialog {
     private EditText editText1;
