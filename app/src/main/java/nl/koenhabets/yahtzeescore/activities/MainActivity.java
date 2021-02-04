@@ -56,7 +56,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import nl.koenhabets.yahtzeescore.DataManager;
-import nl.koenhabets.yahtzeescore.Multiplayer;
+import nl.koenhabets.yahtzeescore.multiplayer.Multiplayer;
 import nl.koenhabets.yahtzeescore.PlayerAdapter;
 import nl.koenhabets.yahtzeescore.PlayerItem;
 import nl.koenhabets.yahtzeescore.PlayerScoreDialog;
