@@ -1,5 +1,7 @@
 package nl.koenhabets.yahtzeescore.multiplayer;
 
+import com.google.firebase.database.ValueEventListener;
+
 import org.json.JSONObject;
 
 public class PlayerItem implements Comparable<PlayerItem> {
@@ -10,6 +12,7 @@ public class PlayerItem implements Comparable<PlayerItem> {
     private boolean local;
     private JSONObject fullScore = new JSONObject();
     private String id;
+    private ValueEventListener valueEventListenerFull;
 
     public PlayerItem(String name, Integer score, long lastUpdate, boolean visible, boolean local) {
         this.name = name;
@@ -70,5 +73,13 @@ public class PlayerItem implements Comparable<PlayerItem> {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public ValueEventListener getValueEventListenerFull() {
+        return valueEventListenerFull;
+    }
+
+    public void setValueEventListenerFull(ValueEventListener valueEventListenerFull) {
+        this.valueEventListenerFull = valueEventListenerFull;
     }
 }

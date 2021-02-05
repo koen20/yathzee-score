@@ -310,7 +310,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         tvOp.setOnClickListener(view -> addPlayerDialog());
     }
 
-    private void initMultiplayerObj(FirebaseUser firebaseUser){
+    private void initMultiplayerObj(FirebaseUser firebaseUser) {
         multiplayer = new Multiplayer(this, name, (totalLeft + totalRight), firebaseUser);
         multiplayer.setMultiplayerListener(new Multiplayer.MultiplayerListener() {
             @Override
@@ -342,6 +342,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                 }
             }
         });
+        multiplayer.setScore(totalLeft + totalRight);
         multiplayer.setFullScore(createJsonScores());
     }
 
@@ -539,10 +540,15 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
     @Override
     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
         calculateTotal();
-        DataManager.saveScores(createJsonScores(), getApplicationContext());
+        JSONObject jsonObjectScores = createJsonScores();
+        DataManager.saveScores(jsonObjectScores, getApplicationContext());
         if (multiplayerEnabled) {
-            multiplayer.updateNearbyScore();
-            multiplayer.setFullScore(createJsonScores());
+            multiplayer.setFullScore(jsonObjectScores);
+            if (multiplayer.getPlayerAmount() == 0) {
+                tvOp.setText(R.string.No_players_nearby);
+                recyclerView.setVisibility(View.GONE);
+            }
+            multiplayer.setScore(totalLeft + totalRight);
         }
     }
 
@@ -563,15 +569,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         tvTotalLeft.setText(getString(R.string.left, totalLeft));
         tvTotalRight.setText(getString(R.string.right, totalRight));
         tvTotal.setText(getString(R.string.Total, (totalLeft + totalRight)));
-        if (multiplayerEnabled) {
-            if (multiplayer.getPlayerAmount() == 0) {
-                tvOp.setText(R.string.No_players_nearby);
-                recyclerView.setVisibility(View.GONE);
-            }
-            if (multiplayerEnabled) {
-                multiplayer.setScore(totalLeft + totalRight);
-            }
-        }
 
         int color = Color.BLACK;
         // change editText color to white if there is a black theme

@@ -15,6 +15,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.perf.FirebasePerformance;
+import com.google.firebase.perf.metrics.Trace;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -141,20 +143,23 @@ public class Multiplayer {
         }
     }
 
-    public void addDatabaseListener(String id) {
+    public ValueEventListener addDatabaseListener(String id) {
         ValueEventListener valueEventListener = database.child("scoreFull").child(id).addValueEventListener(new ValueEventListener() {
-
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    Log.i("Firebase Received", snapshot.getValue().toString());
-                    try {
-                        proccessFullScore(snapshot.getValue().toString(), snapshot.getKey());
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                try {
+                    if (snapshot.exists()) {
+                        Log.i("Firebase Received", snapshot.getValue().toString());
+                        try {
+                            proccessFullScore(snapshot.getValue().toString(), snapshot.getKey());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        Log.i("Firebase null", id);
                     }
-                } else {
-                    Log.i("Firebase null", id);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
 
@@ -163,6 +168,8 @@ public class Multiplayer {
                 Log.w("EditTagsActivity", "Failed to read scores.", error.toException());
             }
         });
+
+        return valueEventListener;
     }
 
     public void setScore(int score) {
@@ -218,6 +225,12 @@ public class Multiplayer {
             try {
                 database.child("score").child(firebaseUser.getUid()).removeValue();
                 database.child("scoreFull").child(firebaseUser.getUid()).removeValue();
+                for (int i = 0; i < players.size(); i++) {
+                    ValueEventListener valueEventListener = players.get(i).getValueEventListenerFull();
+                    if (valueEventListener != null) {
+                        database.removeEventListener(valueEventListener);
+                    }
+                }
                 database.removeEventListener(childEventListener);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -237,11 +250,21 @@ public class Multiplayer {
         @Override
         public void run() {
             Date date = new Date();
+            int playerCount = 0;
             for (int i = 0; i < players.size(); i++) {
                 if (date.getTime() - players.get(i).getLastUpdate() > 120000 && !players.get(i).getName().equals(name)) {
                     players.get(i).setVisible(false);
                     Log.i("players", "Making player invisible: " + players.get(i).getName());
                 }
+                if (players.get(i).isVisible()) {
+                    playerCount++;
+                }
+            }
+            try {
+                Trace trace = FirebasePerformance.getInstance().newTrace("multiplayer");
+                trace.putMetric("players", playerCount);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
@@ -258,7 +281,7 @@ public class Multiplayer {
                             exists = true;
                             if (!id.equals("")) {
                                 players.get(i).setId(id);
-                                addDatabaseListener(id);
+                                players.get(i).setValueEventListenerFull(addDatabaseListener(id));
                             }
                             if (playerItem.getLastUpdate() < Long.parseLong(messageSplit[2]) && mqtt) {
                                 Log.i("message", "newer message");
@@ -275,7 +298,7 @@ public class Multiplayer {
                         PlayerItem item = new PlayerItem(messageSplit[0], Integer.parseInt(messageSplit[1]), Long.parseLong(messageSplit[2]), true, false);
                         try {
                             item.setId(messageSplit[3]);
-                            addDatabaseListener(id);
+                            item.setValueEventListenerFull(addDatabaseListener(id));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
