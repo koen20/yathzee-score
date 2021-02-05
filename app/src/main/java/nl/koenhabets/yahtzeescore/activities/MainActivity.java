@@ -287,57 +287,62 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         } else {
             name = sharedPref.getString("name", "");
         }
-        if (realtimeDatabaseEnabled) {
-            firebaseUser = mAuth.getCurrentUser();
-            if (firebaseUser == null) {
-                mAuth.signInAnonymously()
-                        .addOnCompleteListener(this, task -> {
-                            if (task.isSuccessful()) {
-                                Log.d("MainActivity", "signInAnonymously:success");
-                                firebaseUser = mAuth.getCurrentUser();
+        firebaseUser = mAuth.getCurrentUser();
+        if (firebaseUser == null) {
+            mAuth.signInAnonymously()
+                    .addOnCompleteListener(this, task -> {
+                        if (task.isSuccessful()) {
+                            Log.d("MainActivity", "signInAnonymously:success");
+                            firebaseUser = mAuth.getCurrentUser();
+                            initMultiplayerObj(firebaseUser);
 
-                                multiplayer = new Multiplayer(this, name, (totalLeft + totalRight), firebaseUser);
-                                multiplayer.setMultiplayerListener(new Multiplayer.MultiplayerListener() {
-                                    @Override
-                                    public void onChange(List<PlayerItem> players) {
-                                        if (multiplayerEnabled) {
-                                            // add the local player to the players list and update it on screen
-                                            if (!name.equals("") && multiplayer.getPlayerAmount() != 0) {
-                                                // remove player if name already exists
-                                                for (int i = 0; i < players.size(); i++) {
-                                                    PlayerItem playerItem = players.get(i);
-                                                    if (playerItem.getName().equals(name)) {
-                                                        players.remove(i);
-                                                        break;
-                                                    }
-                                                }
-                                                PlayerItem item = new PlayerItem(name, (totalLeft + totalRight), new Date().getTime(), true, true);
-                                                players.add(item);
-                                                updateMultiplayerText(players);
-                                            }
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onChangeFullScore(List<PlayerItem> players) {
-                                        if (playerScoreDialog.getPlayerShown() != null) {
-                                            if (!playerScoreDialog.getPlayerShown().equals("")) {
-                                                playerScoreDialog.updateScore(players);
-                                            }
-                                        }
-                                    }
-                                });
-
-                            } else {
-                                Log.w("MainActivity", "signInAnonymously:failure", task.getException());
-                                Toast.makeText(MainActivity.this, "Authentication failed.",
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        });
-            }
+                        } else {
+                            Log.w("MainActivity", "signInAnonymously:failure", task.getException());
+                            Toast.makeText(MainActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        } else {
+            initMultiplayerObj(firebaseUser);
         }
+
         tvOp.setMovementMethod(new ScrollingMovementMethod());
         tvOp.setOnClickListener(view -> addPlayerDialog());
+    }
+
+    private void initMultiplayerObj(FirebaseUser firebaseUser){
+        multiplayer = new Multiplayer(this, name, (totalLeft + totalRight), firebaseUser);
+        multiplayer.setMultiplayerListener(new Multiplayer.MultiplayerListener() {
+            @Override
+            public void onChange(List<PlayerItem> players) {
+                if (multiplayerEnabled) {
+                    // add the local player to the players list and update it on screen
+                    if (!name.equals("") && multiplayer.getPlayerAmount() != 0) {
+                        // remove player if name already exists
+                        for (int i = 0; i < players.size(); i++) {
+                            PlayerItem playerItem = players.get(i);
+                            if (playerItem.getName().equals(name)) {
+                                players.remove(i);
+                                break;
+                            }
+                        }
+                        PlayerItem item = new PlayerItem(name, (totalLeft + totalRight), new Date().getTime(), true, true);
+                        players.add(item);
+                        updateMultiplayerText(players);
+                    }
+                }
+            }
+
+            @Override
+            public void onChangeFullScore(List<PlayerItem> players) {
+                if (playerScoreDialog.getPlayerShown() != null) {
+                    if (!playerScoreDialog.getPlayerShown().equals("")) {
+                        playerScoreDialog.updateScore(players);
+                    }
+                }
+            }
+        });
+        multiplayer.setFullScore(createJsonScores());
     }
 
 
@@ -537,6 +542,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         DataManager.saveScores(createJsonScores(), getApplicationContext());
         if (multiplayerEnabled) {
             multiplayer.updateNearbyScore();
+            multiplayer.setFullScore(createJsonScores());
         }
     }
 
@@ -649,7 +655,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         editText26.setText("");
         editText27.setText("");
         editText28.setText("");
-        if(multiplayerEnabled) {
+        if (multiplayerEnabled) {
             multiplayer.updateNearbyScore();
         }
     }
@@ -674,9 +680,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
             jsonObject.put("28", editText28.getText().toString());
         } catch (JSONException e) {
             e.printStackTrace();
-        }
-        if (multiplayerEnabled) {
-            multiplayer.setFullScore(jsonObject);
         }
         return jsonObject;
     }
