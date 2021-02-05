@@ -32,7 +32,6 @@ public class Multiplayer {
     private FirebaseUser firebaseUser;
     private DatabaseReference database;
     private ChildEventListener childEventListener;
-    private ChildEventListener childEventListener2;
 
     private List<PlayerItem> players = new ArrayList<>();
     private Timer updateTimer;
@@ -147,11 +146,15 @@ public class Multiplayer {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Log.i("Firebase Received", snapshot.getValue().toString());
-                try {
-                    proccessFullScore(snapshot.getValue().toString(), snapshot.getKey());
-                } catch (Exception e) {
-                    e.printStackTrace();
+                if (snapshot.exists()) {
+                    Log.i("Firebase Received", snapshot.getValue().toString());
+                    try {
+                        proccessFullScore(snapshot.getValue().toString(), snapshot.getKey());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    Log.i("Firebase null", id);
                 }
             }
 
@@ -216,7 +219,6 @@ public class Multiplayer {
                 database.child("score").child(firebaseUser.getUid()).removeValue();
                 database.child("scoreFull").child(firebaseUser.getUid()).removeValue();
                 database.removeEventListener(childEventListener);
-                database.removeEventListener(childEventListener2);
             } catch (Exception e) {
                 e.printStackTrace();
             }
