@@ -15,8 +15,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.perf.FirebasePerformance;
-import com.google.firebase.perf.metrics.Trace;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,8 +35,7 @@ public class Multiplayer {
 
     private List<PlayerItem> players = new ArrayList<>();
     private Timer updateTimer;
-    private Timer updateTimer2;
-    private int updateInterval = 10000;
+    private Timer autoRemoveTimer;
     private Context context;
     private String name;
     private int score;
@@ -76,10 +73,10 @@ public class Multiplayer {
             e.printStackTrace();
         }
         updateTimer = new Timer();
-        updateTimer.scheduleAtFixedRate(new updateTask(), 6000, updateInterval);
+        updateTimer.scheduleAtFixedRate(new updateTask(), 6000, 10000);
 
-        updateTimer2 = new Timer();
-        updateTimer2.scheduleAtFixedRate(new autoRemove(), 60000, 60000);
+        autoRemoveTimer = new Timer();
+        autoRemoveTimer.scheduleAtFixedRate(new autoRemove(), 60000, 60000);
 
         //get manually added players and add them to the players list
         SharedPreferences sharedPref = context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
@@ -216,8 +213,8 @@ public class Multiplayer {
         try {
             updateTimer.cancel();
             updateTimer.purge();
-            updateTimer2.cancel();
-            updateTimer2.purge();
+            autoRemoveTimer.cancel();
+            autoRemoveTimer.purge();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -250,21 +247,11 @@ public class Multiplayer {
         @Override
         public void run() {
             Date date = new Date();
-            int playerCount = 0;
             for (int i = 0; i < players.size(); i++) {
                 if (date.getTime() - players.get(i).getLastUpdate() > 120000 && !players.get(i).getName().equals(name)) {
                     players.get(i).setVisible(false);
                     Log.i("players", "Making player invisible: " + players.get(i).getName());
                 }
-                if (players.get(i).isVisible()) {
-                    playerCount++;
-                }
-            }
-            try {
-                Trace trace = FirebasePerformance.getInstance().newTrace("multiplayer");
-                trace.putMetric("players", playerCount);
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         }
     }
