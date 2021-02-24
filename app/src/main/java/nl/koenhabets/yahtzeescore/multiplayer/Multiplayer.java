@@ -266,8 +266,9 @@ public class Multiplayer {
                         PlayerItem playerItem = players.get(i);
                         if (playerItem.getName().equals(messageSplit[0])) {
                             exists = true;
-                            if (!id.equals("")) {
+                            if (playerItem.getId() == null) {
                                 players.get(i).setId(id);
+                                Log.i("received", "Setting value event listener for " + id);
                                 players.get(i).setValueEventListenerFull(addDatabaseListener(id));
                             }
                             if (playerItem.getLastUpdate() < Long.parseLong(messageSplit[2]) && mqtt) {
@@ -285,7 +286,8 @@ public class Multiplayer {
                         PlayerItem item = new PlayerItem(messageSplit[0], Integer.parseInt(messageSplit[1]), Long.parseLong(messageSplit[2]), true, false);
                         try {
                             item.setId(messageSplit[3]);
-                            item.setValueEventListenerFull(addDatabaseListener(id));
+                            item.setValueEventListenerFull(addDatabaseListener(messageSplit[3]));
+                            Log.i("received", "Setting value event listener for " + id);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
