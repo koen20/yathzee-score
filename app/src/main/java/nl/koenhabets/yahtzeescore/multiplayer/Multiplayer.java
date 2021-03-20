@@ -264,7 +264,24 @@ public class Multiplayer {
                 if (!messageSplit[0].equals(name) && !messageSplit[0].equals("")) {
                     for (int i = 0; i < players.size(); i++) {
                         PlayerItem playerItem = players.get(i);
-                        if (playerItem.getName().equals(messageSplit[0])) {
+                        boolean match = false;
+                        if (playerItem.getId() == null) {
+                            if (playerItem.getName().equals(messageSplit[0])) {
+                                match = true;
+                                Log.i("Multiplayer", "match with name");
+                            }
+                        } else {
+                            try {
+                                if (playerItem.getId().equals(messageSplit[3])) {
+                                    match = true;
+                                    Log.i("Multiplayer", "match with id");
+                                }
+                            } catch (ArrayIndexOutOfBoundsException ignored) {
+
+                            }
+                        }
+
+                        if (match) {
                             exists = true;
                             if (playerItem.getId() == null) {
                                 players.get(i).setId(id);
