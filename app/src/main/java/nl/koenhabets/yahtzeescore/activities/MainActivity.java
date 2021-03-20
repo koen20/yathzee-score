@@ -56,9 +56,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import nl.koenhabets.yahtzeescore.DataManager;
-import nl.koenhabets.yahtzeescore.Multiplayer;
+import nl.koenhabets.yahtzeescore.multiplayer.Multiplayer;
 import nl.koenhabets.yahtzeescore.PlayerAdapter;
-import nl.koenhabets.yahtzeescore.PlayerItem;
+import nl.koenhabets.yahtzeescore.multiplayer.PlayerItem;
 import nl.koenhabets.yahtzeescore.PlayerScoreDialog;
 import nl.koenhabets.yahtzeescore.R;
 
@@ -287,23 +287,30 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         } else {
             name = sharedPref.getString("name", "");
         }
-        if (realtimeDatabaseEnabled) {
-            firebaseUser = mAuth.getCurrentUser();
-            if (firebaseUser == null) {
-                mAuth.signInAnonymously()
-                        .addOnCompleteListener(this, task -> {
-                            if (task.isSuccessful()) {
-                                Log.d("MainActivity", "signInAnonymously:success");
-                                firebaseUser = mAuth.getCurrentUser();
-                            } else {
-                                Log.w("MainActivity", "signInAnonymously:failure", task.getException());
-                                Toast.makeText(MainActivity.this, "Authentication failed.",
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        });
-            }
+        firebaseUser = mAuth.getCurrentUser();
+        if (firebaseUser == null) {
+            mAuth.signInAnonymously()
+                    .addOnCompleteListener(this, task -> {
+                        if (task.isSuccessful()) {
+                            Log.d("MainActivity", "signInAnonymously:success");
+                            firebaseUser = mAuth.getCurrentUser();
+                            initMultiplayerObj(firebaseUser);
+
+                        } else {
+                            Log.w("MainActivity", "signInAnonymously:failure", task.getException());
+                            Toast.makeText(MainActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        } else {
+            initMultiplayerObj(firebaseUser);
         }
 
+        tvOp.setMovementMethod(new ScrollingMovementMethod());
+        tvOp.setOnClickListener(view -> addPlayerDialog());
+    }
+
+    private void initMultiplayerObj(FirebaseUser firebaseUser) {
         multiplayer = new Multiplayer(this, name, (totalLeft + totalRight), firebaseUser);
         multiplayer.setMultiplayerListener(new Multiplayer.MultiplayerListener() {
             @Override
@@ -335,9 +342,8 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                 }
             }
         });
-
-        tvOp.setMovementMethod(new ScrollingMovementMethod());
-        tvOp.setOnClickListener(view -> addPlayerDialog());
+        multiplayer.setScore(totalLeft + totalRight);
+        multiplayer.setFullScore(createJsonScores());
     }
 
 
@@ -371,14 +377,9 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
     public void updateMultiplayerText(List<PlayerItem> players) {
         recyclerView.setVisibility(View.VISIBLE);
         tvOp.setText(R.string.nearby);
-        players2.clear();
         Collections.sort(players);
-        for (int i = 0; i < players.size(); i++) {
-            PlayerItem playerItem = players.get(i);
-            if (playerItem.isVisible()) {
-                players2.add(playerItem);
-            }
-        }
+        players2.clear();
+        players2.addAll(players);
         playerAdapter.notifyDataSetChanged();
     }
 
@@ -534,9 +535,15 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
     @Override
     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
         calculateTotal();
-        DataManager.saveScores(createJsonScores(), getApplicationContext());
+        JSONObject jsonObjectScores = createJsonScores();
+        DataManager.saveScores(jsonObjectScores, getApplicationContext());
         if (multiplayerEnabled) {
-            multiplayer.updateNearbyScore();
+            multiplayer.setFullScore(jsonObjectScores);
+            if (multiplayer.getPlayerAmount() == 0) {
+                tvOp.setText(R.string.No_players_nearby);
+                recyclerView.setVisibility(View.GONE);
+            }
+            multiplayer.setScore(totalLeft + totalRight);
         }
     }
 
@@ -557,15 +564,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         tvTotalLeft.setText(getString(R.string.left, totalLeft));
         tvTotalRight.setText(getString(R.string.right, totalRight));
         tvTotal.setText(getString(R.string.Total, (totalLeft + totalRight)));
-        if (multiplayerEnabled) {
-            if (multiplayer.getPlayerAmount() == 0) {
-                tvOp.setText(R.string.No_players_nearby);
-                recyclerView.setVisibility(View.GONE);
-            }
-            if (multiplayerEnabled) {
-                multiplayer.setScore(totalLeft + totalRight);
-            }
-        }
 
         int color = Color.BLACK;
         // change editText color to white if there is a black theme
@@ -649,7 +647,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         editText26.setText("");
         editText27.setText("");
         editText28.setText("");
-        if(multiplayerEnabled) {
+        if (multiplayerEnabled) {
             multiplayer.updateNearbyScore();
         }
     }
@@ -674,9 +672,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
             jsonObject.put("28", editText28.getText().toString());
         } catch (JSONException e) {
             e.printStackTrace();
-        }
-        if (multiplayerEnabled) {
-            multiplayer.setFullScore(jsonObject);
         }
         return jsonObject;
     }
