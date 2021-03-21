@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import nl.koenhabets.yahtzeescore.data.AppDatabase;
+
 public class Multiplayer {
     private MultiplayerListener listener;
     private Boolean realtimeDatabaseEnabled = true;
@@ -41,14 +43,16 @@ public class Multiplayer {
     private int score;
     private Mqtt mqtt;
     private Nearby nearby;
+    private AppDatabase db;
 
-    public Multiplayer(Context context, String name, int score, FirebaseUser firebaseUser) {
+    public Multiplayer(Context context, String name, int score, FirebaseUser firebaseUser, AppDatabase db) {
         database = FirebaseDatabase.getInstance().getReference();
         this.context = context;
         this.name = name;
         this.listener = null;
         this.score = score;
         this.firebaseUser = firebaseUser;
+        this.db = db;
         initMultiplayer(context, name);
     }
 
