@@ -1,10 +1,7 @@
 package nl.koenhabets.yahtzeescore.activities;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
-
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,6 +11,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Switch;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+
+import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
@@ -39,6 +41,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         Button buttonName = findViewById(R.id.buttonName);
         Button buttonTheme = findViewById(R.id.buttonTheme);
+        Button buttonLicense = findViewById(R.id.buttonLicense);
         Switch switch1 = findViewById(R.id.switch1);
         Switch switchMultiplayer = findViewById(R.id.switch2);
 
@@ -77,6 +80,10 @@ public class SettingsActivity extends AppCompatActivity {
                 TrackHelper.track().event("category", "action").name("name changed").with(tracker);
             });
             builder.show();
+        });
+
+        buttonLicense.setOnClickListener(view -> {
+            startActivity(new Intent(this, OssLicensesMenuActivity.class));
         });
 
         buttonTheme.setOnClickListener(view -> darkModeDialog());

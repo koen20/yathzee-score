@@ -65,5 +65,6 @@
     <string name="sort_by_score">Sort by score</string>
     <string name="nearby">Nearby:</string>
     <string name="score_nearby_unavailable">The score of this player is not yet available. Try again while playing the game.</string>
+    <string name="licenses">Licenses</string>
 
 </resources>
