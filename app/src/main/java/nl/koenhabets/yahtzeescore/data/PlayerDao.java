@@ -1,20 +1,10 @@
 package nl.koenhabets.yahtzeescore.data;
 
-import androidx.room.Dao;
-import androidx.room.Delete;
-import androidx.room.Insert;
-import androidx.room.Query;
 
-import java.util.List;
+import org.json.JSONArray;
 
-@Dao
 public interface PlayerDao {
-    @Query("SELECT * FROM player")
-    List<Player> getAll();
+    JSONArray getAll();
 
-    @Insert
-    void insertAll(Player... players);
-
-    @Delete
-    void delete(Player player);
+    void add(String string);
 }

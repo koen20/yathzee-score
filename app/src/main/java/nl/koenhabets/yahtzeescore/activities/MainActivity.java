@@ -32,7 +32,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.room.Room;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -58,7 +57,6 @@ import java.util.Locale;
 import nl.koenhabets.yahtzeescore.PlayerAdapter;
 import nl.koenhabets.yahtzeescore.PlayerScoreDialog;
 import nl.koenhabets.yahtzeescore.R;
-import nl.koenhabets.yahtzeescore.data.AppDatabase;
 import nl.koenhabets.yahtzeescore.data.DataManager;
 import nl.koenhabets.yahtzeescore.multiplayer.Multiplayer;
 import nl.koenhabets.yahtzeescore.multiplayer.PlayerItem;
@@ -98,7 +96,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
     private PlayerAdapter playerAdapter;
     private List<PlayerItem> players2 = new ArrayList<>();
     PlayerScoreDialog playerScoreDialog;
-    AppDatabase db;
 
     public static Tracker getTracker2() {
         return mMatomoTracker;
@@ -130,9 +127,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                 window.setStatusBarColor(Color.parseColor("#121212"));
             }
         }
-
-        db = Room.databaseBuilder(getApplicationContext(),
-                AppDatabase.class, "yahtzee-db").build();
 
         getTracker();
         Tracker tracker = mMatomoTracker;
@@ -316,7 +310,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
     }
 
     private void initMultiplayerObj(FirebaseUser firebaseUser) {
-        multiplayer = new Multiplayer(this, name, (totalLeft + totalRight), firebaseUser, db);
+        multiplayer = new Multiplayer(this, name, (totalLeft + totalRight), firebaseUser);
         multiplayer.setMultiplayerListener(new Multiplayer.MultiplayerListener() {
             @Override
             public void onChange(List<PlayerItem> players) {

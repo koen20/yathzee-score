@@ -26,7 +26,8 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import nl.koenhabets.yahtzeescore.data.AppDatabase;
+import nl.koenhabets.yahtzeescore.data.PlayerDao;
+import nl.koenhabets.yahtzeescore.data.PlayerDaoImpl;
 
 public class Multiplayer {
     private MultiplayerListener listener;
@@ -43,16 +44,16 @@ public class Multiplayer {
     private int score;
     private Mqtt mqtt;
     private Nearby nearby;
-    private AppDatabase db;
+    private PlayerDao playerDao;
 
-    public Multiplayer(Context context, String name, int score, FirebaseUser firebaseUser, AppDatabase db) {
+    public Multiplayer(Context context, String name, int score, FirebaseUser firebaseUser) {
         database = FirebaseDatabase.getInstance().getReference();
         this.context = context;
         this.name = name;
         this.listener = null;
         this.score = score;
         this.firebaseUser = firebaseUser;
-        this.db = db;
+        playerDao = new PlayerDaoImpl(context);
         initMultiplayer(context, name);
     }
 
@@ -101,6 +102,28 @@ public class Multiplayer {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+
+        JSONArray playersRead = playerDao.getAll();
+        for (int i = 0; i < playersRead.length(); i++) {
+            try {
+                String player = playersRead.getString(i);
+                boolean exists = false;
+                for (int k = 0; k < players.size(); k++) {
+                    PlayerItem item = players.get(k);
+                    if (item.getId().equals(player)) {
+                        exists = true;
+                    }
+                }
+                if (!exists) {
+                    PlayerItem playerItem = new PlayerItem("", 0, 0, false, false);
+                    playerItem.setId(player);
+                    playerItem.setValueEventListenerFull(addDatabaseListener(player));
+                    players.add(playerItem);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         Log.i("players", players.toString() + "");
@@ -297,6 +320,7 @@ public class Multiplayer {
                                 players.get(i).setLastUpdate(Long.parseLong(messageSplit[2]));
                                 players.get(i).setScore(Integer.parseInt(messageSplit[1]));
                                 players.get(i).setVisible(true);
+                                players.get(i).setName(messageSplit[0]);
                                 listener.onChange(players);
                                 break;
                             }
@@ -308,6 +332,7 @@ public class Multiplayer {
                         try {
                             item.setId(messageSplit[3]);
                             item.setValueEventListenerFull(addDatabaseListener(messageSplit[3]));
+                            playerDao.add(messageSplit[3]);
                             Log.i("received", "Setting value event listener for " + id);
                         } catch (Exception e) {
                             e.printStackTrace();
