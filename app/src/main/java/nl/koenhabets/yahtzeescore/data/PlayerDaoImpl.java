@@ -30,7 +30,7 @@ public class PlayerDaoImpl implements PlayerDao {
         SharedPreferences sharedPref = context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         JSONArray playersM = new JSONArray();
         try {
-            playersM = new JSONArray(sharedPref.getString("players", "[]"));
+            playersM = new JSONArray(sharedPref.getString("playersId", "[]"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
