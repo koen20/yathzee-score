@@ -38,7 +38,7 @@ public class PlayerItem implements Comparable<PlayerItem> {
         return visible;
     }
 
-    public void setVisible (boolean visible) {
+    public void setVisible(boolean visible) {
         this.visible = visible;
     }
 
@@ -54,7 +54,7 @@ public class PlayerItem implements Comparable<PlayerItem> {
         this.lastUpdate = lastUpdate;
     }
 
-    public void setScore(int score){
+    public void setScore(int score) {
         this.score = score;
     }
 
@@ -73,6 +73,10 @@ public class PlayerItem implements Comparable<PlayerItem> {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public ValueEventListener getValueEventListenerFull() {

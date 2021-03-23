@@ -1,4 +1,4 @@
-package nl.koenhabets.yahtzeescore;
+package nl.koenhabets.yahtzeescore.data;
 
 import android.app.backup.BackupManager;
 import android.content.Context;
@@ -14,6 +14,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
+import nl.koenhabets.yahtzeescore.ScoreComparator;
+import nl.koenhabets.yahtzeescore.ScoreItem;
 
 public class DataManager {
     public static void saveScore(int score, JSONObject jsonObjectScores, Context context) {
