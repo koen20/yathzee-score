@@ -1,7 +1,5 @@
 package nl.koenhabets.yahtzeescore.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -17,6 +15,8 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
@@ -36,9 +36,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import nl.koenhabets.yahtzeescore.DataManager;
 import nl.koenhabets.yahtzeescore.R;
 import nl.koenhabets.yahtzeescore.ScoreItem;
+import nl.koenhabets.yahtzeescore.data.DataManager;
 
 public class StatsActivity extends AppCompatActivity {
 

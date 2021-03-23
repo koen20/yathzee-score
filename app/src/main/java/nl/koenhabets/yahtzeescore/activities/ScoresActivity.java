@@ -1,8 +1,5 @@
 package nl.koenhabets.yahtzeescore.activities;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.Activity;
 import android.app.backup.BackupManager;
 import android.content.Context;
@@ -19,6 +16,9 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,12 +34,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import nl.koenhabets.yahtzeescore.DataManager;
 import nl.koenhabets.yahtzeescore.R;
 import nl.koenhabets.yahtzeescore.ScoreAdapter;
 import nl.koenhabets.yahtzeescore.ScoreComparator;
 import nl.koenhabets.yahtzeescore.ScoreComparatorDate;
 import nl.koenhabets.yahtzeescore.ScoreItem;
+import nl.koenhabets.yahtzeescore.data.DataManager;
 
 public class ScoresActivity extends AppCompatActivity {
     private List<ScoreItem> scoreItems = new ArrayList<>();
