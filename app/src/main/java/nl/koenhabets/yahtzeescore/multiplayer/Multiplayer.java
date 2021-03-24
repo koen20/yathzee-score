@@ -292,7 +292,7 @@ public class Multiplayer {
                     for (int i = 0; i < players.size(); i++) {
                         PlayerItem playerItem = players.get(i);
                         boolean match = false;
-                        if (playerItem.getId() == null || messageSplit.length < 3) {
+                        if (playerItem.getId() == null || messageSplit.length < 4) {
                             if (playerItem.getName().equals(messageSplit[0])) {
                                 match = true;
                                 Log.i("Multiplayer", "match with name");
