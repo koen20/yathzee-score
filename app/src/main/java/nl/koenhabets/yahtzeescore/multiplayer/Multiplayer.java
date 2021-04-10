@@ -168,30 +168,34 @@ public class Multiplayer {
     }
 
     public ValueEventListener addDatabaseListener(String id) {
-        ValueEventListener valueEventListener = database.child("scoreFull").child(id).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                try {
-                    if (snapshot.exists()) {
-                        Log.i("Firebase Received", snapshot.getValue().toString());
-                        try {
-                            proccessFullScore(snapshot.getValue().toString(), snapshot.getKey());
-                        } catch (Exception e) {
-                            e.printStackTrace();
+        ValueEventListener valueEventListener = null;
+        if (!id.equals("")) {//if id is empty all messages are received
+            Log.i("Firebase", "Adding listener for " + id);
+            valueEventListener = database.child("scoreFull").child(id).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    try {
+                        if (snapshot.exists()) {
+                            Log.i("Firebase Received", snapshot.getValue().toString());
+                            try {
+                                proccessFullScore(snapshot.getValue().toString(), snapshot.getKey());
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            Log.i("Firebase null", id);
                         }
-                    } else {
-                        Log.i("Firebase null", id);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError error) {
-                Log.w("EditTagsActivity", "Failed to read scores.", error.toException());
-            }
-        });
+                @Override
+                public void onCancelled(DatabaseError error) {
+                    Log.w("EditTagsActivity", "Failed to read scores.", error.toException());
+                }
+            });
+        }
 
         return valueEventListener;
     }
@@ -310,7 +314,8 @@ public class Multiplayer {
 
                         if (match) {
                             exists = true;
-                            if (playerItem.getId() == null) {
+                            //check if id of saved player is empty and add the player id from the firebase key (<= v1.10)
+                            if (playerItem.getId() == null || playerItem.getId().equals("")) {
                                 players.get(i).setId(id);
                                 Log.i("received", "Setting value event listener for " + id);
                                 players.get(i).setValueEventListenerFull(addDatabaseListener(id));
