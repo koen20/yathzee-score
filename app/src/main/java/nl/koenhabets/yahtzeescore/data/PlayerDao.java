@@ -1,10 +1,12 @@
 package nl.koenhabets.yahtzeescore.data;
 
 
-import org.json.JSONArray;
+import java.util.List;
+
+import nl.koenhabets.yahtzeescore.multiplayer.PlayerItem;
 
 public interface PlayerDao {
-    JSONArray getAll();
+    List<PlayerItem> getAll();
 
-    void add(String string);
+    void add(PlayerItem item);
 }

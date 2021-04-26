@@ -104,22 +104,22 @@ public class Multiplayer {
             e.printStackTrace();
         }
 
-        JSONArray playersRead = playerDao.getAll();
-        for (int i = 0; i < playersRead.length(); i++) {
+        //todo this could replace players name list
+
+        // read all discovered players and add them to the players list
+        List<PlayerItem> playersRead = playerDao.getAll();
+        for (int i = 0; i < playersRead.size(); i++) {
             try {
-                String player = playersRead.getString(i);
+                PlayerItem player = playersRead.get(i);
                 boolean exists = false;
                 for (int k = 0; k < players.size(); k++) {
                     PlayerItem item = players.get(k);
-                    if (item.getId().equals(player)) {
+                    if (item.getId().equals(player.getId()) || item.getName().equals(player.getName())) {
                         exists = true;
                     }
                 }
                 if (!exists) {
-                    PlayerItem playerItem = new PlayerItem("", 0, 0, false, false);
-                    playerItem.setId(player);
-                    playerItem.setValueEventListenerFull(addDatabaseListener(player));
-                    players.add(playerItem);
+                    players.add(player);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -343,7 +343,9 @@ public class Multiplayer {
                         try {
                             item.setId(messageSplit[3]);
                             item.setValueEventListenerFull(addDatabaseListener(messageSplit[3]));
-                            playerDao.add(messageSplit[3]);
+                            PlayerItem item2 = new PlayerItem(messageSplit[0], 0, 0, false, false);
+                            item2.setId(messageSplit[3]);
+                            playerDao.add(item2);
                             Log.i("received", "Setting value event listener for " + id);
                         } catch (Exception e) {
                             e.printStackTrace();
