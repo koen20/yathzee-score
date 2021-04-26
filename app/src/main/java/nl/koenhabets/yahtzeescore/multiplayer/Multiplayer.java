@@ -296,13 +296,15 @@ public class Multiplayer {
                     for (int i = 0; i < players.size(); i++) {
                         PlayerItem playerItem = players.get(i);
                         boolean match = false;
-                        if (playerItem.getId() == null || messageSplit.length < 4) {
+                        if (playerItem.getId() == null || playerItem.getId().equals("")) {
+                            Log.i("match", "trying to match with name");
                             if (playerItem.getName().equals(messageSplit[0])) {
                                 match = true;
                                 Log.i("Multiplayer", "match with name");
                             }
                         } else {
                             try {
+                                Log.i("match", "trying to match with id");
                                 if (playerItem.getId().equals(messageSplit[3])) {
                                     match = true;
                                     Log.i("Multiplayer", "match with id");
