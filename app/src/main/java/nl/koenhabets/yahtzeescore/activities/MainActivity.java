@@ -463,6 +463,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
             SharedPreferences sharedPref = context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
             sharedPref.edit().putString("name", editTextName.getText().toString()).apply();
             name = editTextName.getText().toString();
+            multiplayer.setName(name);
             TrackHelper.track().event("category", "action").name("name changed").with(mMatomoTracker);
         });
         builder.show();

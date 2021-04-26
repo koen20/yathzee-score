@@ -206,6 +206,10 @@ public class Multiplayer {
         updateNearbyScore();
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public void setFullScore(JSONObject jsonObject) {
         if (realtimeDatabaseEnabled) {
             try {
