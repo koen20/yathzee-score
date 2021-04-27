@@ -300,7 +300,7 @@ public class Multiplayer {
                     for (int i = 0; i < players.size(); i++) {
                         PlayerItem playerItem = players.get(i);
                         boolean match = false;
-                        if (playerItem.getId() == null || playerItem.getId().equals("")) {
+                        if (playerItem.getId() == null || playerItem.getId().equals("") || messageSplit.length < 4) {
                             Log.i("match", "trying to match with name");
                             if (playerItem.getName().equals(messageSplit[0])) {
                                 match = true;
