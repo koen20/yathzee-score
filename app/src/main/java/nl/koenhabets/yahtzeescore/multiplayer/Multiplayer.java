@@ -116,6 +116,7 @@ public class Multiplayer {
                     }
                 }
                 if (!exists) {
+                    player.setValueEventListenerFull(addDatabaseListener(player.getId()));
                     players.add(player);
                 }
             } catch (Exception e) {

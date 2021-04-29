@@ -1,9 +1,7 @@
 package nl.koenhabets.yahtzeescore;
 
-import android.content.Context;
-
-import androidx.test.InstrumentationRegistry;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.gson.Gson;
 
@@ -23,7 +21,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(AndroidJUnit4.class)
 public class MultiplayerTest {
     public Multiplayer createUser() {
-        Multiplayer multiplayer = new Multiplayer(InstrumentationRegistry.getTargetContext(), "test", 0, "123");
+        Multiplayer multiplayer = new Multiplayer(ApplicationProvider.getApplicationContext(), "test", 0, "123");
         multiplayer.proccessMessage("testUser1;10;1619465600875;1234", false, "1234");
         multiplayer.proccessMessage("testUser1;10;1619465600875;1234", true, "1234");
         return multiplayer;
@@ -31,7 +29,6 @@ public class MultiplayerTest {
 
     @Test
     public void addUser() {
-        Context appContext = InstrumentationRegistry.getTargetContext();
         Multiplayer multiplayer = createUser();
         Gson gson = new Gson();
         PlayerItem playerItem = new PlayerItem("testUser1", 10, 1619465600875L, true, false);
