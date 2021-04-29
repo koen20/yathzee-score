@@ -9,7 +9,7 @@ public class PlayerItem implements Comparable<PlayerItem> {
     private Integer score;
     private long lastUpdate;
     private boolean visible;
-    private boolean local;
+    private final boolean local;
     private JSONObject fullScore = new JSONObject();
     private String id;
     private ValueEventListener valueEventListenerFull;

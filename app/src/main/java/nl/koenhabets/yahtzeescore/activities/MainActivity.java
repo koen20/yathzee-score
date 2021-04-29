@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
     private int totalRight = 0;
     private FirebaseUser firebaseUser;
     private FirebaseAuth mAuth;
-    private Boolean realtimeDatabaseEnabled = true;
+    private final Boolean realtimeDatabaseEnabled = true;
     private PlayerAdapter playerAdapter;
     private List<PlayerItem> players2 = new ArrayList<>();
     PlayerScoreDialog playerScoreDialog;
@@ -310,7 +310,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
     }
 
     private void initMultiplayerObj(FirebaseUser firebaseUser) {
-        multiplayer = new Multiplayer(this, name, (totalLeft + totalRight), firebaseUser);
+        multiplayer = new Multiplayer(this, name, (totalLeft + totalRight), firebaseUser.getUid());
         multiplayer.setMultiplayerListener(new Multiplayer.MultiplayerListener() {
             @Override
             public void onChange(List<PlayerItem> players) {

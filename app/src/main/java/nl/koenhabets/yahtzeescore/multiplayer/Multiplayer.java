@@ -8,7 +8,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -32,27 +31,25 @@ import nl.koenhabets.yahtzeescore.data.PlayerDaoImpl;
 public class Multiplayer {
     private MultiplayerListener listener;
     private Boolean realtimeDatabaseEnabled = true;
-    private FirebaseUser firebaseUser;
+    private String firebaseUserUid;
     private DatabaseReference database;
     private ChildEventListener childEventListener;
 
     private List<PlayerItem> players = new ArrayList<>();
     private Timer updateTimer;
     private Timer autoRemoveTimer;
-    private Context context;
     private String name;
     private int score;
     private Mqtt mqtt;
     private Nearby nearby;
     private PlayerDao playerDao;
 
-    public Multiplayer(Context context, String name, int score, FirebaseUser firebaseUser) {
+    public Multiplayer(Context context, String name, int score, String firebaseUserUid) {
         database = FirebaseDatabase.getInstance().getReference();
-        this.context = context;
         this.name = name;
         this.listener = null;
         this.score = score;
-        this.firebaseUser = firebaseUser;
+        this.firebaseUserUid = firebaseUserUid;
         playerDao = new PlayerDaoImpl(context);
         initMultiplayer(context, name);
     }
@@ -68,7 +65,7 @@ public class Multiplayer {
     }
 
     public void initMultiplayer(Context context, String name) {
-        nearby = new Nearby(context, firebaseUser);
+        nearby = new Nearby(context, firebaseUserUid);
         nearby.setNearbyListener(message -> proccessMessage(message, false, ""));
 
         try {
@@ -213,7 +210,7 @@ public class Multiplayer {
     public void setFullScore(JSONObject jsonObject) {
         if (realtimeDatabaseEnabled) {
             try {
-                database.child("scoreFull").child(firebaseUser.getUid()).setValue(jsonObject.toString());
+                database.child("scoreFull").child(firebaseUserUid).setValue(jsonObject.toString());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -228,6 +225,17 @@ public class Multiplayer {
             }
         }
         return count;
+    }
+
+    public PlayerItem getPlayer(String id) {
+        PlayerItem playerItem = null;
+        for (int i = 0; i < getPlayers().size(); i++) {
+            if (getPlayers().get(i).getId().equals(id)) {
+                playerItem = getPlayers().get(i);
+            }
+        }
+
+        return playerItem;
     }
 
     public void addPlayer(PlayerItem playerItem) {
@@ -255,8 +263,8 @@ public class Multiplayer {
         }
         if (realtimeDatabaseEnabled) {
             try {
-                database.child("score").child(firebaseUser.getUid()).removeValue();
-                database.child("scoreFull").child(firebaseUser.getUid()).removeValue();
+                database.child("score").child(firebaseUserUid).removeValue();
+                database.child("scoreFull").child(firebaseUserUid).removeValue();
                 for (int i = 0; i < players.size(); i++) {
                     ValueEventListener valueEventListener = players.get(i).getValueEventListenerFull();
                     if (valueEventListener != null) {
@@ -379,7 +387,7 @@ public class Multiplayer {
     public void updateNearbyScore() {
         Date date = new Date();
         if (!name.equals("")) {
-            String text = name + ";" + (score) + ";" + date.getTime() + ";" + firebaseUser.getUid();
+            String text = name + ";" + (score) + ";" + date.getTime() + ";" + firebaseUserUid;
             try {
                 mqtt.publish("score", text);
             } catch (Exception e) {
@@ -388,7 +396,7 @@ public class Multiplayer {
             nearby.updateScore(text);
             if (realtimeDatabaseEnabled) {
                 try {
-                    database.child("score").child(firebaseUser.getUid()).setValue(text);
+                    database.child("score").child(firebaseUserUid).setValue(text);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

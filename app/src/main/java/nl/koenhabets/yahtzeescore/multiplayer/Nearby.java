@@ -8,18 +8,17 @@ import androidx.annotation.NonNull;
 import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.firebase.auth.FirebaseUser;
 
 public class Nearby implements OnFailureListener {
     private MessageListener mMessageListener;
     private Message mMessage;
-    private FirebaseUser firebaseUser;
+    private String firebaseUserUid;
     private Context context;
     private NearbyListener listener;
 
-    public Nearby(Context context, FirebaseUser firebaseUser){
+    public Nearby(Context context, String firebaseUserUid) {
         this.context = context;
-        this.firebaseUser = firebaseUser;
+        this.firebaseUserUid = firebaseUserUid;
         initNearby();
     }
 
@@ -42,7 +41,7 @@ public class Nearby implements OnFailureListener {
                 Log.d("d", "Lost sight of message: " + new String(message.getContent()));
             }
         };
-        mMessage = new Message((firebaseUser.getUid()).getBytes());
+        mMessage = new Message((firebaseUserUid).getBytes());
 
         com.google.android.gms.nearby.Nearby.getMessagesClient(context).publish(mMessage).addOnFailureListener(this);
         com.google.android.gms.nearby.Nearby.getMessagesClient(context).subscribe(mMessageListener);
