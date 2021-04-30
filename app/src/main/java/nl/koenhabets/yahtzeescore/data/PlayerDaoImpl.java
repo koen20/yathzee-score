@@ -58,4 +58,22 @@ public class PlayerDaoImpl implements PlayerDao {
         playersM.put(gson.toJson(item));
         sharedPref.edit().putString("playersIdv2", playersM.toString()).apply();
     }
+
+    public void updatePlayer(PlayerItem item) {
+        item.setVisible(false);
+        item.setScore(0);
+        item.setFullScore(null);
+        item.setLastUpdate(0L);
+        item.setValueEventListenerFull(null);
+
+        List<PlayerItem> playerItems = getAll();
+        for (int i = 0; i < playerItems.size(); i++) {
+            if (playerItems.get(i).getName().equals(item.getName())) {
+                playerItems.set(i, item);
+            }
+            if (playerItems.get(i).getId().equals(item.getId())) {
+                playerItems.set(i, item);
+            }
+        }
+    }
 }

@@ -108,14 +108,7 @@ public class Multiplayer {
         for (int i = 0; i < playersRead.size(); i++) {
             try {
                 PlayerItem player = playersRead.get(i);
-                boolean exists = false;
-                for (int k = 0; k < players.size(); k++) {
-                    PlayerItem item = players.get(k);
-                    if (item.getId().equals(player.getId()) || item.getName().equals(player.getName())) {
-                        exists = true;
-                    }
-                }
-                if (!exists) {
+                if (getPlayer(player.getId()) == null) {
                     player.setValueEventListenerFull(addDatabaseListener(player.getId()));
                     players.add(player);
                 }
@@ -231,6 +224,9 @@ public class Multiplayer {
     public PlayerItem getPlayer(String id) {
         PlayerItem playerItem = null;
         for (int i = 0; i < getPlayers().size(); i++) {
+            if (getPlayers().get(i).getName().equals(name)) {
+                playerItem = getPlayers().get(i);
+            }
             if (getPlayers().get(i).getId().equals(id)) {
                 playerItem = getPlayers().get(i);
             }
@@ -334,6 +330,7 @@ public class Multiplayer {
                                 players.get(i).setId(id);
                                 Log.i("received", "Setting value event listener for " + id);
                                 players.get(i).setValueEventListenerFull(addDatabaseListener(id));
+                                playerDao.updatePlayer(playerItem);
                             }
                             if (playerItem.getLastUpdate() < Long.parseLong(messageSplit[2]) && mqtt) {
                                 Log.i("message", "newer message");
