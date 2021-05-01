@@ -26,7 +26,7 @@ public class PlayerDaoImpl implements PlayerDao {
         SharedPreferences sharedPref = context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         JSONArray jsonArray = new JSONArray();
         try {
-            jsonArray = new JSONArray(sharedPref.getString("playersIdv2", "[]"));
+            jsonArray = new JSONArray(sharedPref.getString("playersIdv8", "[]"));
             Log.i("players", "Local players read: " + jsonArray.toString());
         } catch (JSONException e) {
             e.printStackTrace();
@@ -47,33 +47,30 @@ public class PlayerDaoImpl implements PlayerDao {
 
     @Override
     public void add(PlayerItem item) {
-        SharedPreferences sharedPref = context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
-        JSONArray playersM = new JSONArray();
-        try {
-            playersM = new JSONArray(sharedPref.getString("playersIdv2", "[]"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        Gson gson = new Gson();
-        playersM.put(gson.toJson(item));
-        sharedPref.edit().putString("playersIdv2", playersM.toString()).apply();
-    }
-
-    public void updatePlayer(PlayerItem item) {
-        item.setVisible(false);
-        item.setScore(0);
-        item.setFullScore(null);
-        item.setLastUpdate(0L);
-        item.setValueEventListenerFull(null);
-
+        Log.i("PlayerDao", "Adding player: " + item.getName());
         List<PlayerItem> playerItems = getAll();
+        boolean exists = false;
         for (int i = 0; i < playerItems.size(); i++) {
+            if (playerItems.get(i).getId() != null) {
+                if (playerItems.get(i).getId().equals(item.getId())) {
+                    playerItems.set(i, item);
+                    exists = true;
+                }
+            }
             if (playerItems.get(i).getName().equals(item.getName())) {
                 playerItems.set(i, item);
-            }
-            if (playerItems.get(i).getId().equals(item.getId())) {
-                playerItems.set(i, item);
+                exists = true;
             }
         }
+
+        if (!exists) {
+            playerItems.add(item);
+        } else {
+            Log.i("PlayerDao", "Exists updated");
+        }
+
+        Gson gson = new Gson();
+        SharedPreferences sharedPref = context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+        sharedPref.edit().putString("playersIdv8", gson.toJson(playerItems)).apply();
     }
 }

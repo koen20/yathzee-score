@@ -58,6 +58,8 @@ import nl.koenhabets.yahtzeescore.PlayerAdapter;
 import nl.koenhabets.yahtzeescore.PlayerScoreDialog;
 import nl.koenhabets.yahtzeescore.R;
 import nl.koenhabets.yahtzeescore.data.DataManager;
+import nl.koenhabets.yahtzeescore.data.PlayerDao;
+import nl.koenhabets.yahtzeescore.data.PlayerDaoImpl;
 import nl.koenhabets.yahtzeescore.multiplayer.Multiplayer;
 import nl.koenhabets.yahtzeescore.multiplayer.PlayerItem;
 
@@ -345,7 +347,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         multiplayer.setFullScore(createJsonScores());
     }
 
-
     private void addPlayerDialog() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
@@ -355,18 +356,13 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         builder.setView(view);
         builder.setMessage(R.string.add_player);
         builder.setPositiveButton("Ok", (dialog, id) -> {
-            SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
-            JSONArray playersM = new JSONArray();
-            try {
-                playersM = new JSONArray(sharedPref.getString("players", "[]"));
-            } catch (JSONException e) {
-                e.printStackTrace();
+            if (!editTextName.getText().toString().equals("")) {
+                PlayerDao playerDao = new PlayerDaoImpl(this);
+                PlayerItem playerItem = new PlayerItem(editTextName.getText().toString(), 0, 0, true, false);
+                playerDao.add(playerItem);
+                multiplayer.addPlayer(playerItem);
+                updateMultiplayerText(multiplayer.getPlayers());
             }
-            playersM.put(editTextName.getText().toString());
-            sharedPref.edit().putString("players", playersM.toString()).apply();
-            PlayerItem playerItem = new PlayerItem(editTextName.getText().toString(), 0, 0, true, false);
-            multiplayer.addPlayer(playerItem);
-            updateMultiplayerText(multiplayer.getPlayers());
         });
         builder.setNegativeButton(R.string.cancel, (dialog, id) -> {
         });
@@ -402,40 +398,41 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.privacy_policy:
-                openUrl("https://koenhabets.nl/privacy_policy.html");
+        int itemId = item.getItemId();
+        if (itemId == R.id.privacy_policy) {
+            openUrl("https://koenhabets.nl/privacy_policy.html");
+            return true;
+        } else if (itemId == R.id.scores2) {
+            Intent myIntent = new Intent(this, ScoresActivity.class);
+            this.startActivity(myIntent);
+            return true;
+        } else if (itemId == R.id.settings2) {
+            Intent myIntent2 = new Intent(this, SettingsActivity.class);
+            this.startActivity(myIntent2);
+            return true;
+        } else if (itemId == R.id.stats) {
+            Intent myIntent3 = new Intent(this, StatsActivity.class);
+            this.startActivity(myIntent3);
+            return true;
+        } else if (itemId == R.id.rules) {
+            String language = Locale.getDefault().getLanguage();
+            if (language.equals("nl")) {
+                openUrl("https://nl.wikipedia.org/wiki/Yahtzee#Spelverloop");
+            } else if (language.equals("fr")) {
+                openUrl("https://fr.wikipedia.org/wiki/Yahtzee");
+            } else {
+                openUrl("https://en.wikipedia.org/wiki/Yahtzee#Rules");
+            }
+            return true;
+        } else if (itemId == R.id.add_player) {
+            if (multiplayerEnabled) {
+                addPlayerDialog();
                 return true;
-            case R.id.scores2:
-                Intent myIntent = new Intent(this, ScoresActivity.class);
-                this.startActivity(myIntent);
-                return true;
-            case R.id.settings2:
-                Intent myIntent2 = new Intent(this, SettingsActivity.class);
-                this.startActivity(myIntent2);
-                return true;
-            case R.id.stats:
-                Intent myIntent3 = new Intent(this, StatsActivity.class);
-                this.startActivity(myIntent3);
-                return true;
-            case R.id.rules:
-                String language = Locale.getDefault().getLanguage();
-                if (language.equals("nl")) {
-                    openUrl("https://nl.wikipedia.org/wiki/Yahtzee#Spelverloop");
-                } else if (language.equals("fr")) {
-                    openUrl("https://fr.wikipedia.org/wiki/Yahtzee");
-                } else {
-                    openUrl("https://en.wikipedia.org/wiki/Yahtzee#Rules");
-                }
-                return true;
-            case R.id.add_player:
-                if (multiplayerEnabled) {
-                    addPlayerDialog();
-                    return true;
-                }
-            default:
-                return super.onOptionsItemSelected(item);
+            }
+
+            return super.onOptionsItemSelected(item);
         }
+        return super.onOptionsItemSelected(item);
 
     }
 

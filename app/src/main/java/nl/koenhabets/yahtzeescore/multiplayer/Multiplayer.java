@@ -75,33 +75,10 @@ public class Multiplayer {
             e.printStackTrace();
         }
         updateTimer = new Timer();
-        updateTimer.scheduleAtFixedRate(new updateTask(), 6000, 10000);
+        updateTimer.scheduleAtFixedRate(new updateTask(), 1000, 10000);
 
         autoRemoveTimer = new Timer();
         autoRemoveTimer.scheduleAtFixedRate(new autoRemove(), 60000, 60000);
-
-        //get manually added players and add them to the players list
-        SharedPreferences sharedPref = context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
-        try {
-            JSONArray playersM = new JSONArray(sharedPref.getString("players", ""));
-            for (int i = 0; i < playersM.length(); i++) {
-                boolean exists = false;
-                for (int k = 0; k < players.size(); k++) {
-                    PlayerItem item = players.get(k);
-                    if (item.getName().equals(playersM.getString(i))) {
-                        exists = true;
-                    }
-                }
-                if (!exists) {
-                    PlayerItem playerItem = new PlayerItem(playersM.getString(i), 0, 0, false, false);
-                    players.add(playerItem);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        //todo this could replace players name list
 
         // read all discovered players and add them to the players list
         List<PlayerItem> playersRead = playerDao.getAll();
@@ -110,6 +87,7 @@ public class Multiplayer {
                 PlayerItem player = playersRead.get(i);
                 if (getPlayer(player.getId()) == null) {
                     player.setValueEventListenerFull(addDatabaseListener(player.getId()));
+                    player.setVisible(false);
                     players.add(player);
                 }
             } catch (Exception e) {
@@ -227,8 +205,10 @@ public class Multiplayer {
             if (getPlayers().get(i).getName().equals(name)) {
                 playerItem = getPlayers().get(i);
             }
-            if (getPlayers().get(i).getId().equals(id)) {
-                playerItem = getPlayers().get(i);
+            if (getPlayers().get(i).getId() != null) {
+                if (getPlayers().get(i).getId().equals(id)) {
+                    playerItem = getPlayers().get(i);
+                }
             }
         }
 
@@ -330,7 +310,7 @@ public class Multiplayer {
                                 players.get(i).setId(id);
                                 Log.i("received", "Setting value event listener for " + id);
                                 players.get(i).setValueEventListenerFull(addDatabaseListener(id));
-                                playerDao.updatePlayer(playerItem);
+                                playerDao.add(playerItem);
                             }
                             if (playerItem.getLastUpdate() < Long.parseLong(messageSplit[2]) && mqtt) {
                                 Log.i("message", "newer message");

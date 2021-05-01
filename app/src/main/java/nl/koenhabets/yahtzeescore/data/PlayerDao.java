@@ -9,6 +9,4 @@ public interface PlayerDao {
     List<PlayerItem> getAll();
 
     void add(PlayerItem item);
-
-    void updatePlayer(PlayerItem item);
 }
