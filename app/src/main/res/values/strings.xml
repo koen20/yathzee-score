@@ -58,6 +58,7 @@
     <string name="clear">Clear</string>
     <string name="add_player">Add player</string>
     <string name="average_score_of_last">Average score of last %d games</string>
+    <string name="average_score_of_last_ma">Moving average (15 games)</string>
     <string name="_1_4_81" translatable="false">1.4(81)</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>

@@ -56,4 +56,5 @@
     <string name="nearby">In de buurt:</string>
     <string name="score_nearby_unavailable">De score van deze speler is niet beschikbaar. Probeer het opnieuw tijdens het spelen.</string>
     <string name="licenses">Licenties</string>
+    <string name="average_score_of_last_ma">Vootschrijdend gemiddelde (15 spellen)</string>
 </resources>

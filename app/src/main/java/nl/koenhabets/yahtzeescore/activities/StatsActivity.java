@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import nl.koenhabets.yahtzeescore.MovingAverage;
 import nl.koenhabets.yahtzeescore.R;
 import nl.koenhabets.yahtzeescore.ScoreItem;
 import nl.koenhabets.yahtzeescore.data.DataManager;
@@ -96,7 +97,9 @@ public class StatsActivity extends AppCompatActivity {
         TextView textViewGraph = findViewById(R.id.textView8);
 
         LineChart lineChart = findViewById(R.id.chart);
+        LineChart lineChartMa = findViewById(R.id.chartMa);
         List<Entry> entries = new ArrayList<>();
+        List<Entry> entriesMa = new ArrayList<>();
 
         AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
         appBarLayout.setVisibility(View.GONE);
@@ -134,6 +137,16 @@ public class StatsActivity extends AppCompatActivity {
             }
 
         }
+
+        int size = 15;
+        MovingAverage movingAverage = new MovingAverage(size);
+        for (int d = 0; d < scoreItemsDate.size(); d++) {
+            movingAverage.addData(scoreItemsDate.get(d).getScore());
+            if (d > 14 ) {
+                entriesMa.add(new Entry(d, (float) movingAverage.getMean()));
+            }
+        }
+
         Log.i("entries", entries.size() + "size");
         LineDataSet dataSet = new LineDataSet(entries, getString(R.string.average_score));
         dataSet.setColor(Color.BLUE);
@@ -141,6 +154,23 @@ public class StatsActivity extends AppCompatActivity {
         LineData lineData = new LineData(dataSet);
         lineChart.setData(lineData);
         lineChart.getDescription().setText(getString(R.string.average_score_of_last, scoreItemsDate.size()));
+        lineChartSetFlags(lineChart);
+
+        LineDataSet dataSetMa = new LineDataSet(entriesMa, getString(R.string.average_score));
+        dataSetMa.setColor(Color.BLUE);
+        dataSetMa.setValueTextColor(Color.YELLOW);
+        LineData lineDataMa = new LineData(dataSetMa);
+        lineChartMa.setData(lineDataMa);
+        lineChartMa.getDescription().setText(getString(R.string.average_score_of_last_ma));
+        lineChartSetFlags(lineChartMa);
+
+        disableEdit();
+        if (sharedPref.getBoolean("statsInfoDialog", true)) {
+            infoDialog(false);
+        }
+    }
+
+    private void lineChartSetFlags(LineChart lineChart) {
         int nightModeFlags =
                 this.getResources().getConfiguration().uiMode &
                         Configuration.UI_MODE_NIGHT_MASK;
@@ -152,11 +182,6 @@ public class StatsActivity extends AppCompatActivity {
         }
 
         lineChart.invalidate();
-
-        disableEdit();
-        if (sharedPref.getBoolean("statsInfoDialog", true)) {
-            infoDialog(false);
-        }
     }
 
     private void infoDialog(boolean checkboxChecked) {
