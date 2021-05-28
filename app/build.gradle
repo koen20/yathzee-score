@@ -3,8 +3,8 @@ apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: "com.google.android.gms.oss-licenses-plugin"
 
 //def keystorePropertiesFile = rootProject.file("keystore.properties")
-def keystoreProperties = new Properties()
-keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+//def keystoreProperties = new Properties()
+//keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
 
