@@ -2,20 +2,20 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: "com.google.android.gms.oss-licenses-plugin"
 
-def keystorePropertiesFile = rootProject.file("keystore.properties")
+//def keystorePropertiesFile = rootProject.file("keystore.properties")
 def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
 
-    signingConfigs {
+    /*signingConfigs {
         debug {
             keyAlias keystoreProperties['keyAlias']
             keyPassword keystoreProperties['storePassword']
             storeFile file(keystoreProperties['storeFile'])
             storePassword keystoreProperties['storePassword']
         }
-    }
+    }*/
 
     compileSdkVersion 30
     defaultConfig {
