@@ -42,7 +42,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.matomo.sdk.Matomo;
@@ -90,25 +89,22 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
     private TextView tvOp;
     private RecyclerView recyclerView;
     private TextView tvYahtzeeBonus;
-    private Button button;
     private EditText editTextBonus;
     private int totalLeft = 0;
     private int totalRight = 0;
     private FirebaseUser firebaseUser;
     private FirebaseAuth mAuth;
-    private final Boolean realtimeDatabaseEnabled = true;
     private PlayerAdapter playerAdapter;
-    private List<PlayerItem> players2 = new ArrayList<>();
+    private final List<PlayerItem> players2 = new ArrayList<>();
     PlayerScoreDialog playerScoreDialog;
 
     public static Tracker getTracker2() {
         return mMatomoTracker;
     }
 
-    public synchronized Tracker getTracker() {
-        if (mMatomoTracker != null) return mMatomoTracker;
+    public synchronized void getTracker() {
+        if (mMatomoTracker != null) return;
         mMatomoTracker = TrackerBuilder.createDefault("https://analytics.koenhabets.nl/matomo.php", 6).build(Matomo.getInstance(this));
-        return mMatomoTracker;
     }
 
     @Override
@@ -135,7 +131,9 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                         Configuration.UI_MODE_NIGHT_MASK;
         if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
             ActionBar actionBar = getSupportActionBar();
-            actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#121212")));
+            if (actionBar != null) {
+                actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#121212")));
+            }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 Window window = this.getWindow();
                 window.setStatusBarColor(Color.parseColor("#121212"));
@@ -165,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         editText28 = findViewById(R.id.editText16);
         editTextBonus = findViewById(R.id.editTextBonus);
 
-        button = findViewById(R.id.button);
+        Button button = findViewById(R.id.button);
 
         tvTotalLeft = findViewById(R.id.textViewTotalLeft);
         tvTotalRight = findViewById(R.id.textViewTotalRight);
@@ -220,27 +218,37 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         editText26.setOnClickListener(view -> setDefaultValue(editText26, 50));
 
         final Context context = this;
-        button.setOnClickListener(view -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setTitle(R.string.save_score);
-            builder.setNegativeButton(R.string.no, (dialog, id) -> {
+        button.setOnClickListener(view -> saveScoreDialog(context));
+    }
+
+    private void saveScoreDialog(Context context) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(R.string.save_score);
+        builder.setNegativeButton(R.string.no, (dialog, id) -> {
+            AlertDialog.Builder builder2 = new AlertDialog.Builder(context);
+            builder2.setTitle(R.string.score_not_save_conf);
+            builder2.setNegativeButton(R.string.no, (dialog2, id2) -> {
+
+            });
+            builder2.setPositiveButton(R.string.yes, (dialog2, id2) -> {
                 clearText();
                 TrackHelper.track().event("category", "action").name("clear").with(mMatomoTracker);
             });
-            builder.setPositiveButton(R.string.yes, (dialog, id) -> {
-                if ((totalLeft + totalRight) < 5) {
-                    Toast toast = Toast.makeText(this, R.string.score_too_low_save, Toast.LENGTH_SHORT);
-                    toast.show();
-                } else {
-                    DataManager.saveScore(totalLeft + totalRight, createJsonScores(), getApplicationContext());
-                    TrackHelper.track().event("category", "action").name("clear and save").with(mMatomoTracker);
-                }
-                clearText();
-            });
-            builder.setNeutralButton(R.string.cancel, (dialogInterface, i) -> {
-            });
-            builder.show();
+            builder2.show();
         });
+        builder.setPositiveButton(R.string.yes, (dialog, id) -> {
+            if ((totalLeft + totalRight) < 5) {
+                Toast toast = Toast.makeText(this, R.string.score_too_low_save, Toast.LENGTH_SHORT);
+                toast.show();
+            } else {
+                DataManager.saveScore(totalLeft + totalRight, createJsonScores(), getApplicationContext());
+                TrackHelper.track().event("category", "action").name("clear and save").with(mMatomoTracker);
+            }
+            clearText();
+        });
+        builder.setNeutralButton(R.string.cancel, (dialogInterface, i) -> {
+        });
+        builder.show();
     }
 
     private void setDefaultValue(EditText editTextD, int value) {
@@ -250,11 +258,11 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         } catch (NumberFormatException ignored) {
         }
         if (number == value) {
-            editTextD.setText(0 + "");
+            editTextD.setText(String.valueOf(0));
         } else if (number == 0) {
             editTextD.setText("");
         } else {
-            editTextD.setText(value + "");
+            editTextD.setText(String.valueOf(value));
         }
 
         SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
@@ -578,7 +586,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
             editTextBonus.setText(String.valueOf(35));
             totalLeft = totalLeft + 35;
         } else {
-            editTextBonus.setText(0 + " (" + (63 - totalLeft) + ")");
+            editTextBonus.setText(getString(R.string.bonus_value, 63 - totalLeft));
         }
         tvTotalLeft.setText(getString(R.string.left, totalLeft));
         tvTotalRight.setText(getString(R.string.right, totalRight));

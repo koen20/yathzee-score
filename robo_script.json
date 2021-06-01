@@ -1,7 +1,7 @@
 [
   {
     "eventType": "VIEW_CLICKED",
-    "timestamp": 1622552409369,
+    "timestamp": 1622578692814,
     "replacementText": "Yes",
     "actionCode": -1,
     "delayTime": 0,
@@ -38,8 +38,8 @@
   },
   {
     "eventType": "VIEW_TEXT_CHANGED",
-    "timestamp": 1622552413798,
-    "replacementText": "testRobo",
+    "timestamp": 1622578696680,
+    "replacementText": "testrobo",
     "actionCode": -1,
     "delayTime": 0,
     "canScrollTo": false,
@@ -75,7 +75,7 @@
   },
   {
     "eventType": "VIEW_CLICKED",
-    "timestamp": 1622552423784,
+    "timestamp": 1622578709701,
     "replacementText": "Ok",
     "actionCode": -1,
     "delayTime": 0,
@@ -111,9 +111,9 @@
     ]
   },
   {
-    "eventType": "VIEW_CLICKED",
-    "timestamp": 1622552429396,
-    "replacementText": "",
+    "eventType": "VIEW_TEXT_CHANGED",
+    "timestamp": 1622578717564,
+    "replacementText": "10",
     "actionCode": -1,
     "delayTime": 0,
     "canScrollTo": true,
@@ -122,8 +122,8 @@
         "className": "androidx.appcompat.widget.AppCompatEditText",
         "recyclerViewChildPosition": -1,
         "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 2,
-        "resourceId": "nl.koenhabets.yahtzeescore:id/editText12",
+        "groupViewChildPosition": 14,
+        "resourceId": "nl.koenhabets.yahtzeescore:id/editText6",
         "contentDescription": "",
         "text": ""
       },
@@ -148,9 +148,9 @@
     ]
   },
   {
-    "eventType": "VIEW_CLICKED",
-    "timestamp": 1622552432744,
-    "replacementText": "40",
+    "eventType": "PRESSED_EDITOR_ACTION",
+    "timestamp": 1622578720844,
+    "replacementText": "10",
     "actionCode": -1,
     "delayTime": 0,
     "canScrollTo": true,
@@ -159,10 +159,10 @@
         "className": "androidx.appcompat.widget.AppCompatEditText",
         "recyclerViewChildPosition": -1,
         "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 2,
-        "resourceId": "nl.koenhabets.yahtzeescore:id/editText12",
+        "groupViewChildPosition": 14,
+        "resourceId": "nl.koenhabets.yahtzeescore:id/editText6",
         "contentDescription": "",
-        "text": "40"
+        "text": "10"
       },
       {
         "className": "androidx.constraintlayout.widget.ConstraintLayout",
@@ -186,45 +186,8 @@
   },
   {
     "eventType": "VIEW_CLICKED",
-    "timestamp": 1622552434719,
-    "replacementText": "",
-    "actionCode": -1,
-    "delayTime": 0,
-    "canScrollTo": true,
-    "elementDescriptors": [
-      {
-        "className": "androidx.appcompat.widget.AppCompatEditText",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 3,
-        "resourceId": "nl.koenhabets.yahtzeescore:id/editText11",
-        "contentDescription": "",
-        "text": ""
-      },
-      {
-        "className": "androidx.constraintlayout.widget.ConstraintLayout",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 0,
-        "resourceId": "",
-        "contentDescription": "",
-        "text": ""
-      },
-      {
-        "className": "android.widget.ScrollView",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 1,
-        "resourceId": "",
-        "contentDescription": "",
-        "text": ""
-      }
-    ]
-  },
-  {
-    "eventType": "VIEW_CLICKED",
-    "timestamp": 1622552437963,
-    "replacementText": "Clear all / save",
+    "timestamp": 1622578723147,
+    "replacementText": "Alles wissen / opslaan",
     "actionCode": -1,
     "delayTime": 0,
     "canScrollTo": false,
@@ -236,7 +199,7 @@
         "groupViewChildPosition": 2,
         "resourceId": "nl.koenhabets.yahtzeescore:id/button",
         "contentDescription": "",
-        "text": "Clear all / save"
+        "text": "Alles wissen / opslaan"
       },
       {
         "className": "androidx.constraintlayout.widget.ConstraintLayout",
@@ -260,8 +223,8 @@
   },
   {
     "eventType": "VIEW_CLICKED",
-    "timestamp": 1622552442779,
-    "replacementText": "Yes",
+    "timestamp": 1622578727991,
+    "replacementText": "Ja",
     "actionCode": -1,
     "delayTime": 0,
     "canScrollTo": true,
@@ -273,7 +236,7 @@
         "groupViewChildPosition": 3,
         "resourceId": "android:id/button1",
         "contentDescription": "",
-        "text": "Yes"
+        "text": "Ja"
       },
       {
         "className": "androidx.appcompat.widget.ButtonBarLayout",
@@ -290,339 +253,6 @@
         "adapterViewChildPosition": -1,
         "groupViewChildPosition": 3,
         "resourceId": "nl.koenhabets.yahtzeescore:id/buttonPanel",
-        "contentDescription": "",
-        "text": ""
-      }
-    ]
-  },
-  {
-    "eventType": "VIEW_CLICKED",
-    "timestamp": 1622552446664,
-    "replacementText": "",
-    "actionCode": -1,
-    "delayTime": 0,
-    "canScrollTo": false,
-    "elementDescriptors": [
-      {
-        "className": "androidx.appcompat.widget.ActionMenuPresenter$OverflowMenuButton",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 0,
-        "resourceId": "",
-        "contentDescription": "More options",
-        "text": ""
-      },
-      {
-        "className": "androidx.appcompat.widget.ActionMenuView",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 1,
-        "resourceId": "",
-        "contentDescription": "",
-        "text": ""
-      },
-      {
-        "className": "androidx.appcompat.widget.Toolbar",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 0,
-        "resourceId": "nl.koenhabets.yahtzeescore:id/toolbar",
-        "contentDescription": "",
-        "text": ""
-      }
-    ]
-  },
-  {
-    "eventType": "LIST_ITEM_CLICKED",
-    "timestamp": 1622552451522,
-    "replacementText": "Saved scores",
-    "actionCode": -1,
-    "delayTime": 0,
-    "canScrollTo": false,
-    "elementDescriptors": [
-      {
-        "className": "com.google.android.material.textview.MaterialTextView",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 0,
-        "resourceId": "nl.koenhabets.yahtzeescore:id/title",
-        "contentDescription": "",
-        "text": "Saved scores"
-      },
-      {
-        "className": "android.widget.RelativeLayout",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 0,
-        "resourceId": "",
-        "contentDescription": "",
-        "text": ""
-      },
-      {
-        "className": "android.widget.LinearLayout",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 1,
-        "resourceId": "nl.koenhabets.yahtzeescore:id/content",
-        "contentDescription": "",
-        "text": ""
-      }
-    ]
-  },
-  {
-    "eventType": "LIST_ITEM_CLICKED",
-    "timestamp": 1622552458842,
-    "replacementText": "",
-    "actionCode": -1,
-    "delayTime": 0,
-    "canScrollTo": false,
-    "elementDescriptors": [
-      {
-        "className": "androidx.constraintlayout.widget.ConstraintLayout",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": 0,
-        "groupViewChildPosition": -1,
-        "resourceId": "",
-        "contentDescription": "",
-        "text": ""
-      },
-      {
-        "className": "android.widget.ListView",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 0,
-        "resourceId": "nl.koenhabets.yahtzeescore:id/listViewScore",
-        "contentDescription": "",
-        "text": ""
-      },
-      {
-        "className": "androidx.constraintlayout.widget.ConstraintLayout",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 0,
-        "resourceId": "",
-        "contentDescription": "",
-        "text": ""
-      }
-    ]
-  },
-  {
-    "eventType": "VIEW_CLICKED",
-    "timestamp": 1622552463545,
-    "replacementText": "",
-    "actionCode": -1,
-    "delayTime": 0,
-    "canScrollTo": false,
-    "elementDescriptors": [
-      {
-        "className": "androidx.appcompat.widget.AppCompatImageButton",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 1,
-        "resourceId": "",
-        "contentDescription": "Navigate up",
-        "text": ""
-      },
-      {
-        "className": "androidx.appcompat.widget.Toolbar",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 0,
-        "resourceId": "nl.koenhabets.yahtzeescore:id/action_bar",
-        "contentDescription": "",
-        "text": ""
-      },
-      {
-        "className": "androidx.appcompat.widget.ActionBarContainer",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 1,
-        "resourceId": "nl.koenhabets.yahtzeescore:id/action_bar_container",
-        "contentDescription": "",
-        "text": ""
-      }
-    ]
-  },
-  {
-    "eventType": "VIEW_CLICKED",
-    "timestamp": 1622552465983,
-    "replacementText": "",
-    "actionCode": -1,
-    "delayTime": 0,
-    "canScrollTo": false,
-    "elementDescriptors": [
-      {
-        "className": "androidx.appcompat.widget.AppCompatImageButton",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 1,
-        "resourceId": "",
-        "contentDescription": "Navigate up",
-        "text": ""
-      },
-      {
-        "className": "androidx.appcompat.widget.Toolbar",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 0,
-        "resourceId": "nl.koenhabets.yahtzeescore:id/action_bar",
-        "contentDescription": "",
-        "text": ""
-      },
-      {
-        "className": "androidx.appcompat.widget.ActionBarContainer",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 1,
-        "resourceId": "nl.koenhabets.yahtzeescore:id/action_bar_container",
-        "contentDescription": "",
-        "text": ""
-      }
-    ]
-  },
-  {
-    "eventType": "VIEW_CLICKED",
-    "timestamp": 1622552469169,
-    "replacementText": "",
-    "actionCode": -1,
-    "delayTime": 0,
-    "canScrollTo": false,
-    "elementDescriptors": [
-      {
-        "className": "androidx.appcompat.widget.ActionMenuPresenter$OverflowMenuButton",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 0,
-        "resourceId": "",
-        "contentDescription": "More options",
-        "text": ""
-      },
-      {
-        "className": "androidx.appcompat.widget.ActionMenuView",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 1,
-        "resourceId": "",
-        "contentDescription": "",
-        "text": ""
-      },
-      {
-        "className": "androidx.appcompat.widget.Toolbar",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 0,
-        "resourceId": "nl.koenhabets.yahtzeescore:id/toolbar",
-        "contentDescription": "",
-        "text": ""
-      }
-    ]
-  },
-  {
-    "eventType": "LIST_ITEM_CLICKED",
-    "timestamp": 1622552471858,
-    "replacementText": "Stats",
-    "actionCode": -1,
-    "delayTime": 0,
-    "canScrollTo": false,
-    "elementDescriptors": [
-      {
-        "className": "com.google.android.material.textview.MaterialTextView",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 0,
-        "resourceId": "nl.koenhabets.yahtzeescore:id/title",
-        "contentDescription": "",
-        "text": "Stats"
-      },
-      {
-        "className": "android.widget.RelativeLayout",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 0,
-        "resourceId": "",
-        "contentDescription": "",
-        "text": ""
-      },
-      {
-        "className": "android.widget.LinearLayout",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 1,
-        "resourceId": "nl.koenhabets.yahtzeescore:id/content",
-        "contentDescription": "",
-        "text": ""
-      }
-    ]
-  },
-  {
-    "eventType": "VIEW_CLICKED",
-    "timestamp": 1622552478283,
-    "replacementText": "Ok",
-    "actionCode": -1,
-    "delayTime": 0,
-    "canScrollTo": true,
-    "elementDescriptors": [
-      {
-        "className": "com.google.android.material.button.MaterialButton",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 3,
-        "resourceId": "android:id/button1",
-        "contentDescription": "",
-        "text": "Ok"
-      },
-      {
-        "className": "com.android.internal.widget.ButtonBarLayout",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 0,
-        "resourceId": "",
-        "contentDescription": "",
-        "text": ""
-      },
-      {
-        "className": "android.widget.ScrollView",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 3,
-        "resourceId": "android:id/buttonPanel",
-        "contentDescription": "",
-        "text": ""
-      }
-    ]
-  },
-  {
-    "eventType": "VIEW_CLICKED",
-    "timestamp": 1622552487309,
-    "replacementText": "",
-    "actionCode": -1,
-    "delayTime": 0,
-    "canScrollTo": false,
-    "elementDescriptors": [
-      {
-        "className": "androidx.appcompat.widget.AppCompatImageButton",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 1,
-        "resourceId": "",
-        "contentDescription": "Navigate up",
-        "text": ""
-      },
-      {
-        "className": "androidx.appcompat.widget.Toolbar",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 0,
-        "resourceId": "nl.koenhabets.yahtzeescore:id/action_bar",
-        "contentDescription": "",
-        "text": ""
-      },
-      {
-        "className": "androidx.appcompat.widget.ActionBarContainer",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 1,
-        "resourceId": "nl.koenhabets.yahtzeescore:id/action_bar_container",
         "contentDescription": "",
         "text": ""
       }

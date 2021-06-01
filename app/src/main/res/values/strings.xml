@@ -67,5 +67,6 @@
     <string name="nearby">Nearby:</string>
     <string name="score_nearby_unavailable">The score of this player is not yet available. Try again while playing the game.</string>
     <string name="licenses">Licenses</string>
-
+    <string name="score_not_save_conf">Are you sure you don\'t want to save this score?</string>
+    <string name="bonus_value" translatable="false">0 (%d)</string>
 </resources>
