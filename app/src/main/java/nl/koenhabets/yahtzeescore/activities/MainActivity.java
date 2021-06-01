@@ -10,6 +10,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.ScrollingMovementMethod;
@@ -39,6 +40,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -117,6 +119,16 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         mAuth = FirebaseAuth.getInstance();
         SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         AppCompatDelegate.setDefaultNightMode(sharedPref.getInt("theme", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM));
+
+        FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(this);
+
+        String testLabSetting =
+                Settings.System.getString(getContentResolver(), "firebase.test.lab");
+        if ("true".equals(testLabSetting)) {
+            //You are running in Test Lab
+            firebaseAnalytics.setAnalyticsCollectionEnabled(false);  //Disable Analytics Collection
+            Toast.makeText(getApplicationContext(), "Disabling Analytics Collection ", Toast.LENGTH_LONG).show();
+        }
 
         int nightModeFlags =
                 this.getResources().getConfiguration().uiMode &
@@ -280,14 +292,9 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
     }
 
     private void initMultiplayer() {
-        SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+        FirebaseCrashlytics.getInstance().setCustomKey("multiplayerEnabled", true);
 
-        Log.i("name", sharedPref.getString("name", ""));
-        if (sharedPref.getString("name", "").equals("")) {
-            nameDialog(this);
-        } else {
-            name = sharedPref.getString("name", "");
-        }
+        SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         firebaseUser = mAuth.getCurrentUser();
         if (firebaseUser == null) {
             mAuth.signInAnonymously()
@@ -306,6 +313,14 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         } else {
             initMultiplayerObj(firebaseUser);
         }
+
+        Log.i("name", sharedPref.getString("name", ""));
+        if (sharedPref.getString("name", "").equals("")) {
+            nameDialog(this);
+        } else {
+            name = sharedPref.getString("name", "");
+        }
+
 
         tvOp.setMovementMethod(new ScrollingMovementMethod());
         tvOp.setOnClickListener(view -> addPlayerDialog());
@@ -502,6 +517,8 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         if (!sharedPref.getBoolean("yahtzeeBonus", false)) {
             tvYahtzeeBonus.setVisibility(View.GONE);
             editText28.setVisibility(View.GONE);
+        } else {
+            FirebaseCrashlytics.getInstance().setCustomKey("yathzeeBonus", true);
         }
     }
 
