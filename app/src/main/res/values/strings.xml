@@ -27,7 +27,7 @@
     <string name="saved_scores">Saved scores</string>
     <string name="remove_score">Remove score</string>
     <string name="remove">Remove</string>
-    <string name="average_d">Average: %d</string>
+    <string name="average_d">Average: %.1f</string>
     <string name="theme">Theme</string>
     <string name="system_default">System default</string>
     <string name="light">Light</string>

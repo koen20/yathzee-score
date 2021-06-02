@@ -18,7 +18,7 @@
     <string name="saved_scores">Opgeslagen scores</string>
     <string name="remove_score">Verwijder score</string>
     <string name="remove">Verwijder</string>
-    <string name="average_d">Gemiddelde: %d</string>
+    <string name="average_d">Gemiddelde: %.1f</string>
     <string name="clear_all_save">Alles wissen / opslaan</string>
     <string name="theme">Thema</string>
     <string name="system_default">Systeem standaard</string>
