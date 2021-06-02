@@ -34,7 +34,7 @@ public class PlayerScoreDialog {
     private TextView textViewLeft;
     private TextView textViewRight;
     private String playerShown;
-    private Context context;
+    private final Context context;
 
     public PlayerScoreDialog(Context context){
         this.context = context;
