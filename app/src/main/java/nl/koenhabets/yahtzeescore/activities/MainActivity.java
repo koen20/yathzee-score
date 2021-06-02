@@ -59,6 +59,7 @@ import nl.koenhabets.yahtzeescore.PlayerAdapter;
 import nl.koenhabets.yahtzeescore.PlayerScoreDialog;
 import nl.koenhabets.yahtzeescore.R;
 import nl.koenhabets.yahtzeescore.data.DataManager;
+import nl.koenhabets.yahtzeescore.data.MigrateData;
 import nl.koenhabets.yahtzeescore.data.PlayerDao;
 import nl.koenhabets.yahtzeescore.data.PlayerDaoImpl;
 import nl.koenhabets.yahtzeescore.multiplayer.Multiplayer;
@@ -329,7 +330,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
             name = sharedPref.getString("name", "");
         }
 
-
         tvOp.setMovementMethod(new ScrollingMovementMethod());
         tvOp.setOnClickListener(view -> addPlayerDialog());
     }
@@ -494,15 +494,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         super.onStart();
         Log.i("onStart", "start");
         SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
-        if (sharedPref.contains("scores") || sharedPref.contains("name")) {
-            if (!sharedPref.contains("version")) {
-                sharedPref.edit().putInt("version", 1).apply();
-                sharedPref.edit().putBoolean("multiplayer", true).apply();
-                sharedPref.edit().putBoolean("multiplayerAsked", true).apply();
-            }
-        } else {
-            sharedPref.edit().putInt("version", 1).apply();
-        }
+        new MigrateData(this);
 
         if (sharedPref.getBoolean("multiplayer", false)) {
             initMultiplayer();
