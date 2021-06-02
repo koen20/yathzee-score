@@ -9,7 +9,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Switch;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,10 +16,13 @@ import androidx.appcompat.app.AppCompatDelegate;
 
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.matomo.sdk.Tracker;
 import org.matomo.sdk.extra.TrackHelper;
+
+import java.util.Objects;
 
 import nl.koenhabets.yahtzeescore.R;
 
@@ -31,7 +33,7 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
         setTitle(R.string.settings);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         try {
             Tracker tracker = MainActivity.getTracker2();
             TrackHelper.track().screen("/settings").title("Settings").with(tracker);
@@ -42,8 +44,8 @@ public class SettingsActivity extends AppCompatActivity {
         Button buttonName = findViewById(R.id.buttonName);
         Button buttonTheme = findViewById(R.id.buttonTheme);
         Button buttonLicense = findViewById(R.id.buttonLicense);
-        Switch switch1 = findViewById(R.id.switch1);
-        Switch switchMultiplayer = findViewById(R.id.switch2);
+        SwitchMaterial switch1 = findViewById(R.id.switch1);
+        SwitchMaterial switchMultiplayer = findViewById(R.id.switch2);
 
         SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         boolean yahtzeeBonus = sharedPref.getBoolean("yahtzeeBonus", false);
@@ -82,9 +84,7 @@ public class SettingsActivity extends AppCompatActivity {
             builder.show();
         });
 
-        buttonLicense.setOnClickListener(view -> {
-            startActivity(new Intent(this, OssLicensesMenuActivity.class));
-        });
+        buttonLicense.setOnClickListener(view -> startActivity(new Intent(this, OssLicensesMenuActivity.class)));
 
         buttonTheme.setOnClickListener(view -> darkModeDialog());
     }

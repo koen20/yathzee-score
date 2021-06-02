@@ -33,6 +33,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import nl.koenhabets.yahtzeescore.R;
 import nl.koenhabets.yahtzeescore.ScoreAdapter;
@@ -54,7 +55,7 @@ public class ScoresActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scores);
         setTitle(R.string.saved_scores);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         try {
             Tracker tracker = MainActivity.getTracker2();
             TrackHelper.track().screen("/saved_scores").title("Saved scores").with(tracker);
@@ -178,6 +179,7 @@ public class ScoresActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, resultData);
         if (requestCode == 4
                 && resultCode == Activity.RESULT_OK) {
+            //save scores to json file on phone storage
             Uri uri;
             if (resultData != null) {
                 uri = resultData.getData();
@@ -198,6 +200,7 @@ public class ScoresActivity extends AppCompatActivity {
                 }
             }
         } else if (requestCode == 6 && resultCode == Activity.RESULT_OK) {
+            //read scores from json file on phone storage
             if (resultData != null) {
                 Uri currentUri = resultData.getData();
 
@@ -208,8 +211,10 @@ public class ScoresActivity extends AppCompatActivity {
                     try {
                         JSONArray jsonArray = new JSONArray(read);
                         sharedPref.edit().putString("scoresSaved", jsonArray.toString()).apply();
-                        scoreItems = DataManager.loadScores(this);
+                        scoreItems.clear();
+                        scoreItems.addAll(DataManager.loadScores(this));
                         scoreAdapter.notifyDataSetChanged();
+                        updateAverageScore();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -217,7 +222,6 @@ public class ScoresActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-
         }
     }
 
@@ -231,7 +235,7 @@ public class ScoresActivity extends AppCompatActivity {
         StringBuilder stringBuilder = new StringBuilder();
         String currentline;
         while ((currentline = reader.readLine()) != null) {
-            stringBuilder.append(currentline + "\n");
+            stringBuilder.append(currentline).append("\n");
         }
         inputStream.close();
         return stringBuilder.toString();
@@ -245,10 +249,10 @@ public class ScoresActivity extends AppCompatActivity {
             count++;
         }
         try {
-            textViewAverage.setText(getString(R.string.average) + (double)Math.round((total / count) * 10) / 10d);
-            textViewAmount.setText(getString(R.string.total_games_played) + scoreItems.size());
-        } catch (Exception ignored) {
-
+            textViewAverage.setText(getString(R.string.average_d, (double) Math.round((total / count) * 10) / 10d));
+            textViewAmount.setText(getString(R.string.total_games_played, scoreItems.size()));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

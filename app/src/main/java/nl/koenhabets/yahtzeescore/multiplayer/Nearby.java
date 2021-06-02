@@ -12,8 +12,8 @@ import com.google.android.gms.tasks.OnFailureListener;
 public class Nearby implements OnFailureListener {
     private MessageListener mMessageListener;
     private Message mMessage;
-    private String firebaseUserUid;
-    private Context context;
+    private final String firebaseUserUid;
+    private final Context context;
     private NearbyListener listener;
 
     public Nearby(Context context, String firebaseUserUid) {

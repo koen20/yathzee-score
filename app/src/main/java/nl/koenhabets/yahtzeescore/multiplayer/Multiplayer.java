@@ -28,19 +28,19 @@ import nl.koenhabets.yahtzeescore.data.PlayerDaoImpl;
 
 public class Multiplayer {
     private MultiplayerListener listener;
-    private Boolean realtimeDatabaseEnabled = true;
-    private String firebaseUserUid;
-    private DatabaseReference database;
+    private final Boolean realtimeDatabaseEnabled = true;
+    private final String firebaseUserUid;
+    private final DatabaseReference database;
     private ChildEventListener childEventListener;
 
-    private List<PlayerItem> players = new ArrayList<>();
+    private final List<PlayerItem> players = new ArrayList<>();
     private Timer updateTimer;
     private Timer autoRemoveTimer;
     private String name;
     private int score;
     private Mqtt mqtt;
     private Nearby nearby;
-    private PlayerDao playerDao;
+    private final PlayerDao playerDao;
 
     public Multiplayer(Context context, String name, int score, String firebaseUserUid) {
         database = FirebaseDatabase.getInstance().getReference();
@@ -127,7 +127,7 @@ public class Multiplayer {
                 }
 
                 @Override
-                public void onCancelled(DatabaseError error) {
+                public void onCancelled(@NonNull DatabaseError error) {
                     Log.w("EditTagsActivity", "Failed to read scores.", error.toException());
                 }
             });
@@ -158,7 +158,7 @@ public class Multiplayer {
                 }
 
                 @Override
-                public void onCancelled(DatabaseError error) {
+                public void onCancelled(@NonNull DatabaseError error) {
                     Log.w("EditTagsActivity", "Failed to read scores.", error.toException());
                 }
             });

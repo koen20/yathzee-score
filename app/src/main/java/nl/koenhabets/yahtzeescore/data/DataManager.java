@@ -55,7 +55,6 @@ public class DataManager {
     //load all scores from sharedprefrences, and sort them by descending by score
     public static List<ScoreItem> loadScores(Context context) {
         List<ScoreItem> scoreItems = new ArrayList<>();
-        scoreItems.clear();
         SharedPreferences sharedPref = context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         JSONArray jsonArray = new JSONArray();
         try {
