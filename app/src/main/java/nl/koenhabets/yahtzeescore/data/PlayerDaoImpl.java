@@ -57,14 +57,18 @@ public class PlayerDaoImpl implements PlayerDao {
                     exists = true;
                 }
             }
-            if (playerItems.get(i).getName().equals(item.getName())) {
-                playerItems.set(i, item);
-                exists = true;
+            if (playerItems.get(i).getName() != null) {
+                if (playerItems.get(i).getName().equals(item.getName())) {
+                    playerItems.set(i, item);
+                    exists = true;
+                }
             }
         }
 
         if (!exists) {
-            playerItems.add(item);
+            if (item.getName() != null || item.getId() != null) {
+                playerItems.add(item);
+            }
         } else {
             Log.i("PlayerDao", "Exists updated");
         }

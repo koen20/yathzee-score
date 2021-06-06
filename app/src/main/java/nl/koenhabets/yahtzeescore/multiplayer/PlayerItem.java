@@ -2,6 +2,7 @@ package nl.koenhabets.yahtzeescore.multiplayer;
 
 import com.google.firebase.database.ValueEventListener;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class PlayerItem implements Comparable<PlayerItem> {
@@ -85,5 +86,25 @@ public class PlayerItem implements Comparable<PlayerItem> {
 
     public void setValueEventListenerFull(ValueEventListener valueEventListenerFull) {
         this.valueEventListenerFull = valueEventListenerFull;
+    }
+
+    public int getScoreCount() {
+        int count = 0;
+        for (int i = 0; i < 14; i++) {
+            int d = i;
+            if (d > 6) {
+                d = i + 15;
+            }
+            try {
+                if (this.fullScore.has(String.valueOf(d))) {
+                    if (!this.fullScore.getString(String.valueOf(d)).equals("")) {
+                        count++;
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return count;
     }
 }
