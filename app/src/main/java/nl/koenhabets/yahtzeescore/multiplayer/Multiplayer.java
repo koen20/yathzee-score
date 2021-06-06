@@ -13,6 +13,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -84,7 +85,9 @@ public class Multiplayer {
             try {
                 PlayerItem player = playersRead.get(i);
                 if (getPlayer(player.getId()) == null) {
-                    player.setValueEventListenerFull(addDatabaseListener(player.getId()));
+                    if (player.getId() != null) {
+                        player.setValueEventListenerFull(addDatabaseListener(player.getId()));
+                    }
                     player.setVisible(false);
                     players.add(player);
                 }
@@ -276,6 +279,7 @@ public class Multiplayer {
 
     public void proccessMessage(String message, boolean mqtt, String id) {
         try {
+            Log.i("players", new Gson().toJson(players));
             if (!message.equals("new player")) {
                 String[] messageSplit = message.split(";");
                 boolean exists = false;
