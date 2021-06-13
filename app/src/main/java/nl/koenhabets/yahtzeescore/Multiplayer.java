@@ -343,7 +343,7 @@ public class Multiplayer implements OnFailureListener {
         Nearby.getMessagesClient(context).unpublish(mMessage);
         Date date = new Date();
         if (!name.equals("")) {
-            String text = name + ";" + (score) + ";" + date.getTime();
+            String text = name + ";" + (score) + ";" + date.getTime() + ";" + firebaseUser.getUid();
             try {
                 mqtt.publish("score", text);
             } catch (Exception e) {
