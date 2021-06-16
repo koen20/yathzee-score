@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "519196318530",
+    "firebase_url": "https://quixotic-booth-233315.firebaseio.com",
+    "project_id": "quixotic-booth-233315",
+    "storage_bucket": "quixotic-booth-233315.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:519196318530:android:50302d3c72b4f413",
+        "android_client_info": {
+          "package_name": "nl.koenhabets.yahtzeescore"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "519196318530-sdstsdn8lb7q9pj041gpqk6q2fbi885p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBsuCTnoRtXuOM1M1TboDnrORIxycXScSg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "519196318530-sdstsdn8lb7q9pj041gpqk6q2fbi885p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
