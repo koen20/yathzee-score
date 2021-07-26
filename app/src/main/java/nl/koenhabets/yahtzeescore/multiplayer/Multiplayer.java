@@ -224,6 +224,22 @@ public class Multiplayer implements OnFailureListener {
         return count;
     }
 
+    public PlayerItem getPlayer(String id) {
+        PlayerItem playerItem = null;
+        for (int i = 0; i < getPlayers().size(); i++) {
+            if (getPlayers().get(i).getName().equals(name)) {
+                playerItem = getPlayers().get(i);
+            }
+            if (getPlayers().get(i).getId() != null) {
+                if (getPlayers().get(i).getId().equals(id)) {
+                    playerItem = getPlayers().get(i);
+                }
+            }
+        }
+
+        return playerItem;
+    }
+
     public void addPlayer(PlayerItem playerItem) {
         players.add(playerItem);
     }
