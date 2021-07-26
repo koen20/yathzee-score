@@ -124,6 +124,10 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         }
 
         FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        getTracker();
+        Tracker tracker = mMatomoTracker;
+        TrackHelper.track().screen("/").title("Main screen").with(tracker);
+        TrackHelper.track().download().with(tracker);
 
         String testLabSetting =
                 Settings.System.getString(getContentResolver(), "firebase.test.lab");
@@ -148,10 +152,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
             }
         }
 
-        getTracker();
-        Tracker tracker = mMatomoTracker;
-        TrackHelper.track().screen("/").title("Main screen").with(tracker);
-        TrackHelper.track().download().with(tracker);
         playerScoreDialog = new PlayerScoreDialog(this);
 
         editText1 = findViewById(R.id.editText);
