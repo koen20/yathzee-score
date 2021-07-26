@@ -4,7 +4,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -38,16 +37,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.android.play.core.appupdate.AppUpdateInfo;
-import com.google.android.play.core.appupdate.AppUpdateManager;
-import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
-import com.google.android.play.core.install.model.AppUpdateType;
-import com.google.android.play.core.tasks.Task;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.matomo.sdk.Matomo;
@@ -61,17 +56,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import nl.koenhabets.yahtzeescore.AppUpdates;
 import nl.koenhabets.yahtzeescore.PlayerAdapter;
 import nl.koenhabets.yahtzeescore.PlayerScoreDialog;
 import nl.koenhabets.yahtzeescore.R;
 import nl.koenhabets.yahtzeescore.data.DataManager;
 import nl.koenhabets.yahtzeescore.data.MigrateData;
-import nl.koenhabets.yahtzeescore.data.PlayerDao;
-import nl.koenhabets.yahtzeescore.data.PlayerDaoImpl;
 import nl.koenhabets.yahtzeescore.multiplayer.Multiplayer;
 import nl.koenhabets.yahtzeescore.multiplayer.PlayerItem;
-
-import static nl.koenhabets.yahtzeescore.AppUpdates.getVersionInfo;
 
 public class MainActivity extends AppCompatActivity implements TextWatcher, OnFailureListener {
     public static String name = "";
@@ -139,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
             //You are running in Test Lab
             firebaseAnalytics.setAnalyticsCollectionEnabled(false);  //Disable Analytics Collection
             Toast.makeText(getApplicationContext(), "Disabling Analytics Collection ", Toast.LENGTH_LONG).show();
+            mMatomoTracker.setOptOut(true);
         }
 
         int nightModeFlags =
@@ -394,9 +387,16 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         builder.setMessage(R.string.add_player);
         builder.setPositiveButton("Ok", (dialog, id) -> {
             if (!editTextName.getText().toString().equals("")) {
-                PlayerDao playerDao = new PlayerDaoImpl(this);
+                SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+                JSONArray playersM = new JSONArray();
+                try {
+                    playersM = new JSONArray(sharedPref.getString("players", "[]"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                playersM.put(editTextName.getText().toString());
+                sharedPref.edit().putString("players", playersM.toString()).apply();
                 PlayerItem playerItem = new PlayerItem(editTextName.getText().toString(), 0, 0, true, false);
-                playerDao.add(playerItem);
                 multiplayer.addPlayer(playerItem);
                 updateMultiplayerText(multiplayer.getPlayers());
             }
@@ -733,35 +733,8 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
     }
 
     private void checkUpdate() {
-        AppUpdateManager appUpdateManager = AppUpdateManagerFactory.create(this);
-
-        Task<AppUpdateInfo> appUpdateInfoTask = appUpdateManager.getAppUpdateInfo();
-        try {
-            PackageInfo pInfo = this.getPackageManager().getPackageInfo(this.getPackageName(), 0);
-            int verCode = pInfo.versionCode;
-
-            appUpdateInfoTask.addOnSuccessListener(appUpdateInfo -> {
-                try {
-                    //if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) {
-                    JSONObject jsonObject = getVersionInfo();
-                    if (jsonObject.has("flexibleVersion")) {
-                        if (jsonObject.getInt("flexibleVersion") > verCode) {
-                            appUpdateManager.startUpdateFlowForResult(appUpdateInfo, AppUpdateType.FLEXIBLE, this, 2);
-                        }
-                    }
-                    if (jsonObject.has("immediateVersion")) {
-                        if (jsonObject.getInt("immediateVersion") > verCode) {
-                            appUpdateManager.startUpdateFlowForResult(appUpdateInfo, AppUpdateType.IMMEDIATE, this, 2);
-                        }
-                    }
-                    //}
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        //todo this doesn't work, it says it is running on main thread
+        Runnable r = new AppUpdates(this, this);
+        //new Thread(r).start();
     }
 }
