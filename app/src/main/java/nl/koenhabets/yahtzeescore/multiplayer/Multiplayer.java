@@ -1,20 +1,23 @@
-
 package nl.koenhabets.yahtzeescore.multiplayer;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.android.gms.nearby.Nearby;
+import com.google.android.gms.nearby.messages.Message;
+import com.google.android.gms.nearby.messages.MessageListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.gson.Gson;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -24,38 +27,38 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import nl.koenhabets.yahtzeescore.data.PlayerDao;
-import nl.koenhabets.yahtzeescore.data.PlayerDaoImpl;
-
-public class Multiplayer {
+public class Multiplayer implements OnFailureListener {
     private MultiplayerListener listener;
-    private final Boolean realtimeDatabaseEnabled = true;
-    private final String firebaseUserUid;
-    private final DatabaseReference database;
+    private MessageListener mMessageListener;
+    private Message mMessage;
+    private Boolean realtimeDatabaseEnabled = true;
+    private String firebaseUserUid;
+    private DatabaseReference database;
     private ChildEventListener childEventListener;
+    private ChildEventListener childEventListener2;
 
-    private final List<PlayerItem> players = new ArrayList<>();
+    private List<PlayerItem> players = new ArrayList<>();
     private Timer updateTimer;
-    private Timer autoRemoveTimer;
+    private Timer updateTimer2;
+    private int updateInterval = 10000;
+    private Context context;
     private String name;
     private int score;
     private Mqtt mqtt;
-    private Nearby nearby;
-    private final PlayerDao playerDao;
 
     public Multiplayer(Context context, String name, int score, String firebaseUserUid) {
         database = FirebaseDatabase.getInstance().getReference();
+        this.context = context;
         this.name = name;
         this.listener = null;
         this.score = score;
         this.firebaseUserUid = firebaseUserUid;
-        playerDao = new PlayerDaoImpl(context);
         initMultiplayer(context, name);
     }
 
+
     public interface MultiplayerListener {
         void onChange(List<PlayerItem> players);
-
         void onChangeFullScore(List<PlayerItem> players);
     }
 
@@ -64,9 +67,7 @@ public class Multiplayer {
     }
 
     public void initMultiplayer(Context context, String name) {
-        nearby = new Nearby(context, firebaseUserUid);
-        nearby.setNearbyListener(message -> proccessMessage(message, false, ""));
-
+        initNearby();
         try {
             mqtt = new Mqtt(context, name);
             mqtt.setMqttListener(message -> proccessMessage(message, true, ""));
@@ -74,26 +75,30 @@ public class Multiplayer {
             e.printStackTrace();
         }
         updateTimer = new Timer();
-        updateTimer.scheduleAtFixedRate(new updateTask(), 1000, 10000);
+        updateTimer.scheduleAtFixedRate(new updateTask(), 6000, updateInterval);
 
-        autoRemoveTimer = new Timer();
-        autoRemoveTimer.scheduleAtFixedRate(new autoRemove(), 60000, 60000);
+        updateTimer2 = new Timer();
+        updateTimer2.scheduleAtFixedRate(new autoRemove(), 60000, 60000);
 
-        // read all discovered players and add them to the players list
-        List<PlayerItem> playersRead = playerDao.getAll();
-        for (int i = 0; i < playersRead.size(); i++) {
-            try {
-                PlayerItem player = playersRead.get(i);
-                if (getPlayer(player.getId()) == null) {
-                    if (player.getId() != null) {
-                        player.setValueEventListenerFull(addDatabaseListener(player.getId()));
+        //get manually added players and add them to the players list
+        SharedPreferences sharedPref = context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+        try {
+            JSONArray playersM = new JSONArray(sharedPref.getString("players", ""));
+            for (int i = 0; i < playersM.length(); i++) {
+                boolean exists = false;
+                for (int k = 0; k < players.size(); k++) {
+                    PlayerItem item = players.get(k);
+                    if (item.getName().equals(playersM.getString(i))) {
+                        exists = true;
                     }
-                    player.setVisible(false);
-                    players.add(player);
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+                if (!exists) {
+                    PlayerItem playerItem = new PlayerItem(playersM.getString(i), 0, 0, false, false);
+                    players.add(playerItem);
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         Log.i("players", players.toString() + "");
@@ -101,9 +106,29 @@ public class Multiplayer {
         initDatabase();
     }
 
+    public void initNearby() {
+        mMessageListener = new MessageListener() {
+            @Override
+            public void onFound(Message message) {
+                Log.d("t", "Found message: " + new String(message.getContent()));
+                proccessMessage(new String(message.getContent()), false, "");
+            }
+
+            @Override
+            public void onLost(Message message) {
+                Log.d("d", "Lost sight of message: " + new String(message.getContent()));
+            }
+        };
+        mMessage = new Message(("new player").getBytes());
+
+        Nearby.getMessagesClient(context).publish(mMessage).addOnFailureListener(this);
+        Nearby.getMessagesClient(context).subscribe(mMessageListener);
+    }
+
     public void initDatabase() {
         if (realtimeDatabaseEnabled) {//todo only listen to players nearby
             childEventListener = database.child("score").addChildEventListener(new ChildEventListener() {
+
                 @Override
                 public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 
@@ -130,44 +155,43 @@ public class Multiplayer {
                 }
 
                 @Override
-                public void onCancelled(@NonNull DatabaseError error) {
+                public void onCancelled(DatabaseError error) {
                     Log.w("EditTagsActivity", "Failed to read scores.", error.toException());
                 }
             });
-        }
-    }
+            childEventListener2 = database.child("scoreFull").addChildEventListener(new ChildEventListener() {
 
-    public ValueEventListener addDatabaseListener(String id) {
-        ValueEventListener valueEventListener = null;
-        if (!id.equals("")) {//if id is empty all messages are received
-            Log.i("Firebase", "Adding listener for " + id);
-            valueEventListener = database.child("scoreFull").child(id).addValueEventListener(new ValueEventListener() {
                 @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                }
+
+                @Override
+                public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                    Log.i("Firebase Received", dataSnapshot.getValue().toString());
                     try {
-                        if (snapshot.exists()) {
-                            Log.i("Firebase Received", snapshot.getValue().toString());
-                            try {
-                                proccessFullScore(snapshot.getValue().toString(), snapshot.getKey());
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        } else {
-                            Log.i("Firebase null", id);
-                        }
+                        proccessFullScore(dataSnapshot.getValue().toString(), dataSnapshot.getKey());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
 
                 @Override
-                public void onCancelled(@NonNull DatabaseError error) {
+                public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+                }
+
+                @Override
+                public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError error) {
                     Log.w("EditTagsActivity", "Failed to read scores.", error.toException());
                 }
             });
         }
-
-        return valueEventListener;
     }
 
     public void setScore(int score) {
@@ -200,22 +224,6 @@ public class Multiplayer {
         return count;
     }
 
-    public PlayerItem getPlayer(String id) {
-        PlayerItem playerItem = null;
-        for (int i = 0; i < getPlayers().size(); i++) {
-            if (getPlayers().get(i).getName().equals(name)) {
-                playerItem = getPlayers().get(i);
-            }
-            if (getPlayers().get(i).getId() != null) {
-                if (getPlayers().get(i).getId().equals(id)) {
-                    playerItem = getPlayers().get(i);
-                }
-            }
-        }
-
-        return playerItem;
-    }
-
     public void addPlayer(PlayerItem playerItem) {
         players.add(playerItem);
     }
@@ -225,7 +233,12 @@ public class Multiplayer {
     }
 
     public void stopMultiplayer() {
-        nearby.disconnect();
+        try {
+            Nearby.getMessagesClient(context).unpublish(mMessage);
+            Nearby.getMessagesClient(context).unsubscribe(mMessageListener);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         try {
             mqtt.disconnectMqtt();
         } catch (Exception e) {
@@ -234,8 +247,8 @@ public class Multiplayer {
         try {
             updateTimer.cancel();
             updateTimer.purge();
-            autoRemoveTimer.cancel();
-            autoRemoveTimer.purge();
+            updateTimer2.cancel();
+            updateTimer2.purge();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -243,17 +256,17 @@ public class Multiplayer {
             try {
                 database.child("score").child(firebaseUserUid).removeValue();
                 database.child("scoreFull").child(firebaseUserUid).removeValue();
-                for (int i = 0; i < players.size(); i++) {
-                    ValueEventListener valueEventListener = players.get(i).getValueEventListenerFull();
-                    if (valueEventListener != null) {
-                        database.removeEventListener(valueEventListener);
-                    }
-                }
                 database.removeEventListener(childEventListener);
+                database.removeEventListener(childEventListener2);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    @Override
+    public void onFailure(Exception e) {
+        e.printStackTrace();
     }
 
     private class updateTask extends TimerTask {
@@ -279,47 +292,22 @@ public class Multiplayer {
 
     public void proccessMessage(String message, boolean mqtt, String id) {
         try {
-            Log.i("players", new Gson().toJson(players));
             if (!message.equals("new player")) {
                 String[] messageSplit = message.split(";");
                 boolean exists = false;
                 if (!messageSplit[0].equals(name) && !messageSplit[0].equals("")) {
                     for (int i = 0; i < players.size(); i++) {
                         PlayerItem playerItem = players.get(i);
-                        boolean match = false;
-                        if (playerItem.getId() == null || playerItem.getId().equals("") || messageSplit.length < 4) {
-                            Log.i("match", "trying to match with name");
-                            if (playerItem.getName().equals(messageSplit[0])) {
-                                match = true;
-                                Log.i("Multiplayer", "match with name");
-                            }
-                        } else {
-                            try {
-                                Log.i("match", "trying to match with id");
-                                if (playerItem.getId().equals(messageSplit[3])) {
-                                    match = true;
-                                    Log.i("Multiplayer", "match with id");
-                                }
-                            } catch (ArrayIndexOutOfBoundsException ignored) {
-
-                            }
-                        }
-
-                        if (match) {
+                        if (playerItem.getName().equals(messageSplit[0])) {
                             exists = true;
-                            //check if id of saved player is empty and add the player id from the firebase key (<= v1.10)
-                            if (playerItem.getId() == null || playerItem.getId().equals("")) {
+                            if (!id.equals("")) {
                                 players.get(i).setId(id);
-                                Log.i("received", "Setting value event listener for " + id);
-                                players.get(i).setValueEventListenerFull(addDatabaseListener(id));
-                                playerDao.add(playerItem);
                             }
                             if (playerItem.getLastUpdate() < Long.parseLong(messageSplit[2]) && mqtt) {
                                 Log.i("message", "newer message");
                                 players.get(i).setLastUpdate(Long.parseLong(messageSplit[2]));
                                 players.get(i).setScore(Integer.parseInt(messageSplit[1]));
                                 players.get(i).setVisible(true);
-                                players.get(i).setName(messageSplit[0]);
                                 listener.onChange(players);
                                 break;
                             }
@@ -328,16 +316,6 @@ public class Multiplayer {
                     if (!exists && !mqtt) {
                         Log.i("New player", messageSplit[0]);
                         PlayerItem item = new PlayerItem(messageSplit[0], Integer.parseInt(messageSplit[1]), Long.parseLong(messageSplit[2]), true, false);
-                        try {
-                            item.setId(messageSplit[3]);
-                            item.setValueEventListenerFull(addDatabaseListener(messageSplit[3]));
-                            PlayerItem item2 = new PlayerItem(messageSplit[0], 0, 0, false, false);
-                            item2.setId(messageSplit[3]);
-                            playerDao.add(item2);
-                            Log.i("received", "Setting value event listener for " + id);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
                         players.add(item);
                         listener.onChange(players);
                     }
@@ -365,6 +343,7 @@ public class Multiplayer {
     }
 
     public void updateNearbyScore() {
+        Nearby.getMessagesClient(context).unpublish(mMessage);
         Date date = new Date();
         if (!name.equals("")) {
             String text = name + ";" + (score) + ";" + date.getTime() + ";" + firebaseUserUid;
@@ -373,7 +352,8 @@ public class Multiplayer {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            nearby.updateScore(text);
+            mMessage = new Message((text).getBytes());
+            Nearby.getMessagesClient(context).publish(mMessage).addOnFailureListener(this);
             if (realtimeDatabaseEnabled) {
                 try {
                     database.child("score").child(firebaseUserUid).setValue(text);

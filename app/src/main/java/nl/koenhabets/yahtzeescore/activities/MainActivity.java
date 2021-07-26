@@ -42,6 +42,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.matomo.sdk.Matomo;
@@ -55,13 +56,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import nl.koenhabets.yahtzeescore.AppUpdates;
 import nl.koenhabets.yahtzeescore.PlayerAdapter;
 import nl.koenhabets.yahtzeescore.PlayerScoreDialog;
 import nl.koenhabets.yahtzeescore.R;
 import nl.koenhabets.yahtzeescore.data.DataManager;
 import nl.koenhabets.yahtzeescore.data.MigrateData;
-import nl.koenhabets.yahtzeescore.data.PlayerDao;
-import nl.koenhabets.yahtzeescore.data.PlayerDaoImpl;
 import nl.koenhabets.yahtzeescore.multiplayer.Multiplayer;
 import nl.koenhabets.yahtzeescore.multiplayer.PlayerItem;
 
@@ -117,6 +117,12 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         AppCompatDelegate.setDefaultNightMode(sharedPref.getInt("theme", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM));
 
+        try {
+            checkUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         String testLabSetting =
@@ -125,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
             //You are running in Test Lab
             firebaseAnalytics.setAnalyticsCollectionEnabled(false);  //Disable Analytics Collection
             Toast.makeText(getApplicationContext(), "Disabling Analytics Collection ", Toast.LENGTH_LONG).show();
+            mMatomoTracker.setOptOut(true);
         }
 
         int nightModeFlags =
@@ -380,9 +387,16 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         builder.setMessage(R.string.add_player);
         builder.setPositiveButton("Ok", (dialog, id) -> {
             if (!editTextName.getText().toString().equals("")) {
-                PlayerDao playerDao = new PlayerDaoImpl(this);
+                SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+                JSONArray playersM = new JSONArray();
+                try {
+                    playersM = new JSONArray(sharedPref.getString("players", "[]"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                playersM.put(editTextName.getText().toString());
+                sharedPref.edit().putString("players", playersM.toString()).apply();
                 PlayerItem playerItem = new PlayerItem(editTextName.getText().toString(), 0, 0, true, false);
-                playerDao.add(playerItem);
                 multiplayer.addPlayer(playerItem);
                 updateMultiplayerText(multiplayer.getPlayers());
             }
@@ -716,5 +730,11 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    private void checkUpdate() {
+        //todo this doesn't work, it says it is running on main thread
+        Runnable r = new AppUpdates(this, this);
+        //new Thread(r).start();
     }
 }
