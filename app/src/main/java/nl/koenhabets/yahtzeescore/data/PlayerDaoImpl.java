@@ -26,7 +26,7 @@ public class PlayerDaoImpl implements PlayerDao {
         SharedPreferences sharedPref = context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         JSONArray jsonArray = new JSONArray();
         try {
-            jsonArray = new JSONArray(sharedPref.getString("playersIdv8", "[]"));
+            jsonArray = new JSONArray(sharedPref.getString("playersIdv9", "[]"));
             Log.i("players", "Local players read: " + jsonArray.toString());
         } catch (JSONException e) {
             e.printStackTrace();
@@ -75,6 +75,6 @@ public class PlayerDaoImpl implements PlayerDao {
 
         Gson gson = new Gson();
         SharedPreferences sharedPref = context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
-        sharedPref.edit().putString("playersIdv8", gson.toJson(playerItems)).apply();
+        sharedPref.edit().putString("playersIdv9", gson.toJson(playerItems)).apply();
     }
 }

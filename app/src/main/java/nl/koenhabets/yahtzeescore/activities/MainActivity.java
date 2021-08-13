@@ -1,5 +1,7 @@
 package nl.koenhabets.yahtzeescore.activities;
 
+import static nl.koenhabets.yahtzeescore.AppUpdates.getVersionInfo;
+
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -70,8 +72,6 @@ import nl.koenhabets.yahtzeescore.data.PlayerDao;
 import nl.koenhabets.yahtzeescore.data.PlayerDaoImpl;
 import nl.koenhabets.yahtzeescore.multiplayer.Multiplayer;
 import nl.koenhabets.yahtzeescore.multiplayer.PlayerItem;
-
-import static nl.koenhabets.yahtzeescore.AppUpdates.getVersionInfo;
 
 public class MainActivity extends AppCompatActivity implements TextWatcher, OnFailureListener {
     public static String name = "";
@@ -318,6 +318,14 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         FirebaseCrashlytics.getInstance().setCustomKey("multiplayerEnabled", true);
 
         SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+
+        Log.i("name", sharedPref.getString("name", ""));
+        if (sharedPref.getString("name", "").equals("")) {
+            nameDialog(this);
+        } else {
+            name = sharedPref.getString("name", "");
+        }
+
         firebaseUser = mAuth.getCurrentUser();
         if (firebaseUser == null) {
             mAuth.signInAnonymously()
@@ -335,13 +343,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                     });
         } else {
             initMultiplayerObj(firebaseUser);
-        }
-
-        Log.i("name", sharedPref.getString("name", ""));
-        if (sharedPref.getString("name", "").equals("")) {
-            nameDialog(this);
-        } else {
-            name = sharedPref.getString("name", "");
         }
 
         tvOp.setMovementMethod(new ScrollingMovementMethod());
