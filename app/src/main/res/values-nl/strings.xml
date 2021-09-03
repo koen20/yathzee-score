@@ -26,7 +26,7 @@
     <string name="light">Licht</string>
     <string name="settings">Instellingen</string>
     <string name="rules">Regels</string>
-    <string name="enable_multiplayer">Enable multiplayer</string>
+    <string name="enable_multiplayer">Multiplayer aanzetten</string>
     <string name="multiplayer_permission_dialog">Om automatisch spelers in de buurt te vinden, heeft de app machtigingen voor Dichtbij nodig. Wilt u multiplayer inschakelen?</string>
     <string name="press_again">Druk opniew om 0 in te voeren</string>
     <string name="multiplayer">Multiplayer</string>
@@ -58,4 +58,19 @@
     <string name="licenses">Licenties</string>
     <string name="average_score_of_last_ma">Vootschrijdend gemiddelde (15 spellen)</string>
     <string name="score_not_save_conf">Weet u zeker dat u deze score niet wilt opslaan?</string>
+    <string name="chance">Chance</string>
+    <string name="large_strt">Large Strt</string>
+    <string name="yahtzee">Yahtzee</string>
+    <string name="small_strt">Small strt</string>
+    <string name="full_house">Full house</string>
+    <string name="_3_of_a_kind">3 of a kind</string>
+    <string name="_4_of_a_kind">4 of a kind</string>
+    <string name="privacy_policy">Privacy policy</string>
+    <string name="bonus">Bonus</string>
+    <string name="yahtzee_bonus">Yahtzee bonus</string>
+    <string name="change_setting">U kunt dit later in de instellingen aanpassen</string>
+    <string name="about">Over</string>
+    <string name="scan_qr_code">Scan de qr code van een ander apparaat om handmatig een speler toe te voegen.</string>
+    <string name="show_qr_code">Laat deze qr code zien aan een andere speler om handmatig een speler toe te voegen aan hun telefoon</string>
+    <string name="choose_rules">Kies welke regels u wilt gebruiken</string>
 </resources>
