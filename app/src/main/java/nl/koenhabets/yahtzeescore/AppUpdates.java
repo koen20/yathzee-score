@@ -4,11 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 
-import com.google.android.play.core.appupdate.AppUpdateInfo;
-import com.google.android.play.core.appupdate.AppUpdateManager;
-import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
-import com.google.android.play.core.install.model.AppUpdateType;
-import com.google.android.play.core.tasks.Task;
 
 import org.json.JSONObject;
 
@@ -51,6 +46,7 @@ public class AppUpdates implements Runnable {
 
     @Override
     public void run() {
+        /*
         try {
             AppUpdateManager appUpdateManager = AppUpdateManagerFactory.create(context);
 
@@ -84,5 +80,6 @@ public class AppUpdates implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        */
     }
 }

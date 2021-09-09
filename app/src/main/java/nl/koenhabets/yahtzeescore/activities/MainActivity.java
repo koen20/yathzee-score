@@ -311,6 +311,13 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         FirebaseCrashlytics.getInstance().setCustomKey("multiplayerEnabled", true);
 
         SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+        Log.i("name", sharedPref.getString("name", ""));
+        if (sharedPref.getString("name", "").equals("")) {
+            nameDialog(this);
+        } else {
+            name = sharedPref.getString("name", "");
+        }
+
         firebaseUser = mAuth.getCurrentUser();
         if (firebaseUser == null) {
             mAuth.signInAnonymously()
@@ -328,13 +335,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                     });
         } else {
             initMultiplayerObj(firebaseUser);
-        }
-
-        Log.i("name", sharedPref.getString("name", ""));
-        if (sharedPref.getString("name", "").equals("")) {
-            nameDialog(this);
-        } else {
-            name = sharedPref.getString("name", "");
         }
 
         tvOp.setMovementMethod(new ScrollingMovementMethod());
@@ -734,7 +734,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
 
     private void checkUpdate() {
         //todo this doesn't work, it says it is running on main thread
-        Runnable r = new AppUpdates(this, this);
+        //Runnable r = new AppUpdates(this, this);
         //new Thread(r).start();
     }
 }
