@@ -44,7 +44,7 @@ public class DataManager {
         backupManager.dataChanged();
     }
 
-    //read the current scores from editText and save it to sharedpreferences.
+    //save the current score sheet to sharedpreferences.
     public static void saveScores(JSONObject jsonObject, Context context) {
         Log.i("score", "saving");
         SharedPreferences sharedPref = context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
@@ -63,7 +63,7 @@ public class DataManager {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        for (int i = jsonArray.length(); i >= 0; i--) {
+        for (int i = jsonArray.length() - 1; i >= 0; i--) {
             try {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 JSONObject allScores = new JSONObject();

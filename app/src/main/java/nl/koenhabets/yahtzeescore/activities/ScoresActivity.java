@@ -16,6 +16,8 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -49,6 +51,8 @@ public class ScoresActivity extends AppCompatActivity {
     TextView textViewAverage;
     TextView textViewAmount;
     int sort = 1;
+    ActivityResultLauncher<Intent> exportResult;
+    ActivityResultLauncher<Intent> importResult;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,6 +127,24 @@ public class ScoresActivity extends AppCompatActivity {
             }
         });
         updateAverageScore();
+
+        exportResult = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+                        exportScoresMem(data);
+                    }
+                });
+
+        importResult = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+                        importScoresMem(data);
+                    }
+                });
     }
 
 
@@ -137,7 +159,7 @@ public class ScoresActivity extends AppCompatActivity {
                 scoreAdapter.notifyDataSetChanged();
                 sort = 2; // date
                 item.setTitle(R.string.sort_by_score);
-            } else if (sort == 2){
+            } else if (sort == 2) {
                 Collections.sort(scoreItems, new ScoreComparator());
                 scoreAdapter.notifyDataSetChanged();
                 sort = 1; // highest score
@@ -163,64 +185,78 @@ public class ScoresActivity extends AppCompatActivity {
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_TITLE, "yahtzee-scores.txt");
 
-        startActivityForResult(intent, 4);
+        exportResult.launch(intent);
     }
 
     public void importScores(View view) {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("text/plain");
-        startActivityForResult(intent, 6);
+        importResult.launch(intent);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode,
-                                 Intent resultData) {
-        super.onActivityResult(requestCode, resultCode, resultData);
-        if (requestCode == 4
-                && resultCode == Activity.RESULT_OK) {
-            //save scores to json file on phone storage
-            Uri uri;
-            if (resultData != null) {
-                uri = resultData.getData();
-                try {
-                    ParcelFileDescriptor pfd =
-                            this.getContentResolver().
-                                    openFileDescriptor(uri, "w");
+    public void exportScoresMem(Intent resultData) {
+        //save scores to json file on phone storage
+        Uri uri;
+        if (resultData != null) {
+            uri = resultData.getData();
+            try {
+                ParcelFileDescriptor pfd =
+                        this.getContentResolver().
+                                openFileDescriptor(uri, "w");
 
-                    FileOutputStream fileOutputStream = new FileOutputStream(pfd.getFileDescriptor());
-                    SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
-                    String textContent = sharedPref.getString("scoresSaved", "[]");
-                    fileOutputStream.write(textContent.getBytes());
+                FileOutputStream fileOutputStream = new FileOutputStream(pfd.getFileDescriptor());
+                SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+                String textContent = sharedPref.getString("scoresSaved", "[]");
+                fileOutputStream.write(textContent.getBytes());
 
-                    fileOutputStream.close();
-                    pfd.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                fileOutputStream.close();
+                pfd.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } else if (requestCode == 6 && resultCode == Activity.RESULT_OK) {
-            //read scores from json file on phone storage
-            if (resultData != null) {
-                Uri currentUri = resultData.getData();
+        }
+    }
 
+    public void importScoresMem(Intent resultData) {
+        if (resultData != null) {
+            Uri currentUri = resultData.getData();
+
+            try {
+                String read = readFileContent(currentUri);
+                Log.i("readFromFile", read);
+                SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+
+                JSONArray jsonArray = new JSONArray(read);
+                JSONArray jsonArrayExisting = new JSONArray();
                 try {
-                    String read = readFileContent(currentUri);
-                    Log.i("readFromFile", read);
-                    SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
-                    try {
-                        JSONArray jsonArray = new JSONArray(read);
-                        sharedPref.edit().putString("scoresSaved", jsonArray.toString()).apply();
-                        scoreItems.clear();
-                        scoreItems.addAll(DataManager.loadScores(this));
-                        scoreAdapter.notifyDataSetChanged();
-                        updateAverageScore();
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                } catch (IOException e) {
+                    jsonArrayExisting = new JSONArray(sharedPref.getString("scoresSaved", ""));
+                    Log.i("read", jsonArrayExisting.toString());
+                } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                for (int k = 0; k < jsonArray.length(); k++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(k);
+                    boolean exists = false;
+                    for (int i = 0; i < jsonArrayExisting.length(); i++) {
+                        JSONObject jsonObjectExist = jsonArrayExisting.getJSONObject(i);
+                        if (jsonObject.getString("id").equals(jsonObjectExist.getString("id"))) {
+                            exists = true;
+                        }
+                    }
+                    if (!exists) {
+                        Log.i("add", "asdds");
+                        jsonArrayExisting.put(jsonObject);
+                    }
+                }
+                sharedPref.edit().putString("scoresSaved", jsonArrayExisting.toString()).apply();
+                scoreItems.clear();
+                scoreItems.addAll(DataManager.loadScores(this));
+                scoreAdapter.notifyDataSetChanged();
+                updateAverageScore();
+
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
             }
         }
     }
