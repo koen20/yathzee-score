@@ -71,7 +71,7 @@
     <string name="bonus_value" translatable="false">0 (%d)</string>
     <string name="change_setting">You can change this later in the settings</string>
     <string name="about">About</string>
-    <string name="scan_qr_code">Scan the qr code from a diffrent device to manually add a player.</string>
+    <string name="scan_qr_code">Scan the qr code from a different device to manually add a player.</string>
     <string name="show_qr_code">Show this qr code to another player to manually add a player to their device</string>
     <string name="choose_rules">Choose which rules you want to use</string>
 </resources>
