@@ -456,7 +456,13 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
             if (language.equals("nl")) {
                 openUrl("https://nl.wikipedia.org/wiki/Yahtzee#Spelverloop");
             } else if (language.equals("fr")) {
-                openUrl("https://fr.wikipedia.org/wiki/Yahtzee");
+                openUrl("https://fr.wikipedia.org/wiki/Yahtzee#R%C3%A8gles");
+            } else if  (language.equals("de")) {
+                openUrl("https://de.wikipedia.org/wiki/Kniffel#Spielregeln");
+            } else if  (language.equals("pl")) {
+                openUrl("https://pl.wikipedia.org/wiki/Ko%C5%9Bci_(gra)#Klasyczne_zasady_gry_(Yahtzee)");
+            } else if  (language.equals("it")) {
+                openUrl("https://it.wikipedia.org/wiki/Yahtzee");
             } else {
                 openUrl("https://en.wikipedia.org/wiki/Yahtzee#Rules");
             }

@@ -45,7 +45,7 @@ jobs:
   firebase:
     name: Run UI tests with Firebase Test Lab
     needs: apk
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
       - name: Download app APK
