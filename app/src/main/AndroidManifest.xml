@@ -16,9 +16,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApp"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity
+            android:name=".activities.SettingsActivity"
+            android:exported="true"
+            android:label="@string/settings" />
         <activity android:name=".activities.StatsActivity" />
         <activity android:name=".activities.ScoreActivity" />
-        <activity android:name=".activities.SettingsActivity" />
         <activity android:name=".activities.ScoresActivity" />
 
         <meta-data
@@ -30,8 +33,8 @@
 
         <activity
             android:name=".activities.MainActivity"
-            android:theme="@style/Theme.MyApp.NoActionBar"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@style/Theme.MyApp.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

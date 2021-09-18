@@ -73,4 +73,6 @@
     <string name="scan_qr_code">Scan de qr code van een ander apparaat om handmatig een speler toe te voegen.</string>
     <string name="show_qr_code">Laat deze qr code zien aan een andere speler om handmatig een speler toe te voegen aan hun telefoon</string>
     <string name="choose_rules">Kies welke regels u wilt gebruiken</string>
+    <string name="app_icon">App icoon</string>
+    <string name="other">Overig</string>
 </resources>

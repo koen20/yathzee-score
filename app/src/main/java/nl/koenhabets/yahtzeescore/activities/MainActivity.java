@@ -56,7 +56,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import nl.koenhabets.yahtzeescore.AppUpdates;
 import nl.koenhabets.yahtzeescore.PlayerAdapter;
 import nl.koenhabets.yahtzeescore.PlayerScoreDialog;
 import nl.koenhabets.yahtzeescore.R;
@@ -516,7 +515,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         new MigrateData(this);
 
-        if (sharedPref.getBoolean("multiplayer", false)) {
+        if (sharedPref.getBoolean("multiplayer", false) && sharedPref.getBoolean("multiplayerAsked", false)) {
             initMultiplayer();
             multiplayerEnabled = true;
             recyclerView.setVisibility(View.GONE);
