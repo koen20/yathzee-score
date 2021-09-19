@@ -75,4 +75,5 @@
     <string name="choose_rules">Kies welke regels u wilt gebruiken</string>
     <string name="app_icon">App icoon</string>
     <string name="other">Overig</string>
+    <string name="stats_dialog_setting">Statistieken popup na spel</string>
 </resources>

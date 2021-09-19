@@ -41,6 +41,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
+import com.google.firebase.crashlytics.internal.common.CrashlyticsCore;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -56,8 +57,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import nl.koenhabets.yahtzeescore.BuildConfig;
 import nl.koenhabets.yahtzeescore.PlayerAdapter;
-import nl.koenhabets.yahtzeescore.PlayerScoreDialog;
+import nl.koenhabets.yahtzeescore.dialog.GameEndDialog;
+import nl.koenhabets.yahtzeescore.dialog.PlayerScoreDialog;
 import nl.koenhabets.yahtzeescore.R;
 import nl.koenhabets.yahtzeescore.data.DataManager;
 import nl.koenhabets.yahtzeescore.data.MigrateData;
@@ -112,6 +115,9 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setSupportActionBar(findViewById(R.id.toolbar));
+        if ("generic".equalsIgnoreCase(Build.BRAND)) {
+            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false);
+        }
         mAuth = FirebaseAuth.getInstance();
         SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         AppCompatDelegate.setDefaultNightMode(sharedPref.getInt("theme", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM));
@@ -130,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
 
         String testLabSetting =
                 Settings.System.getString(getContentResolver(), "firebase.test.lab");
-        if ("true".equals(testLabSetting)) {
+        if ("true".equals(testLabSetting) || "generic".equalsIgnoreCase(Build.BRAND)) {
             //You are running in Test Lab
             firebaseAnalytics.setAnalyticsCollectionEnabled(false);  //Disable Analytics Collection
             Toast.makeText(getApplicationContext(), "Disabling Analytics Collection ", Toast.LENGTH_LONG).show();
@@ -248,6 +254,11 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                 Toast toast = Toast.makeText(this, R.string.score_too_low_save, Toast.LENGTH_SHORT);
                 toast.show();
             } else {
+                SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+                if (sharedPref.getBoolean("endDialog", false)) {
+                    GameEndDialog gameEndDialog = new GameEndDialog(this);
+                    gameEndDialog.showDialog(totalLeft + totalRight);
+                }
                 DataManager.saveScore(totalLeft + totalRight, createJsonScores(), getApplicationContext());
                 TrackHelper.track().event("category", "action").name("clear and save").with(mMatomoTracker);
             }
@@ -452,18 +463,25 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
             return true;
         } else if (itemId == R.id.rules) {
             String language = Locale.getDefault().getLanguage();
-            if (language.equals("nl")) {
-                openUrl("https://nl.wikipedia.org/wiki/Yahtzee#Spelverloop");
-            } else if (language.equals("fr")) {
-                openUrl("https://fr.wikipedia.org/wiki/Yahtzee#R%C3%A8gles");
-            } else if  (language.equals("de")) {
-                openUrl("https://de.wikipedia.org/wiki/Kniffel#Spielregeln");
-            } else if  (language.equals("pl")) {
-                openUrl("https://pl.wikipedia.org/wiki/Ko%C5%9Bci_(gra)#Klasyczne_zasady_gry_(Yahtzee)");
-            } else if  (language.equals("it")) {
-                openUrl("https://it.wikipedia.org/wiki/Yahtzee");
-            } else {
-                openUrl("https://en.wikipedia.org/wiki/Yahtzee#Rules");
+            switch (language) {
+                case "nl":
+                    openUrl("https://nl.wikipedia.org/wiki/Yahtzee#Spelverloop");
+                    break;
+                case "fr":
+                    openUrl("https://fr.wikipedia.org/wiki/Yahtzee#R%C3%A8gles");
+                    break;
+                case "de":
+                    openUrl("https://de.wikipedia.org/wiki/Kniffel#Spielregeln");
+                    break;
+                case "pl":
+                    openUrl("https://pl.wikipedia.org/wiki/Ko%C5%9Bci_(gra)#Klasyczne_zasady_gry_(Yahtzee)");
+                    break;
+                case "it":
+                    openUrl("https://it.wikipedia.org/wiki/Yahtzee");
+                    break;
+                default:
+                    openUrl("https://en.wikipedia.org/wiki/Yahtzee#Rules");
+                    break;
             }
             return true;
         } else if (itemId == R.id.add_player) {

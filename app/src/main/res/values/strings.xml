@@ -76,4 +76,5 @@
     <string name="choose_rules">Choose which rules you want to use</string>
     <string name="other">Other</string>
     <string name="app_icon">App icon</string>
+    <string name="stats_dialog_setting">Stats dialog after game</string>
 </resources>

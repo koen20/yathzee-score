@@ -1,4 +1,5 @@
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory app:title="@string/multiplayer">
         <SwitchPreferenceCompat
@@ -14,7 +15,10 @@
         <SwitchPreferenceCompat
             app:key="yahtzeeBonus"
             app:title="@string/yahtzee_bonus" />
-
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="endDialog"
+            android:title="@string/stats_dialog_setting" />
         <ListPreference
             app:defaultValue="-1"
             app:entries="@array/theme_options"
