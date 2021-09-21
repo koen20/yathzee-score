@@ -4,6 +4,8 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -56,6 +58,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import nl.koenhabets.yahtzeescore.AppUpdates;
 import nl.koenhabets.yahtzeescore.PlayerAdapter;
 import nl.koenhabets.yahtzeescore.PlayerScoreDialog;
 import nl.koenhabets.yahtzeescore.R;
@@ -227,6 +230,31 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
 
         final Context context = this;
         button.setOnClickListener(view -> saveScoreDialog(context));
+
+        new java.util.Timer().schedule(
+                new java.util.TimerTask() {
+                    @Override
+                    public void run() {
+                        try {
+                            JSONObject jsonObject = AppUpdates.getVersionInfo();
+                            PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+                            int verCode = pInfo.versionCode;
+                            if (jsonObject.getInt("flexibleVersion") > verCode) {
+                                String updateText = "";
+                                if (jsonObject.has("updateText")) {
+                                    updateText = jsonObject.getString("updateText");
+                                }
+                                String finalUpdateText = updateText;
+                                MainActivity.this.runOnUiThread(() -> Toast.makeText(MainActivity.this, getString(R.string.update_available) + finalUpdateText, Toast.LENGTH_LONG).show());
+                            }
+
+                        } catch (PackageManager.NameNotFoundException | JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                3000
+        );
     }
 
     private void saveScoreDialog(Context context) {
