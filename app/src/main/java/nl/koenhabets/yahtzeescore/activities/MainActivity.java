@@ -185,13 +185,14 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         recyclerView.setAdapter(playerAdapter);
 
         playerAdapter.setClickListener((view, position) -> {
-            Log.i("click", players2.get(position).getFullScore().toString());
-            if (!players2.get(position).getName().equals(name)) {
-                if (!players2.get(position).getFullScore().toString().equals("{}")) {
-                    playerScoreDialog.showDialog(this, players2, position);
-                } else {
-                    Toast.makeText(MainActivity.this, R.string.score_nearby_unavailable,
-                            Toast.LENGTH_SHORT).show();
+            if (position >= 0 && position < players2.size()) {
+                if (!players2.get(position).getName().equals(name)) {
+                    if (!players2.get(position).getFullScore().toString().equals("{}")) {
+                        playerScoreDialog.showDialog(this, players2, position);
+                    } else {
+                        Toast.makeText(MainActivity.this, R.string.score_nearby_unavailable,
+                                Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
@@ -456,11 +457,11 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                 openUrl("https://nl.wikipedia.org/wiki/Yahtzee#Spelverloop");
             } else if (language.equals("fr")) {
                 openUrl("https://fr.wikipedia.org/wiki/Yahtzee#R%C3%A8gles");
-            } else if  (language.equals("de")) {
+            } else if (language.equals("de")) {
                 openUrl("https://de.wikipedia.org/wiki/Kniffel#Spielregeln");
-            } else if  (language.equals("pl")) {
+            } else if (language.equals("pl")) {
                 openUrl("https://pl.wikipedia.org/wiki/Ko%C5%9Bci_(gra)#Klasyczne_zasady_gry_(Yahtzee)");
-            } else if  (language.equals("it")) {
+            } else if (language.equals("it")) {
                 openUrl("https://it.wikipedia.org/wiki/Yahtzee");
             } else {
                 openUrl("https://en.wikipedia.org/wiki/Yahtzee#Rules");
