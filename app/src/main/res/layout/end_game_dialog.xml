@@ -9,27 +9,89 @@
         android:id="@+id/textViewGamesPlayed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/total_games_played"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginStart="24dp"
+        android:textSize="16sp"
+        app:layout_constraintStart_toEndOf="@+id/textAverageChange"
+        app:layout_constraintTop_toTopOf="@+id/textGamesPlayed" />
 
     <TextView
         android:id="@+id/textViewAverageChange"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="Average (difference): 44 (23)"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewGamesPlayed" />
+        android:layout_marginStart="24dp"
+        android:textSize="16sp"
+        app:layout_constraintStart_toEndOf="@+id/textAverageChange"
+        app:layout_constraintTop_toTopOf="@+id/textAverageChange" />
 
     <TextView
         android:id="@+id/textViewTotalToday"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:textSize="16sp"
+        app:layout_constraintStart_toEndOf="@+id/textAverageChange"
+        app:layout_constraintTop_toTopOf="@+id/textTotalToday" />
+
+    <TextView
+        android:id="@+id/textGamesPlayed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:text="TextView"
+        android:layout_marginTop="8dp"
+        android:text="@string/games_played"
+        android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewAverageChange" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textAverageChange"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/average_difference"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textGamesPlayed" />
+
+    <TextView
+        android:id="@+id/textTotalToday"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="@string/total_score_today"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textToday" />
+
+    <TextView
+        android:id="@+id/textAvgDifToday"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="@string/average_difference_today"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textTotalToday" />
+
+    <TextView
+        android:id="@+id/textViewDifToday"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:textSize="16sp"
+        app:layout_constraintStart_toEndOf="@+id/textAverageChange"
+        app:layout_constraintTop_toTopOf="@+id/textAvgDifToday" />
+
+    <TextView
+        android:id="@+id/textToday"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="32dp"
+        android:text="@string/today"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textAverageChange" />
 </androidx.constraintlayout.widget.ConstraintLayout>

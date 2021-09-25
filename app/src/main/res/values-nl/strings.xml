@@ -77,4 +77,11 @@
     <string name="other">Overig</string>
     <string name="update_available">Er is een update voor de app beschikbaar. U wordt geadviseerd de app te updaten.</string>
     <string name="stats_dialog_setting">Statistieken popup na spel</string>
+    <string name="games_played">Spellen gespeeld</string>
+    <string name="average_difference">Gemiddelde (verschil)</string>
+    <string name="total_score_today">Totale score</string>
+    <string name="game_stats">Spel statistieken</string>
+    <string name="average_difference_today">Verschil gemiddelde</string>
+    <string name="today">Vandaag</string>
+    <string name="close">Sluiten</string>
 </resources>
