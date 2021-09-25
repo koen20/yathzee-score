@@ -4,6 +4,8 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -41,7 +43,6 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
-import com.google.firebase.crashlytics.internal.common.CrashlyticsCore;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,7 +58,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import nl.koenhabets.yahtzeescore.BuildConfig;
+import nl.koenhabets.yahtzeescore.AppUpdates;
 import nl.koenhabets.yahtzeescore.PlayerAdapter;
 import nl.koenhabets.yahtzeescore.dialog.GameEndDialog;
 import nl.koenhabets.yahtzeescore.dialog.PlayerScoreDialog;
@@ -191,13 +192,14 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         recyclerView.setAdapter(playerAdapter);
 
         playerAdapter.setClickListener((view, position) -> {
-            Log.i("click", players2.get(position).getFullScore().toString());
-            if (!players2.get(position).getName().equals(name)) {
-                if (!players2.get(position).getFullScore().toString().equals("{}")) {
-                    playerScoreDialog.showDialog(this, players2, position);
-                } else {
-                    Toast.makeText(MainActivity.this, R.string.score_nearby_unavailable,
-                            Toast.LENGTH_SHORT).show();
+            if (position >= 0 && position < players2.size()) {
+                if (!players2.get(position).getName().equals(name)) {
+                    if (!players2.get(position).getFullScore().toString().equals("{}")) {
+                        playerScoreDialog.showDialog(this, players2, position);
+                    } else {
+                        Toast.makeText(MainActivity.this, R.string.score_nearby_unavailable,
+                                Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
@@ -232,6 +234,31 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
 
         final Context context = this;
         button.setOnClickListener(view -> saveScoreDialog(context));
+
+        new java.util.Timer().schedule(
+                new java.util.TimerTask() {
+                    @Override
+                    public void run() {
+                        try {
+                            JSONObject jsonObject = AppUpdates.getVersionInfo();
+                            PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+                            int verCode = pInfo.versionCode;
+                            if (jsonObject.getInt("flexibleVersion") > verCode) {
+                                String updateText = "";
+                                if (jsonObject.has("updateText")) {
+                                    updateText = jsonObject.getString("updateText");
+                                }
+                                String finalUpdateText = updateText;
+                                MainActivity.this.runOnUiThread(() -> Toast.makeText(MainActivity.this, getString(R.string.update_available) + finalUpdateText, Toast.LENGTH_LONG).show());
+                            }
+
+                        } catch (PackageManager.NameNotFoundException | JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                3000
+        );
     }
 
     private void saveScoreDialog(Context context) {
