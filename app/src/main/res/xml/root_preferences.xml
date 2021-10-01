@@ -16,7 +16,7 @@
             app:key="yahtzeeBonus"
             app:title="@string/yahtzee_bonus" />
         <SwitchPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="endDialog"
             android:title="@string/stats_dialog_setting" />
         <ListPreference

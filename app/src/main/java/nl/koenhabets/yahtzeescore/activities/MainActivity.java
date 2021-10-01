@@ -282,7 +282,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                 toast.show();
             } else {
                 SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
-                if (sharedPref.getBoolean("endDialog", false)) {
+                if (sharedPref.getBoolean("endDialog", true)) {
                     GameEndDialog gameEndDialog = new GameEndDialog(this);
                     gameEndDialog.showDialog(totalLeft + totalRight);
                 }
