@@ -233,7 +233,6 @@ public class StatsActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-        Log.i("atadf", jsonObject.toString());
         return jsonObject;
     }
 
@@ -252,7 +251,7 @@ public class StatsActivity extends AppCompatActivity {
                     scoreCount = scoreCount + 1;
                 }
                 scoreCountMax = scoreCountMax + 1;
-            } catch (JSONException ignored) {
+            } catch (JSONException | NumberFormatException ignored) {
             }
 
         }

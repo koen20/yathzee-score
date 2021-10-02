@@ -1,4 +1,4 @@
-package nl.koenhabets.yahtzeescore;
+package nl.koenhabets.yahtzeescore.dialog;
 
 import android.content.Context;
 import android.text.InputType;
@@ -14,6 +14,7 @@ import org.json.JSONObject;
 
 import java.util.List;
 
+import nl.koenhabets.yahtzeescore.R;
 import nl.koenhabets.yahtzeescore.multiplayer.PlayerItem;
 
 public class PlayerScoreDialog {
@@ -39,7 +40,7 @@ public class PlayerScoreDialog {
     public PlayerScoreDialog(Context context){
         this.context = context;
     }
-    
+
     public void showDialog(Context context, List<PlayerItem> players2, int position){
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = LayoutInflater.from(context);

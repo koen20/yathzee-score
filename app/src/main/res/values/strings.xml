@@ -78,4 +78,14 @@
     <string name="multiplayer_question">Do you want to enable multiplayer?</string>
     <string name="next">Next</string>
     <string name="app_icon">App icon</string>
+    <string name="other">Other</string>
+    <string name="update_available">An update for the app is available. You are advised to update the app.</string>
+    <string name="stats_dialog_setting">Stats dialog after game</string>
+    <string name="games_played">Games played</string>
+    <string name="average_difference">Average (difference)</string>
+    <string name="total_score_today">Total score</string>
+    <string name="game_stats">Game stats</string>
+    <string name="average_difference_today">Difference average</string>
+    <string name="today">Today</string>
+    <string name="close">Close</string>
 </resources>

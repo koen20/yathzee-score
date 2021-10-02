@@ -1,0 +1,31 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/multiplayer">
+        <SwitchPreferenceCompat
+            app:key="multiplayer"
+            app:title="@string/multiplayer" />
+        <EditTextPreference
+            app:key="name"
+            app:title="@string/name"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/other">
+        <SwitchPreferenceCompat
+            app:key="yahtzeeBonus"
+            app:title="@string/yahtzee_bonus" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="endDialog"
+            android:title="@string/stats_dialog_setting" />
+        <ListPreference
+            app:defaultValue="-1"
+            app:entries="@array/theme_options"
+            app:entryValues="@array/theme_values"
+            app:key="themePref"
+            app:title="@string/theme"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+</PreferenceScreen>

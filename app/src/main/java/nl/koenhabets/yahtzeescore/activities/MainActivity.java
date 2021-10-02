@@ -4,6 +4,8 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -58,7 +60,8 @@ import java.util.Locale;
 
 import nl.koenhabets.yahtzeescore.AppUpdates;
 import nl.koenhabets.yahtzeescore.PlayerAdapter;
-import nl.koenhabets.yahtzeescore.PlayerScoreDialog;
+import nl.koenhabets.yahtzeescore.dialog.GameEndDialog;
+import nl.koenhabets.yahtzeescore.dialog.PlayerScoreDialog;
 import nl.koenhabets.yahtzeescore.R;
 import nl.koenhabets.yahtzeescore.data.DataManager;
 import nl.koenhabets.yahtzeescore.data.MigrateData;
@@ -113,6 +116,9 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setSupportActionBar(findViewById(R.id.toolbar));
+        if ("generic".equalsIgnoreCase(Build.BRAND)) {
+            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false);
+        }
         mAuth = FirebaseAuth.getInstance();
         SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         AppCompatDelegate.setDefaultNightMode(sharedPref.getInt("theme", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM));
@@ -131,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
 
         String testLabSetting =
                 Settings.System.getString(getContentResolver(), "firebase.test.lab");
-        if ("true".equals(testLabSetting)) {
+        if ("true".equals(testLabSetting) || "generic".equalsIgnoreCase(Build.BRAND)) {
             //You are running in Test Lab
             firebaseAnalytics.setAnalyticsCollectionEnabled(false);  //Disable Analytics Collection
             Toast.makeText(getApplicationContext(), "Disabling Analytics Collection ", Toast.LENGTH_LONG).show();
@@ -186,13 +192,14 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         recyclerView.setAdapter(playerAdapter);
 
         playerAdapter.setClickListener((view, position) -> {
-            Log.i("click", players2.get(position).getFullScore().toString());
-            if (!players2.get(position).getName().equals(name)) {
-                if (!players2.get(position).getFullScore().toString().equals("{}")) {
-                    playerScoreDialog.showDialog(this, players2, position);
-                } else {
-                    Toast.makeText(MainActivity.this, R.string.score_nearby_unavailable,
-                            Toast.LENGTH_SHORT).show();
+            if (position >= 0 && position < players2.size()) {
+                if (!players2.get(position).getName().equals(name)) {
+                    if (!players2.get(position).getFullScore().toString().equals("{}")) {
+                        playerScoreDialog.showDialog(this, players2, position);
+                    } else {
+                        Toast.makeText(MainActivity.this, R.string.score_nearby_unavailable,
+                                Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
@@ -227,6 +234,31 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
 
         final Context context = this;
         button.setOnClickListener(view -> saveScoreDialog(context));
+
+        new java.util.Timer().schedule(
+                new java.util.TimerTask() {
+                    @Override
+                    public void run() {
+                        try {
+                            JSONObject jsonObject = AppUpdates.getVersionInfo();
+                            PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+                            int verCode = pInfo.versionCode;
+                            if (jsonObject.getInt("flexibleVersion") > verCode) {
+                                String updateText = "";
+                                if (jsonObject.has("updateText")) {
+                                    updateText = jsonObject.getString("updateText");
+                                }
+                                String finalUpdateText = updateText;
+                                MainActivity.this.runOnUiThread(() -> Toast.makeText(MainActivity.this, getString(R.string.update_available) + finalUpdateText, Toast.LENGTH_LONG).show());
+                            }
+
+                        } catch (PackageManager.NameNotFoundException | JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                3000
+        );
     }
 
     private void saveScoreDialog(Context context) {
@@ -249,6 +281,11 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                 Toast toast = Toast.makeText(this, R.string.score_too_low_save, Toast.LENGTH_SHORT);
                 toast.show();
             } else {
+                SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+                if (sharedPref.getBoolean("endDialog", true)) {
+                    GameEndDialog gameEndDialog = new GameEndDialog(this);
+                    gameEndDialog.showDialog(totalLeft + totalRight);
+                }
                 DataManager.saveScore(totalLeft + totalRight, createJsonScores(), getApplicationContext());
                 TrackHelper.track().event("category", "action").name("clear and save").with(mMatomoTracker);
             }
@@ -453,18 +490,25 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
             return true;
         } else if (itemId == R.id.rules) {
             String language = Locale.getDefault().getLanguage();
-            if (language.equals("nl")) {
-                openUrl("https://nl.wikipedia.org/wiki/Yahtzee#Spelverloop");
-            } else if (language.equals("fr")) {
-                openUrl("https://fr.wikipedia.org/wiki/Yahtzee#R%C3%A8gles");
-            } else if  (language.equals("de")) {
-                openUrl("https://de.wikipedia.org/wiki/Kniffel#Spielregeln");
-            } else if  (language.equals("pl")) {
-                openUrl("https://pl.wikipedia.org/wiki/Ko%C5%9Bci_(gra)#Klasyczne_zasady_gry_(Yahtzee)");
-            } else if  (language.equals("it")) {
-                openUrl("https://it.wikipedia.org/wiki/Yahtzee");
-            } else {
-                openUrl("https://en.wikipedia.org/wiki/Yahtzee#Rules");
+            switch (language) {
+                case "nl":
+                    openUrl("https://nl.wikipedia.org/wiki/Yahtzee#Spelverloop");
+                    break;
+                case "fr":
+                    openUrl("https://fr.wikipedia.org/wiki/Yahtzee#R%C3%A8gles");
+                    break;
+                case "de":
+                    openUrl("https://de.wikipedia.org/wiki/Kniffel#Spielregeln");
+                    break;
+                case "pl":
+                    openUrl("https://pl.wikipedia.org/wiki/Ko%C5%9Bci_(gra)#Klasyczne_zasady_gry_(Yahtzee)");
+                    break;
+                case "it":
+                    openUrl("https://it.wikipedia.org/wiki/Yahtzee");
+                    break;
+                default:
+                    openUrl("https://en.wikipedia.org/wiki/Yahtzee#Rules");
+                    break;
             }
             return true;
         } else if (itemId == R.id.add_player) {
@@ -516,7 +560,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         new MigrateData(this);
 
-        if (sharedPref.getBoolean("multiplayer", false)) {
+        if (sharedPref.getBoolean("multiplayer", false) && sharedPref.getBoolean("multiplayerAsked", false)) {
             initMultiplayer();
             multiplayerEnabled = true;
             recyclerView.setVisibility(View.GONE);
