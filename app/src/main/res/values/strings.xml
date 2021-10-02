@@ -35,7 +35,7 @@
     <string name="settings">Settings</string>
     <string name="rules">Rules</string>
     <string name="enable_multiplayer">Enable multiplayer</string>
-    <string name="multiplayer_permission_dialog">To automatically discover players nearby the app needs Nearby permissions. The app will show a popup to give these permissions. On some devices the popup doesn\'t work and you will get a notification instead.</string>
+    <string name="multiplayer_permission_dialog">To automatically discover players nearby the app needs Nearby permissions.</string>
     <string name="yahtzee_bonus">Yahtzee bonus</string>
     <string name="press_again">Press again to enter 0</string>
     <string name="multiplayer">Multiplayer</string>
@@ -76,7 +76,6 @@
     <string name="choose_rules">Choose which rules you want to use</string>
     <string name="welcome_to_yatzy_score">Welcome to Yatzy score</string>
     <string name="multiplayer_question">Do you want to enable multiplayer?</string>
-    <string name="next">Next</string>
     <string name="app_icon">App icon</string>
     <string name="other">Other</string>
     <string name="update_available">An update for the app is available. You are advised to update the app.</string>
@@ -88,4 +87,5 @@
     <string name="average_difference_today">Difference average</string>
     <string name="today">Today</string>
     <string name="close">Close</string>
+    <string name="nearby_permission_exp">The app will show a popup to give these permissions. On some devices the popup doesn\'t work and you will get a notification instead.</string>
 </resources>
