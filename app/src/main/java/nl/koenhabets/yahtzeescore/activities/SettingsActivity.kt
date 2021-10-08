@@ -51,7 +51,7 @@ class SettingsActivity : AppCompatActivity() {
                 }
             }
 
-            if (switchPreference != null) {
+            /*if (switchPreference != null) {
                 switchPreference.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
                     val enabled = newValue as Boolean
                     if (enabled) {
@@ -59,7 +59,7 @@ class SettingsActivity : AppCompatActivity() {
                     }
                     true
                 }
-            }
+            }*/
         }
     }
 
