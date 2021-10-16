@@ -588,7 +588,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
 
     @Override
     public void onStop() {
-        if (multiplayerEnabled) {
+        if (multiplayer != null) {
             Log.i("onStop", "disconnecting");
             multiplayer.stopMultiplayer();
         }
