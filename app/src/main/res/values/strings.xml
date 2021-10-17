@@ -89,4 +89,5 @@
     <string name="close">Close</string>
     <string name="nearby_permission_exp">The app will show a popup to give these permissions. On some devices the popup doesn\'t work and you will get a notification instead.</string>
     <string name="open_app">Open app</string>
+    <string name="multiplayer_with_nearby_players">Multiplayer with nearby players</string>
 </resources>
