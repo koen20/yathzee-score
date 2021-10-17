@@ -121,6 +121,17 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         }
         mAuth = FirebaseAuth.getInstance();
         SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+        Log.i("multiplayer main", sharedPref.getBoolean("multiplayer", false) + "d");
+        if (!sharedPref.contains("version") && !sharedPref.contains("multiplayer") && !sharedPref.contains("multiplayerAsked")) {
+            sharedPref.edit().putBoolean("welcomeShown", false).apply();
+            Intent myIntent = new Intent(this, WelcomeActivity.class);
+            this.startActivity(myIntent);
+            finish();
+        } else if (!sharedPref.getBoolean("welcomeShown", true)) {
+            Intent myIntent = new Intent(this, WelcomeActivity.class);
+            this.startActivity(myIntent);
+            finish();
+        }
         AppCompatDelegate.setDefaultNightMode(sharedPref.getInt("theme", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM));
 
         try {
@@ -317,33 +328,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         }
     }
 
-    private void permissionDialog() {
-        Context context = this;
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(R.string.multiplayer);
-        builder.setMessage(getString(R.string.multiplayer_permission_dialog));
-        builder.setNegativeButton("No", (dialog, id) -> {
-            TrackHelper.track().event("multiplayer", "disable").name("disable").with(mMatomoTracker);
-            SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
-            sharedPref.edit().putBoolean("multiplayer", false).apply();
-            sharedPref.edit().putBoolean("multiplayerAsked", true).apply();
-            multiplayerEnabled = false;
-        });
-        builder.setPositiveButton("Yes", (dialog, id) -> {
-            tvOp.setText(R.string.No_players_nearby);
-            TrackHelper.track().event("multiplayer", "enable").name("enable").with(mMatomoTracker);
-            SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
-            sharedPref.edit().putBoolean("multiplayer", true).apply();
-            sharedPref.edit().putBoolean("multiplayerAsked", true).apply();
-            initMultiplayer();
-            recyclerView.setVisibility(View.GONE);
-            tvOp.setVisibility(View.VISIBLE);
-            tvOp.setText(R.string.No_players_nearby);
-            multiplayerEnabled = true;
-        });
-        builder.show();
-    }
-
     private void initMultiplayer() {
         FirebaseCrashlytics.getInstance().setCustomKey("multiplayerEnabled", true);
 
@@ -462,7 +446,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         e.printStackTrace();
     }
 
-
     public boolean onCreateOptionsMenu(Menu menu) {
 
         MenuInflater inflater = getMenuInflater();
@@ -516,7 +499,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                 addPlayerDialog();
                 return true;
             }
-
             return super.onOptionsItemSelected(item);
         }
         return super.onOptionsItemSelected(item);
@@ -560,7 +542,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         new MigrateData(this);
 
-        if (sharedPref.getBoolean("multiplayer", false) && sharedPref.getBoolean("multiplayerAsked", false)) {
+        if (sharedPref.getBoolean("multiplayer", false)) {
             initMultiplayer();
             multiplayerEnabled = true;
             recyclerView.setVisibility(View.GONE);
@@ -570,10 +552,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
             multiplayerEnabled = false;
             recyclerView.setVisibility(View.GONE);
             tvOp.setVisibility(View.GONE);
-        }
-
-        if (!sharedPref.getBoolean("multiplayerAsked", false)) {
-            permissionDialog();
         }
 
         FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);

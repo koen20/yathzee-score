@@ -27,7 +27,7 @@
     <string name="settings">Instellingen</string>
     <string name="rules">Regels</string>
     <string name="enable_multiplayer">Multiplayer aanzetten</string>
-    <string name="multiplayer_permission_dialog">Om automatisch spelers in de buurt te vinden, heeft de app machtigingen voor Dichtbij nodig. Er verschijnt een popup om deze permissies te geven. Op sommige apparaten verschijnt in plaats van een popup een melding met een foutmelding die u moet openen. Wilt u multiplayer inschakelen?</string>
+    <string name="multiplayer_permission_dialog">Om automatisch spelers in de buurt te vinden, heeft de app machtigingen voor Dichtbij nodig.</string>
     <string name="press_again">Druk opniew om 0 in te voeren</string>
     <string name="multiplayer">Multiplayer</string>
     <string name="total_games_played">Spellen gespeeld: %d</string>
@@ -73,6 +73,8 @@
     <string name="scan_qr_code">Scan de qr code van een ander apparaat om handmatig een speler toe te voegen.</string>
     <string name="show_qr_code">Laat deze qr code zien aan een andere speler om handmatig een speler toe te voegen aan hun telefoon</string>
     <string name="choose_rules">Kies welke regels u wilt gebruiken</string>
+    <string name="multiplayer_question">Wilt u multiplayer inschakelen?</string>
+    <string name="welcome_to_yatzy_score">Welkom bij Yatzy score</string>
     <string name="app_icon">App icoon</string>
     <string name="other">Overig</string>
     <string name="update_available">Er is een update voor de app beschikbaar. U wordt geadviseerd de app te updaten.</string>
@@ -84,4 +86,7 @@
     <string name="average_difference_today">Verschil gemiddelde</string>
     <string name="today">Vandaag</string>
     <string name="close">Sluiten</string>
+    <string name="nearby_permission_exp">Er verschijnt een popup om deze permissies te geven. Op sommige apparaten verschijnt in plaats van een popup een foutmelding die u moet openen.</string>
+    <string name="open_app">Open app</string>
+    <string name="multiplayer_with_nearby_players">Multiplayer met spelers in de buurt</string>
 </resources>
