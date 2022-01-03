@@ -607,7 +607,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         calculateTotal();
         JSONObject jsonObjectScores = createJsonScores();
         DataManager.saveScores(jsonObjectScores, getApplicationContext());
-        if (multiplayerEnabled) {
+        if (multiplayerEnabled && multiplayer != null) {
             multiplayer.setFullScore(jsonObjectScores);
             if (multiplayer.getPlayerAmount() == 0) {
                 tvOp.setText(R.string.No_players_nearby);
