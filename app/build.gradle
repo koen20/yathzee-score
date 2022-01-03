@@ -24,7 +24,7 @@ android {
         applicationId "nl.koenhabets.yahtzeescore"
         minSdkVersion 19
         targetSdkVersion 30
-        versionCode 35
+        versionCode 36
         versionName "1.15"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true

@@ -217,8 +217,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
 
         try {
             readScores(new JSONObject(sharedPref.getString("scores", "")));
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
         }
 
         editText1.addTextChangedListener(this);
@@ -260,9 +259,15 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                                     updateText = jsonObject.getString("updateText");
                                 }
                                 String finalUpdateText = updateText;
-                                MainActivity.this.runOnUiThread(() -> Toast.makeText(MainActivity.this, getString(R.string.update_available) + finalUpdateText, Toast.LENGTH_LONG).show());
+                                showUpdateToast(finalUpdateText);
                             }
-
+                            JSONArray versions = jsonObject.getJSONArray("versions");
+                            for (int i = 0; i < versions.length(); i++) {
+                                JSONObject version = versions.getJSONObject(i);
+                                if (version.getInt("version") == verCode) {
+                                    showUpdateToast(version.getString("updateText"));
+                                }
+                            }
                         } catch (PackageManager.NameNotFoundException | JSONException e) {
                             e.printStackTrace();
                         }
@@ -270,6 +275,10 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                 },
                 3000
         );
+    }
+
+    private void showUpdateToast(String finalUpdateText) {
+        MainActivity.this.runOnUiThread(() -> Toast.makeText(MainActivity.this, getString(R.string.update_available) + finalUpdateText, Toast.LENGTH_LONG).show());
     }
 
     private void saveScoreDialog(Context context) {
