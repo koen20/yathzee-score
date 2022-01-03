@@ -89,4 +89,7 @@
     <string name="nearby_permission_exp">Er verschijnt een popup om deze permissies te geven. Op sommige apparaten verschijnt in plaats van een popup een foutmelding die u moet openen.</string>
     <string name="open_app">Open app</string>
     <string name="multiplayer_with_nearby_players">Multiplayer met spelers in de buurt</string>
+    <string name="next">Volgende</string>
+    <string name="username_required_error">Gebruikersnaam is verplicht</string>
+    <string name="username_for_multiplayer">Gebruikersnaam voor multiplayer</string>
 </resources>

@@ -14,6 +14,7 @@ import android.view.View
 import android.view.Window
 import android.widget.Button
 import android.widget.CheckBox
+import android.widget.EditText
 import android.widget.TextView
 
 
@@ -24,10 +25,12 @@ class WelcomeActivity : AppCompatActivity() {
         changeStatusBarColor()
         supportActionBar?.hide()
         val buttonOpen = findViewById<Button>(R.id.buttonOpenApp)
-        val checkBoxBonus = findViewById<CheckBox>(R.id.checkBoxBonus)
+        val buttonNext = findViewById<Button>(R.id.buttonNext)
         val checkBoxMultiplayer = findViewById<CheckBox>(R.id.checkBoxMultiplayer)
         val tVMultiplayer1 = findViewById<TextView>(R.id.tVM1)
         val tVMultiplayer2 = findViewById<TextView>(R.id.tVM2)
+        val tVName = findViewById<TextView>(R.id.textViewName)
+        val editTextName = findViewById<EditText>(R.id.editTextName)
 
         checkBoxMultiplayer.setOnClickListener {
             if (checkBoxMultiplayer.isChecked) {
@@ -41,19 +44,48 @@ class WelcomeActivity : AppCompatActivity() {
 
         val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         Log.i("multiplayer", sharedPref.getBoolean("multiplayer", false).toString())
-        buttonOpen.setOnClickListener {
-            val edit = sharedPref.edit()
-            edit.putBoolean("multiplayer", checkBoxMultiplayer.isChecked)
-            edit.putBoolean("multiplayerAsked", checkBoxMultiplayer.isChecked)
-            edit.putBoolean("yahtzeeBonus", checkBoxBonus.isChecked)
-            edit.putBoolean("welcomeShown", true)
-            edit.commit()
-            val myIntent = Intent(this, MainActivity::class.java)
-            this.startActivity(myIntent)
-
-            finish()
+        checkBoxMultiplayer.setOnCheckedChangeListener { button, b ->
+            if (!b) {
+                buttonOpen.visibility = View.VISIBLE
+                buttonNext.visibility = View.INVISIBLE
+            }
         }
 
+        buttonNext.setOnClickListener {
+            buttonOpen.visibility = View.VISIBLE
+            buttonNext.visibility = View.INVISIBLE
+            tVMultiplayer1.visibility = View.INVISIBLE
+            tVMultiplayer2.visibility = View.INVISIBLE
+            checkBoxMultiplayer.visibility = View.INVISIBLE
+            editTextName.visibility = View.VISIBLE
+            tVName.visibility = View.VISIBLE
+        }
+
+        buttonOpen.setOnClickListener {
+            val edit = sharedPref.edit()
+            if (checkBoxMultiplayer.isChecked) {
+                if (editTextName.text.toString().trim() != "") {
+                    edit.putBoolean("multiplayer", checkBoxMultiplayer.isChecked)
+                    edit.putBoolean("multiplayerAsked", checkBoxMultiplayer.isChecked)
+                    edit.putBoolean("welcomeShown", true)
+                    edit.putString("name", editTextName.text.toString())
+                    edit.commit()
+                    val myIntent = Intent(this, MainActivity::class.java)
+                    this.startActivity(myIntent)
+                    finish()
+                } else {
+                    editTextName.error = getString(R.string.username_required_error)
+                }
+            } else {
+                edit.putBoolean("multiplayer", checkBoxMultiplayer.isChecked)
+                edit.putBoolean("multiplayerAsked", checkBoxMultiplayer.isChecked)
+                edit.putBoolean("welcomeShown", true)
+                edit.commit()
+                val myIntent = Intent(this, MainActivity::class.java)
+                this.startActivity(myIntent)
+                finish()
+            }
+        }
     }
 
     private fun changeStatusBarColor() {
