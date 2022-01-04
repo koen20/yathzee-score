@@ -86,7 +86,7 @@
     <string name="average_difference_today">Verschil gemiddelde</string>
     <string name="today">Vandaag</string>
     <string name="close">Sluiten</string>
-    <string name="nearby_permission_exp">Er verschijnt een popup om deze permissies te geven. Op sommige apparaten verschijnt in plaats van een popup een foutmelding die u moet openen.</string>
+    <string name="nearby_permission_exp">Er verschijnt een popup om deze permissies te geven.</string>
     <string name="open_app">Open app</string>
     <string name="multiplayer_with_nearby_players">Multiplayer met spelers in de buurt</string>
     <string name="next">Volgende</string>
