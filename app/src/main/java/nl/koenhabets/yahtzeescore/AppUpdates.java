@@ -2,8 +2,6 @@ package nl.koenhabets.yahtzeescore;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.pm.PackageInfo;
-
 
 import org.json.JSONObject;
 
@@ -12,7 +10,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class AppUpdates implements Runnable {
+public class AppUpdates {
     Context context;
     Activity activity;
 
@@ -42,44 +40,5 @@ public class AppUpdates implements Runnable {
         }
 
         return jsonObject;
-    }
-
-    @Override
-    public void run() {
-        /*
-        try {
-            AppUpdateManager appUpdateManager = AppUpdateManagerFactory.create(context);
-
-            Task<AppUpdateInfo> appUpdateInfoTask = appUpdateManager.getAppUpdateInfo();
-            try {
-                PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-                int verCode = pInfo.versionCode;
-
-                appUpdateInfoTask.addOnSuccessListener(appUpdateInfo -> {
-                    try {
-                        //if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) {
-                        JSONObject jsonObject = getVersionInfo();
-                        if (jsonObject.has("flexibleVersion")) {
-                            if (jsonObject.getInt("flexibleVersion") > verCode) {
-                                appUpdateManager.startUpdateFlowForResult(appUpdateInfo, AppUpdateType.FLEXIBLE, activity, 2);
-                            }
-                        }
-                        if (jsonObject.has("immediateVersion")) {
-                            if (jsonObject.getInt("immediateVersion") > verCode) {
-                                appUpdateManager.startUpdateFlowForResult(appUpdateInfo, AppUpdateType.IMMEDIATE, activity, 2);
-                            }
-                        }
-                        //}
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        */
     }
 }

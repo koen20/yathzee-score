@@ -36,7 +36,13 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.nearby.Nearby;
+import com.google.android.gms.nearby.messages.Message;
+import com.google.android.gms.nearby.messages.MessageListener;
+import com.google.android.gms.tasks.OnCanceledListener;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -101,6 +107,8 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
     private PlayerAdapter playerAdapter;
     private final List<PlayerItem> players2 = new ArrayList<>();
     PlayerScoreDialog playerScoreDialog;
+    MessageListener mMessageListener;
+    private Message mMessage;
 
     public static Tracker getTracker2() {
         return mMatomoTracker;
@@ -133,12 +141,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
             finish();
         }
         AppCompatDelegate.setDefaultNightMode(sharedPref.getInt("theme", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM));
-
-        try {
-            checkUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(this);
         getTracker();
@@ -373,6 +375,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
 
     private void initMultiplayerObj(FirebaseUser firebaseUser) {
         multiplayer = new Multiplayer(this, name, (totalLeft + totalRight), firebaseUser.getUid());
+        initNearby();
         multiplayer.setMultiplayerListener(new Multiplayer.MultiplayerListener() {
             @Override
             public void onChange(List<PlayerItem> players) {
@@ -403,8 +406,38 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                 }
             }
         });
-        multiplayer.setScore(totalLeft + totalRight);
+        setMultiplayerScore(totalLeft + totalRight);
         multiplayer.setFullScore(createJsonScores());
+    }
+
+    private void setMultiplayerScore(int score) {
+        Nearby.getMessagesClient(this).unpublish(mMessage);
+        Date date = new Date();
+        if (!name.equals("")) {
+            String text = name + ";" + (score) + ";" + date.getTime() + ";" + firebaseUser.getUid();
+            mMessage = new Message((text).getBytes());
+            Nearby.getMessagesClient(this).publish(mMessage).addOnFailureListener(this);
+        }
+        multiplayer.setScore(score);
+    }
+
+    public void initNearby() {
+        mMessageListener = new MessageListener() {
+            @Override
+            public void onFound(Message message) {
+                Log.d("t", "Found message: " + new String(message.getContent()));
+                multiplayer.proccessMessage(new String(message.getContent()), false, "");
+            }
+
+            @Override
+            public void onLost(Message message) {
+                Log.d("d", "Lost sight of message: " + new String(message.getContent()));
+            }
+        };
+        mMessage = new Message(("new player").getBytes());
+
+        Nearby.getMessagesClient(this).publish(mMessage).addOnFailureListener(this);
+        Nearby.getMessagesClient(this).subscribe(mMessageListener);
     }
 
     private void addPlayerDialog() {
@@ -577,6 +610,12 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
     public void onStop() {
         if (multiplayer != null) {
             Log.i("onStop", "disconnecting");
+            try {
+                Nearby.getMessagesClient(this).unpublish(mMessage);
+                Nearby.getMessagesClient(this).unsubscribe(mMessageListener);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             multiplayer.stopMultiplayer();
         }
         super.onStop();
@@ -613,7 +652,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                 tvOp.setText(R.string.No_players_nearby);
                 recyclerView.setVisibility(View.GONE);
             }
-            multiplayer.setScore(totalLeft + totalRight);
+            setMultiplayerScore(totalLeft + totalRight);
         }
     }
 
@@ -767,11 +806,5 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         } catch (JSONException e) {
             e.printStackTrace();
         }
-    }
-
-    private void checkUpdate() {
-        //todo this doesn't work, it says it is running on main thread
-        //Runnable r = new AppUpdates(this, this);
-        //new Thread(r).start();
     }
 }

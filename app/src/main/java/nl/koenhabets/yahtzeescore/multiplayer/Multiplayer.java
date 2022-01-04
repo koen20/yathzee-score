@@ -29,8 +29,6 @@ import java.util.TimerTask;
 
 public class Multiplayer implements OnFailureListener {
     private MultiplayerListener listener;
-    private MessageListener mMessageListener;
-    private Message mMessage;
     private Boolean realtimeDatabaseEnabled = true;
     private String firebaseUserUid;
     private DatabaseReference database;
@@ -67,7 +65,6 @@ public class Multiplayer implements OnFailureListener {
     }
 
     public void initMultiplayer(Context context, String name) {
-        initNearby();
         try {
             mqtt = new Mqtt(context, name);
             mqtt.setMqttListener(message -> proccessMessage(message, true, ""));
@@ -104,25 +101,6 @@ public class Multiplayer implements OnFailureListener {
         Log.i("players", players.toString() + "");
 
         initDatabase();
-    }
-
-    public void initNearby() {
-        mMessageListener = new MessageListener() {
-            @Override
-            public void onFound(Message message) {
-                Log.d("t", "Found message: " + new String(message.getContent()));
-                proccessMessage(new String(message.getContent()), false, "");
-            }
-
-            @Override
-            public void onLost(Message message) {
-                Log.d("d", "Lost sight of message: " + new String(message.getContent()));
-            }
-        };
-        mMessage = new Message(("new player").getBytes());
-
-        Nearby.getMessagesClient(context).publish(mMessage).addOnFailureListener(this);
-        Nearby.getMessagesClient(context).subscribe(mMessageListener);
     }
 
     public void initDatabase() {
@@ -250,12 +228,6 @@ public class Multiplayer implements OnFailureListener {
 
     public void stopMultiplayer() {
         try {
-            Nearby.getMessagesClient(context).unpublish(mMessage);
-            Nearby.getMessagesClient(context).unsubscribe(mMessageListener);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
             mqtt.disconnectMqtt();
         } catch (Exception e) {
             e.printStackTrace();
@@ -359,7 +331,6 @@ public class Multiplayer implements OnFailureListener {
     }
 
     public void updateNearbyScore() {
-        Nearby.getMessagesClient(context).unpublish(mMessage);
         Date date = new Date();
         if (!name.equals("")) {
             String text = name + ";" + (score) + ";" + date.getTime() + ";" + firebaseUserUid;
@@ -368,8 +339,6 @@ public class Multiplayer implements OnFailureListener {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            mMessage = new Message((text).getBytes());
-            Nearby.getMessagesClient(context).publish(mMessage).addOnFailureListener(this);
             if (realtimeDatabaseEnabled) {
                 try {
                     database.child("score").child(firebaseUserUid).setValue(text);
