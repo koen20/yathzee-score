@@ -39,13 +39,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
-import com.google.android.gms.tasks.OnCanceledListener;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
@@ -142,7 +138,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         }
         AppCompatDelegate.setDefaultNightMode(sharedPref.getInt("theme", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM));
 
-        FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(this);
         getTracker();
         Tracker tracker = mMatomoTracker;
         TrackHelper.track().screen("/").title("Main screen").with(tracker);
@@ -152,7 +147,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                 Settings.System.getString(getContentResolver(), "firebase.test.lab");
         if ("true".equals(testLabSetting) || "generic".equalsIgnoreCase(Build.BRAND)) {
             //You are running in Test Lab
-            firebaseAnalytics.setAnalyticsCollectionEnabled(false);  //Disable Analytics Collection
             Toast.makeText(getApplicationContext(), "Disabling Analytics Collection ", Toast.LENGTH_LONG).show();
             mMatomoTracker.setOptOut(true);
         }
@@ -596,8 +590,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
             tvOp.setVisibility(View.GONE);
         }
 
-        FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
-        mFirebaseAnalytics.setUserProperty("multiplayer", multiplayer + "");
         if (!sharedPref.getBoolean("yahtzeeBonus", false)) {
             tvYahtzeeBonus.setVisibility(View.GONE);
             editText28.setVisibility(View.GONE);
@@ -632,8 +624,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
             tvYahtzeeBonus.setVisibility(View.VISIBLE);
             editText28.setVisibility(View.VISIBLE);
         }
-        FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
-        mFirebaseAnalytics.setUserProperty("yahtzeeBonus", sharedPref.getBoolean("yahtzeeBonus", false) + "");
         super.onResume();
     }
 
