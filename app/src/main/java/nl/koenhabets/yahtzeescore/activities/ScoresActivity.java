@@ -24,8 +24,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.matomo.sdk.Tracker;
-import org.matomo.sdk.extra.TrackHelper;
 
 import java.io.BufferedReader;
 import java.io.FileOutputStream;
@@ -60,12 +58,7 @@ public class ScoresActivity extends AppCompatActivity {
         setContentView(R.layout.activity_scores);
         setTitle(R.string.saved_scores);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-        try {
-            Tracker tracker = MainActivity.getTracker2();
-            TrackHelper.track().screen("/saved_scores").title("Saved scores").with(tracker);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
         listView = findViewById(R.id.listViewScore);
         textViewAverage = findViewById(R.id.textViewAverage);
         textViewAmount = findViewById(R.id.textViewAmount);

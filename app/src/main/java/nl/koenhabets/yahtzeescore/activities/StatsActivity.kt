@@ -4,7 +4,6 @@ import android.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import nl.koenhabets.yahtzeescore.R
-import org.matomo.sdk.extra.TrackHelper
 import org.json.JSONArray
 import org.json.JSONException
 import com.github.mikephil.charting.charts.LineChart
@@ -23,7 +22,6 @@ import android.util.Log
 import android.view.*
 import com.github.mikephil.charting.data.Entry
 import java.lang.NumberFormatException
-import java.lang.Exception
 import java.math.BigDecimal
 import java.math.RoundingMode
 import kotlinx.android.synthetic.main.activity_stats.*
@@ -33,12 +31,7 @@ class StatsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_stats)
         title = getString(R.string.stats)
-        try {
-            val tracker = MainActivity.getTracker2()
-            TrackHelper.track().screen("/stats").title("Stats").with(tracker)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
         var jsonArray = JSONArray()

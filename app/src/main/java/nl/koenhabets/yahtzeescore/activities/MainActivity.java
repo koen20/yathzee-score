@@ -49,10 +49,6 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.matomo.sdk.Matomo;
-import org.matomo.sdk.Tracker;
-import org.matomo.sdk.TrackerBuilder;
-import org.matomo.sdk.extra.TrackHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,7 +68,6 @@ import nl.koenhabets.yahtzeescore.multiplayer.PlayerItem;
 
 public class MainActivity extends AppCompatActivity implements TextWatcher, OnFailureListener {
     public static String name = "";
-    private static Tracker mMatomoTracker;
     Multiplayer multiplayer;
     boolean multiplayerEnabled;
     private EditText editText1;
@@ -106,15 +101,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
     MessageListener mMessageListener;
     private Message mMessage;
 
-    public static Tracker getTracker2() {
-        return mMatomoTracker;
-    }
-
-    public synchronized void getTracker() {
-        if (mMatomoTracker != null) return;
-        mMatomoTracker = TrackerBuilder.createDefault("https://analytics.koenhabets.nl/matomo.php", 6).build(Matomo.getInstance(this));
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -137,19 +123,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
             finish();
         }
         AppCompatDelegate.setDefaultNightMode(sharedPref.getInt("theme", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM));
-
-        getTracker();
-        Tracker tracker = mMatomoTracker;
-        TrackHelper.track().screen("/").title("Main screen").with(tracker);
-        TrackHelper.track().download().with(tracker);
-
-        String testLabSetting =
-                Settings.System.getString(getContentResolver(), "firebase.test.lab");
-        if ("true".equals(testLabSetting) || "generic".equalsIgnoreCase(Build.BRAND)) {
-            //You are running in Test Lab
-            Toast.makeText(getApplicationContext(), "Disabling Analytics Collection ", Toast.LENGTH_LONG).show();
-            mMatomoTracker.setOptOut(true);
-        }
 
         int nightModeFlags =
                 this.getResources().getConfiguration().uiMode &
@@ -288,7 +261,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
             });
             builder2.setPositiveButton(R.string.yes, (dialog2, id2) -> {
                 clearText();
-                TrackHelper.track().event("category", "action").name("clear").with(mMatomoTracker);
             });
             builder2.show();
         });
@@ -303,7 +275,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                     gameEndDialog.showDialog(totalLeft + totalRight);
                 }
                 DataManager.saveScore(totalLeft + totalRight, createJsonScores(), getApplicationContext());
-                TrackHelper.track().event("category", "action").name("clear and save").with(mMatomoTracker);
             }
             clearText();
         });
@@ -566,7 +537,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
             sharedPref.edit().putString("name", editTextName.getText().toString()).apply();
             name = editTextName.getText().toString();
             multiplayer.setName(name);
-            TrackHelper.track().event("category", "action").name("name changed").with(mMatomoTracker);
         });
         builder.show();
     }
