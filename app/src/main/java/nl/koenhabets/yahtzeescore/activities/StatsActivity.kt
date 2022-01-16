@@ -1,314 +1,252 @@
-package nl.koenhabets.yahtzeescore.activities;
+package nl.koenhabets.yahtzeescore.activities
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.res.Configuration;
-import android.graphics.Color;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.TextView;
+import android.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import nl.koenhabets.yahtzeescore.R
+import org.matomo.sdk.extra.TrackHelper
+import org.json.JSONArray
+import org.json.JSONException
+import com.github.mikephil.charting.charts.LineChart
+import java.util.ArrayList
+import org.json.JSONObject
+import nl.koenhabets.yahtzeescore.ScoreItem
+import nl.koenhabets.yahtzeescore.data.DataManager
+import nl.koenhabets.yahtzeescore.MovingAverage
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.data.LineData
+import android.widget.CheckBox
+import android.content.DialogInterface
+import android.content.res.Configuration
+import android.graphics.Color
+import android.util.Log
+import android.view.*
+import com.github.mikephil.charting.data.Entry
+import java.lang.NumberFormatException
+import java.lang.Exception
+import java.math.BigDecimal
+import java.math.RoundingMode
+import kotlinx.android.synthetic.main.activity_stats.*
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.data.LineDataSet;
-import com.google.android.material.appbar.AppBarLayout;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.matomo.sdk.Tracker;
-import org.matomo.sdk.extra.TrackHelper;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import nl.koenhabets.yahtzeescore.MovingAverage;
-import nl.koenhabets.yahtzeescore.R;
-import nl.koenhabets.yahtzeescore.ScoreItem;
-import nl.koenhabets.yahtzeescore.data.DataManager;
-
-public class StatsActivity extends AppCompatActivity {
-
-    private EditText editText1;
-    private EditText editText2;
-    private EditText editText3;
-    private EditText editText4;
-    private EditText editText5;
-    private EditText editText6;
-    private EditText editText21;
-    private EditText editText22;
-    private EditText editText23;
-    private EditText editText24;
-    private EditText editText25;
-    private EditText editText26;
-    private EditText editText27;
-    private EditText editText28;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_stats);
-        setTitle(getString(R.string.stats));
+class StatsActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_stats)
+        title = getString(R.string.stats)
         try {
-            Tracker tracker = MainActivity.getTracker2();
-            TrackHelper.track().screen("/stats").title("Stats").with(tracker);
-        } catch (Exception e) {
-            e.printStackTrace();
+            val tracker = MainActivity.getTracker2()
+            TrackHelper.track().screen("/stats").title("Stats").with(tracker)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
-
-        JSONArray jsonArray = new JSONArray();
+        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+        val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
+        var jsonArray = JSONArray()
         try {
-            jsonArray = new JSONArray(sharedPref.getString("scoresSaved", ""));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        editText1 = findViewById(R.id.editText);
-        editText2 = findViewById(R.id.editText3);
-        editText3 = findViewById(R.id.editText4);
-        editText4 = findViewById(R.id.editText5);
-        editText5 = findViewById(R.id.editText6);
-        editText6 = findViewById(R.id.editText7);
-
-        editText21 = findViewById(R.id.editText9);
-        editText22 = findViewById(R.id.editText10);
-        editText23 = findViewById(R.id.editText8);
-        editText24 = findViewById(R.id.editText11);
-        editText25 = findViewById(R.id.editText12);
-        editText26 = findViewById(R.id.editText13);
-        editText27 = findViewById(R.id.editText14);
-        editText28 = findViewById(R.id.editText16);
-        TextView tVYBonus = findViewById(R.id.textView7);
-        TextView textViewGraph = findViewById(R.id.textView8);
-
-        LineChart lineChart = findViewById(R.id.chart);
-        LineChart lineChartMa = findViewById(R.id.chartMa);
-        List<Entry> entries = new ArrayList<>();
-        List<Entry> entriesMa = new ArrayList<>();
-
-        AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
-        appBarLayout.setVisibility(View.GONE);
-
-        if(!sharedPref.getBoolean("yahtzeeBonus", false)){
-            tVYBonus.setVisibility(View.GONE);
-            editText28.setVisibility(View.GONE);
+            jsonArray = JSONArray(sharedPref.getString("scoresSaved", ""))
+        } catch (e: JSONException) {
+            e.printStackTrace()
         }
 
-        JSONObject jsonObject = processScores(jsonArray);
-        readScores(jsonObject);
-
-        List<ScoreItem> scoreItemsDate = DataManager.loadScores(this);
-
-        Collections.sort(scoreItemsDate, (o1, o2) -> o1.getDate().compareTo(o2.getDate()));
-        float sum = 0;
-        int gamesHidden;
-        if (scoreItemsDate.size() > 200) {
-            gamesHidden = 30;
-            textViewGraph.setText(getString(R.string.games_hidden, gamesHidden));
-        } else if (scoreItemsDate.size() > 100) {
-            gamesHidden = 10;
-            textViewGraph.setText(getString(R.string.games_hidden, gamesHidden));
-        } else if (scoreItemsDate.size() > 50) {
-            gamesHidden = 5;
-            textViewGraph.setText(getString(R.string.games_hidden, gamesHidden));
+        val entries: MutableList<Entry> = ArrayList()
+        val entriesMa: MutableList<Entry> = ArrayList()
+        appBarLayout.visibility = View.GONE
+        if (!sharedPref.getBoolean("yahtzeeBonus", false)) {
+            textViewStatBonus.visibility = View.GONE
+            editTextStat28.visibility = View.GONE
+        }
+        val jsonObject = processScores(jsonArray)
+        readScores(jsonObject)
+        val scoreItemsDate = DataManager.loadScores(this)
+        scoreItemsDate.sortWith { o1: ScoreItem, o2: ScoreItem -> o1.date.compareTo(o2.date) }
+        var sum = 0f
+        val gamesHidden: Int
+        if (scoreItemsDate.size > 200) {
+            gamesHidden = 30
+            textViewStatGraph.text = getString(R.string.games_hidden, gamesHidden)
+        } else if (scoreItemsDate.size > 100) {
+            gamesHidden = 10
+            textViewStatGraph.text = getString(R.string.games_hidden, gamesHidden)
+        } else if (scoreItemsDate.size > 50) {
+            gamesHidden = 5
+            textViewStatGraph.text = getString(R.string.games_hidden, gamesHidden)
         } else {
-            gamesHidden = 0;
+            gamesHidden = 0
         }
-        for (int d = 0; d < scoreItemsDate.size(); d++) {
-            sum = sum + scoreItemsDate.get(d).getScore();
-            float value = sum / (d + 1);
+        for (d in scoreItemsDate.indices) {
+            sum += scoreItemsDate[d].score
+            val value = sum / (d + 1)
             if (d > gamesHidden - 1) {
-                entries.add(new Entry(d, value));
-            }
-
-        }
-
-        int size = 15;
-        MovingAverage movingAverage = new MovingAverage(size);
-        for (int d = 0; d < scoreItemsDate.size(); d++) {
-            movingAverage.addData(scoreItemsDate.get(d).getScore());
-            if (d > 14 ) {
-                entriesMa.add(new Entry(d, (float) movingAverage.getMean()));
+                entries.add(Entry(d.toFloat(), value))
             }
         }
-
-        Log.i("entries", entries.size() + "size");
-        LineDataSet dataSet = new LineDataSet(entries, getString(R.string.average_score));
-        dataSet.setColor(Color.BLUE);
-        dataSet.setValueTextColor(Color.YELLOW);
-        LineData lineData = new LineData(dataSet);
-        lineChart.setData(lineData);
-        lineChart.getDescription().setText(getString(R.string.average_score_of_last, scoreItemsDate.size()));
-        lineChartSetFlags(lineChart);
-
-        LineDataSet dataSetMa = new LineDataSet(entriesMa, getString(R.string.average_score));
-        dataSetMa.setColor(Color.BLUE);
-        dataSetMa.setValueTextColor(Color.YELLOW);
-        LineData lineDataMa = new LineData(dataSetMa);
-        lineChartMa.setData(lineDataMa);
-        lineChartMa.getDescription().setText(getString(R.string.average_score_of_last_ma));
-        lineChartSetFlags(lineChartMa);
-
-        disableEdit();
+        val size = 15
+        val movingAverage = MovingAverage(size)
+        for (d in scoreItemsDate.indices) {
+            movingAverage.addData(scoreItemsDate[d].score.toDouble())
+            if (d > 14) {
+                entriesMa.add(
+                    Entry(
+                        d.toFloat(), movingAverage.mean.toFloat()
+                    )
+                )
+            }
+        }
+        Log.i("entries", entries.size.toString() + "size")
+        val dataSet = LineDataSet(entries, getString(R.string.average_score))
+        dataSet.color = Color.BLUE
+        dataSet.valueTextColor = Color.YELLOW
+        val lineData = LineData(dataSet)
+        statChart1.data = lineData
+        statChart1.description.text = getString(R.string.average_score_of_last, scoreItemsDate.size)
+        lineChartSetFlags(statChart1)
+        val dataSetMa = LineDataSet(entriesMa, getString(R.string.average_score))
+        dataSetMa.color = Color.BLUE
+        dataSetMa.valueTextColor = Color.YELLOW
+        val lineDataMa = LineData(dataSetMa)
+        chartMa.data = lineDataMa
+        chartMa.description.text = getString(R.string.average_score_of_last_ma)
+        lineChartSetFlags(chartMa)
+        disableEdit()
         if (sharedPref.getBoolean("statsInfoDialog", true)) {
-            infoDialog(false);
+            infoDialog(false)
         }
     }
 
-    private void lineChartSetFlags(LineChart lineChart) {
-        int nightModeFlags =
-                this.getResources().getConfiguration().uiMode &
-                        Configuration.UI_MODE_NIGHT_MASK;
+    private fun lineChartSetFlags(lineChart: LineChart) {
+        val nightModeFlags = this.resources.configuration.uiMode and
+                Configuration.UI_MODE_NIGHT_MASK
         if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
-            lineChart.getXAxis().setTextColor(Color.WHITE);
-            lineChart.getAxisLeft().setTextColor(Color.WHITE);
-            lineChart.getLegend().setTextColor(Color.WHITE);
-            lineChart.getDescription().setTextColor(Color.WHITE);
+            lineChart.xAxis.textColor = Color.WHITE
+            lineChart.axisLeft.textColor = Color.WHITE
+            lineChart.legend.textColor = Color.WHITE
+            lineChart.description.textColor = Color.WHITE
         }
-
-        lineChart.invalidate();
+        lineChart.invalidate()
     }
 
-    private void infoDialog(boolean checkboxChecked) {
-        LayoutInflater inflater = this.getLayoutInflater();
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-        View view = inflater.inflate(R.layout.dailog_stats, null);
-        CheckBox checkBox = view.findViewById(R.id.checkBox);
-        checkBox.setChecked(checkboxChecked);
-        builder.setView(view);
-        builder.setPositiveButton("Ok", (dialog, id) -> {
-        });
-        checkBox.setOnClickListener(view2 -> {
-            SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
-            sharedPref.edit().putBoolean("statsInfoDialog", !checkBox.isChecked()).apply();
-        });
-        builder.show();
+    private fun infoDialog(checkboxChecked: Boolean) {
+        val inflater = this.layoutInflater
+        val builder = AlertDialog.Builder(this)
+        val view = inflater.inflate(R.layout.dailog_stats, null)
+        val checkBox = view.findViewById<CheckBox>(R.id.checkBox)
+        checkBox.isChecked = checkboxChecked
+        builder.setView(view)
+        builder.setPositiveButton("Ok") { dialog: DialogInterface?, id: Int -> }
+        checkBox.setOnClickListener { view2: View? ->
+            val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
+            sharedPref.edit().putBoolean("statsInfoDialog", !checkBox.isChecked).apply()
+        }
+        builder.show()
     }
 
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.help) {
-            SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
-            infoDialog(!sharedPref.getBoolean("statsInfoDialog", true));
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.help) {
+            val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
+            infoDialog(!sharedPref.getBoolean("statsInfoDialog", true))
         } else {
-            finish();
+            finish()
         }
-        return true;
+        return true
     }
 
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_stats, menu);
-        return true;
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.menu_stats, menu)
+        return true
     }
 
-    private JSONObject processScores(JSONArray jsonArray) {
-        JSONObject jsonObject = new JSONObject();
-        for (int k = 1; k < 7; k++) {
+    private fun processScores(jsonArray: JSONArray): JSONObject {
+        val jsonObject = JSONObject()
+        for (k in 1..6) {
             try {
-                jsonObject.put(k + "", proccessField(jsonArray, k));
-            } catch (JSONException e) {
-                e.printStackTrace();
+                jsonObject.put(k.toString() + "", proccessField(jsonArray, k))
+            } catch (e: JSONException) {
+                e.printStackTrace()
             }
         }
-        for (int k = 21; k < 29; k++) {
+        for (k in 21..28) {
             try {
-                jsonObject.put(k + "", proccessField(jsonArray, k));
-            } catch (JSONException e) {
-                e.printStackTrace();
+                jsonObject.put(k.toString() + "", proccessField(jsonArray, k))
+            } catch (e: JSONException) {
+                e.printStackTrace()
             }
         }
-        return jsonObject;
+        return jsonObject
     }
 
-    private String proccessField(JSONArray jsonArray, int d) {
-        double totalScore = 0;
-        double scoreCount = 0;
-        double scoreCountMax = 0;
-        for (int i = 0; i < jsonArray.length(); i++) {
-
+    private fun proccessField(jsonArray: JSONArray, d: Int): String {
+        var totalScore = 0.0
+        var scoreCount = 0.0
+        var scoreCountMax = 0.0
+        for (i in 0 until jsonArray.length()) {
             try {
-                JSONObject jsonObject = jsonArray.getJSONObject(i).getJSONObject("allScores");
-                String val = jsonObject.getString(d + "");
-                if (!val.equals("") && !val.equals("0")) {
-                    int valInt = Integer.parseInt(val);
-                    totalScore = totalScore + valInt;
-                    scoreCount = scoreCount + 1;
+                val jsonObject = jsonArray.getJSONObject(i).getJSONObject("allScores")
+                val score = jsonObject.getString(d.toString() + "")
+                if (score != "" && score != "0") {
+                    val valInt = score.toInt()
+                    totalScore += valInt
+                    scoreCount += 1
                 }
-                scoreCountMax = scoreCountMax + 1;
-            } catch (JSONException | NumberFormatException ignored) {
+                scoreCountMax += 1
+            } catch (ignored: JSONException) {
+            } catch (ignored: NumberFormatException) {
             }
-
         }
-        int chance = (int) Math.round((scoreCount / scoreCountMax) * 100.0);
-        double average = (totalScore / scoreCountMax);
-        return round(average, 1) + "(" + chance + ")";
+        val chance = Math.round(scoreCount / scoreCountMax * 100.0).toInt()
+        val average = totalScore / scoreCountMax
+        return round(average, 1).toString() + "(" + chance + ")"
     }
 
-    public static double round(double value, int places) {
-        double res = 0;
-        if (value != 0.0 && !Double.isNaN(value)) {
-            if (places < 0) throw new IllegalArgumentException();
-
-            BigDecimal bd = new BigDecimal(value);
-            bd = bd.setScale(places, RoundingMode.HALF_UP);
-            res = bd.doubleValue();
-        }
-        return res;
-    }
-
-    private void readScores(JSONObject jsonObject) {
-        Log.i("score", "read" + jsonObject.toString());
+    private fun readScores(jsonObject: JSONObject) {
+        Log.i("score", "read$jsonObject")
         try {
-            editText1.setText(jsonObject.getString("1"));
-            editText2.setText(jsonObject.getString("2"));
-            editText3.setText(jsonObject.getString("3"));
-            editText4.setText(jsonObject.getString("4"));
-            editText5.setText(jsonObject.getString("5"));
-            editText6.setText(jsonObject.getString("6"));
-            editText21.setText(jsonObject.getString("21"));
-            editText22.setText(jsonObject.getString("22"));
-            editText23.setText(jsonObject.getString("23"));
-            editText24.setText(jsonObject.getString("24"));
-            editText25.setText(jsonObject.getString("25"));
-            editText26.setText(jsonObject.getString("26"));
-            editText27.setText(jsonObject.getString("27"));
-            editText28.setText(jsonObject.getString("28"));
-        } catch (JSONException e) {
-            e.printStackTrace();
+            editTextStat1.setText(jsonObject.getString("1"))
+            editTextStat2.setText(jsonObject.getString("2"))
+            editTextStat3.setText(jsonObject.getString("3"))
+            editTextStat4.setText(jsonObject.getString("4"))
+            editTextStat5.setText(jsonObject.getString("5"))
+            editTextStat6.setText(jsonObject.getString("6"))
+            editTextStat21.setText(jsonObject.getString("21"))
+            editTextStat22.setText(jsonObject.getString("22"))
+            editTextStat23.setText(jsonObject.getString("23"))
+            editTextStat24.setText(jsonObject.getString("24"))
+            editTextStat25.setText(jsonObject.getString("25"))
+            editTextStat26.setText(jsonObject.getString("26"))
+            editTextStat27.setText(jsonObject.getString("27"))
+            editTextStat28.setText(jsonObject.getString("28"))
+        } catch (e: JSONException) {
+            e.printStackTrace()
         }
     }
 
-    private void disableEdit() {
-        editText1.setEnabled(false);
-        editText2.setEnabled(false);
-        editText3.setEnabled(false);
-        editText4.setEnabled(false);
-        editText5.setEnabled(false);
-        editText6.setEnabled(false);
-        editText21.setEnabled(false);
-        editText22.setEnabled(false);
-        editText23.setEnabled(false);
-        editText24.setEnabled(false);
-        editText25.setEnabled(false);
-        editText26.setEnabled(false);
-        editText27.setEnabled(false);
-        editText28.setEnabled(false);
+    private fun disableEdit() {
+        editTextStat1.isEnabled = false
+        editTextStat2.isEnabled = false
+        editTextStat3.isEnabled = false
+        editTextStat4.isEnabled = false
+        editTextStat5.isEnabled = false
+        editTextStat6.isEnabled = false
+        editTextStat21.isEnabled = false
+        editTextStat22.isEnabled = false
+        editTextStat23.isEnabled = false
+        editTextStat24.isEnabled = false
+        editTextStat25.isEnabled = false
+        editTextStat26.isEnabled = false
+        editTextStat27.isEnabled = false
+        editTextStat28.isEnabled = false
+    }
 
+    companion object {
+        fun round(value: Double, places: Int): Double {
+            var res = 0.0
+            if (value != 0.0 && !java.lang.Double.isNaN(value)) {
+                require(places >= 0)
+                var bd = BigDecimal(value)
+                bd = bd.setScale(places, RoundingMode.HALF_UP)
+                res = bd.toDouble()
+            }
+            return res
+        }
     }
 }
