@@ -37,11 +37,11 @@ public class PlayerScoreDialog {
     private String playerShown;
     private final Context context;
 
-    public PlayerScoreDialog(Context context){
+    public PlayerScoreDialog(Context context) {
         this.context = context;
     }
 
-    public void showDialog(Context context, List<PlayerItem> players2, int position){
+    public void showDialog(Context context, List<PlayerItem> players2, int position) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = LayoutInflater.from(context);
 
@@ -79,7 +79,7 @@ public class PlayerScoreDialog {
 
     public void updateScore(List<PlayerItem> players) {
         for (int k = 0; k < players.size(); k++) {
-            if (players.get(k).getName().equals(playerShown)){
+            if (players.get(k).getName().equals(playerShown)) {
                 setScores(players.get(k).getFullScore());
                 calculateScores();
                 break;
@@ -96,11 +96,11 @@ public class PlayerScoreDialog {
         return d;
     }
 
-    public void calculateScores(){
+    public void calculateScores() {
         int totalLeft = getTextInt(editText1) + getTextInt(editText2) + getTextInt(editText3) + getTextInt(editText4) + getTextInt(editText5) + getTextInt(editText6);
         int totalRight = getTextInt(editText21) + getTextInt(editText22) + getTextInt(editText23)
                 + getTextInt(editText24) + getTextInt(editText25) + getTextInt(editText26) + getTextInt(editText27) + getTextInt(editText28);
-        if (totalLeft >= 63){
+        if (totalLeft >= 63) {
             totalLeft += 35;
         }
         textViewLeft.setText(context.getString(R.string.left, totalLeft));
@@ -123,8 +123,7 @@ public class PlayerScoreDialog {
             editText26.setText(jsonObject.getString("26"));
             editText27.setText(jsonObject.getString("27"));
             editText28.setText(jsonObject.getString("28"));
-        } catch (JSONException e) {
-            e.printStackTrace();
+        } catch (JSONException ignored) {
         }
     }
 
@@ -132,7 +131,7 @@ public class PlayerScoreDialog {
         return playerShown;
     }
 
-    private void disableEdit(){
+    private void disableEdit() {
         editText1.setInputType(InputType.TYPE_NULL);
         editText2.setInputType(InputType.TYPE_NULL);
         editText3.setInputType(InputType.TYPE_NULL);
