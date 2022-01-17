@@ -28,4 +28,7 @@
             app:useSimpleSummaryProvider="true" />
 
     </PreferenceCategory>
+    <Preference
+        android:key="settingsLicenses"
+        android:title="@string/licenses" />
 </PreferenceScreen>

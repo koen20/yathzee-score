@@ -1,12 +1,17 @@
 package nl.koenhabets.yahtzeescore.activities
 
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import nl.koenhabets.yahtzeescore.R
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.preference.*
+import androidx.preference.ListPreference
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.SwitchPreferenceCompat
+import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
+import nl.koenhabets.yahtzeescore.R
 
 
 class SettingsActivity : AppCompatActivity() {
@@ -31,7 +36,9 @@ class SettingsActivity : AppCompatActivity() {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
             val listPreference: ListPreference? = findPreference("themePref")
             val switchPreference: SwitchPreferenceCompat? = findPreference("multiplayer")
-            val sharedPref: SharedPreferences = requireContext().getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
+            val settingsLicenses: Preference? = findPreference("settingsLicenses")
+            val sharedPref: SharedPreferences =
+                requireContext().getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
             if (listPreference != null) {
                 listPreference.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
                     val index: Int = listPreference.findIndexOfValue(newValue.toString())
@@ -50,6 +57,12 @@ class SettingsActivity : AppCompatActivity() {
                     true
                 }
             }
+
+            settingsLicenses!!.onPreferenceClickListener =
+                Preference.OnPreferenceClickListener { //code for what you want it to do
+                    startActivity(Intent(context, OssLicensesMenuActivity::class.java))
+                    true
+                }
 
             /*if (switchPreference != null) {
                 switchPreference.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
