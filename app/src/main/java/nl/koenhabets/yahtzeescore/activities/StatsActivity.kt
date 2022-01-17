@@ -21,15 +21,19 @@ import android.graphics.Color
 import android.util.Log
 import android.view.*
 import com.github.mikephil.charting.data.Entry
+import nl.koenhabets.yahtzeescore.databinding.ActivityStatsBinding
 import java.lang.NumberFormatException
 import java.math.BigDecimal
 import java.math.RoundingMode
-import kotlinx.android.synthetic.main.activity_stats.*
 
 class StatsActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityStatsBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_stats)
+        binding = ActivityStatsBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
         title = getString(R.string.stats)
 
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
@@ -43,10 +47,10 @@ class StatsActivity : AppCompatActivity() {
 
         val entries: MutableList<Entry> = ArrayList()
         val entriesMa: MutableList<Entry> = ArrayList()
-        appBarLayout.visibility = View.GONE
+        binding.appBarLayout.visibility = View.GONE
         if (!sharedPref.getBoolean("yahtzeeBonus", false)) {
-            textViewStatBonus.visibility = View.GONE
-            editTextStat28.visibility = View.GONE
+            binding.textViewStatBonus.visibility = View.GONE
+            binding.editTextStat28.visibility = View.GONE
         }
         val jsonObject = processScores(jsonArray)
         readScores(jsonObject)
@@ -56,13 +60,13 @@ class StatsActivity : AppCompatActivity() {
         val gamesHidden: Int
         if (scoreItemsDate.size > 200) {
             gamesHidden = 30
-            textViewStatGraph.text = getString(R.string.games_hidden, gamesHidden)
+            binding.textViewStatGraph.text = getString(R.string.games_hidden, gamesHidden)
         } else if (scoreItemsDate.size > 100) {
             gamesHidden = 10
-            textViewStatGraph.text = getString(R.string.games_hidden, gamesHidden)
+            binding.textViewStatGraph.text = getString(R.string.games_hidden, gamesHidden)
         } else if (scoreItemsDate.size > 50) {
             gamesHidden = 5
-            textViewStatGraph.text = getString(R.string.games_hidden, gamesHidden)
+            binding.textViewStatGraph.text = getString(R.string.games_hidden, gamesHidden)
         } else {
             gamesHidden = 0
         }
@@ -90,16 +94,16 @@ class StatsActivity : AppCompatActivity() {
         dataSet.color = Color.BLUE
         dataSet.valueTextColor = Color.YELLOW
         val lineData = LineData(dataSet)
-        statChart1.data = lineData
-        statChart1.description.text = getString(R.string.average_score_of_last, scoreItemsDate.size)
-        lineChartSetFlags(statChart1)
+        binding.statChart1.data = lineData
+        binding.statChart1.description.text = getString(R.string.average_score_of_last, scoreItemsDate.size)
+        lineChartSetFlags(binding.statChart1)
         val dataSetMa = LineDataSet(entriesMa, getString(R.string.average_score))
         dataSetMa.color = Color.BLUE
         dataSetMa.valueTextColor = Color.YELLOW
         val lineDataMa = LineData(dataSetMa)
-        chartMa.data = lineDataMa
-        chartMa.description.text = getString(R.string.average_score_of_last_ma)
-        lineChartSetFlags(chartMa)
+        binding.chartMa.data = lineDataMa
+        binding.chartMa.description.text = getString(R.string.average_score_of_last_ma)
+        lineChartSetFlags(binding.chartMa)
         disableEdit()
         if (sharedPref.getBoolean("statsInfoDialog", true)) {
             infoDialog(false)
@@ -194,40 +198,40 @@ class StatsActivity : AppCompatActivity() {
     private fun readScores(jsonObject: JSONObject) {
         Log.i("score", "read$jsonObject")
         try {
-            editTextStat1.setText(jsonObject.getString("1"))
-            editTextStat2.setText(jsonObject.getString("2"))
-            editTextStat3.setText(jsonObject.getString("3"))
-            editTextStat4.setText(jsonObject.getString("4"))
-            editTextStat5.setText(jsonObject.getString("5"))
-            editTextStat6.setText(jsonObject.getString("6"))
-            editTextStat21.setText(jsonObject.getString("21"))
-            editTextStat22.setText(jsonObject.getString("22"))
-            editTextStat23.setText(jsonObject.getString("23"))
-            editTextStat24.setText(jsonObject.getString("24"))
-            editTextStat25.setText(jsonObject.getString("25"))
-            editTextStat26.setText(jsonObject.getString("26"))
-            editTextStat27.setText(jsonObject.getString("27"))
-            editTextStat28.setText(jsonObject.getString("28"))
+            binding.editTextStat1.setText(jsonObject.getString("1"))
+            binding.editTextStat2.setText(jsonObject.getString("2"))
+            binding.editTextStat3.setText(jsonObject.getString("3"))
+            binding.editTextStat4.setText(jsonObject.getString("4"))
+            binding.editTextStat5.setText(jsonObject.getString("5"))
+            binding.editTextStat6.setText(jsonObject.getString("6"))
+            binding.editTextStat21.setText(jsonObject.getString("21"))
+            binding.editTextStat22.setText(jsonObject.getString("22"))
+            binding.editTextStat23.setText(jsonObject.getString("23"))
+            binding.editTextStat24.setText(jsonObject.getString("24"))
+            binding.editTextStat25.setText(jsonObject.getString("25"))
+            binding.editTextStat26.setText(jsonObject.getString("26"))
+            binding.editTextStat27.setText(jsonObject.getString("27"))
+            binding.editTextStat28.setText(jsonObject.getString("28"))
         } catch (e: JSONException) {
             e.printStackTrace()
         }
     }
 
     private fun disableEdit() {
-        editTextStat1.isEnabled = false
-        editTextStat2.isEnabled = false
-        editTextStat3.isEnabled = false
-        editTextStat4.isEnabled = false
-        editTextStat5.isEnabled = false
-        editTextStat6.isEnabled = false
-        editTextStat21.isEnabled = false
-        editTextStat22.isEnabled = false
-        editTextStat23.isEnabled = false
-        editTextStat24.isEnabled = false
-        editTextStat25.isEnabled = false
-        editTextStat26.isEnabled = false
-        editTextStat27.isEnabled = false
-        editTextStat28.isEnabled = false
+        binding.editTextStat1.isEnabled = false
+        binding.editTextStat2.isEnabled = false
+        binding.editTextStat3.isEnabled = false
+        binding.editTextStat4.isEnabled = false
+        binding.editTextStat5.isEnabled = false
+        binding.editTextStat6.isEnabled = false
+        binding.editTextStat21.isEnabled = false
+        binding.editTextStat22.isEnabled = false
+        binding.editTextStat23.isEnabled = false
+        binding.editTextStat24.isEnabled = false
+        binding.editTextStat25.isEnabled = false
+        binding.editTextStat26.isEnabled = false
+        binding.editTextStat27.isEnabled = false
+        binding.editTextStat28.isEnabled = false
     }
 
     companion object {

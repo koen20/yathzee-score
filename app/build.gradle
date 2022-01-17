@@ -3,7 +3,6 @@ apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: "com.google.android.gms.oss-licenses-plugin"
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 
 //def keystorePropertiesFile = rootProject.file("keystore.properties")
 //def keystoreProperties = new Properties()
@@ -40,6 +39,9 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
+    }
+    buildFeatures {
+        viewBinding true
     }
     buildToolsVersion '30.0.3'
 }

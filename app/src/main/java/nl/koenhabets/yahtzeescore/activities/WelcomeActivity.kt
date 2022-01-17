@@ -12,63 +12,66 @@ import android.os.Build
 import android.util.Log
 import android.view.View
 import android.view.Window
-import kotlinx.android.synthetic.main.activity_welcome.*
-
+import nl.koenhabets.yahtzeescore.databinding.ActivityWelcomeBinding
 
 class WelcomeActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityWelcomeBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_welcome)
+        binding = ActivityWelcomeBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
         changeStatusBarColor()
         supportActionBar?.hide()
 
-        checkBoxStartMultiplayer.setOnClickListener {
-            if (checkBoxStartMultiplayer.isChecked) {
-                tVM1.visibility = View.VISIBLE
-                tVM2.visibility = View.VISIBLE
+        binding.checkBoxStartMultiplayer.setOnClickListener {
+            if (binding.checkBoxStartMultiplayer.isChecked) {
+                binding.tVM1.visibility = View.VISIBLE
+                binding.tVM2.visibility = View.VISIBLE
             } else {
-                tVM1.visibility = View.INVISIBLE
-                tVM2.visibility = View.INVISIBLE
+                binding.tVM1.visibility = View.INVISIBLE
+                binding.tVM2.visibility = View.INVISIBLE
             }
         }
 
         val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         Log.i("multiplayer", sharedPref.getBoolean("multiplayer", false).toString())
-        checkBoxStartMultiplayer.setOnCheckedChangeListener { button, b ->
+        binding.checkBoxStartMultiplayer.setOnCheckedChangeListener { button, b ->
             if (!b) {
-                buttonOpenApp.visibility = View.VISIBLE
-                buttonNext.visibility = View.INVISIBLE
+                binding.buttonOpenApp.visibility = View.VISIBLE
+                binding.buttonNext.visibility = View.INVISIBLE
             }
         }
 
-        buttonNext.setOnClickListener {
-            buttonOpenApp.visibility = View.VISIBLE
-            buttonNext.visibility = View.INVISIBLE
-            tVM1.visibility = View.INVISIBLE
-            tVM2.visibility = View.INVISIBLE
-            checkBoxStartMultiplayer.visibility = View.INVISIBLE
-            editTextStartName.visibility = View.VISIBLE
-            textViewStartName.visibility = View.VISIBLE
+        binding.buttonNext.setOnClickListener {
+            binding.buttonOpenApp.visibility = View.VISIBLE
+            binding.buttonNext.visibility = View.INVISIBLE
+            binding.tVM1.visibility = View.INVISIBLE
+            binding.tVM2.visibility = View.INVISIBLE
+            binding.checkBoxStartMultiplayer.visibility = View.INVISIBLE
+            binding.editTextStartName.visibility = View.VISIBLE
+            binding.textViewStartName.visibility = View.VISIBLE
         }
 
-        buttonOpenApp.setOnClickListener {
+        binding.buttonOpenApp.setOnClickListener {
             val edit = sharedPref.edit()
-            if (checkBoxStartMultiplayer.isChecked) {
-                if (editTextStartName.text.toString().trim() != "") {
-                    edit.putBoolean("multiplayer", checkBoxStartMultiplayer.isChecked)
-                    edit.putBoolean("multiplayerAsked", checkBoxStartMultiplayer.isChecked)
+            if (binding.checkBoxStartMultiplayer.isChecked) {
+                if (binding.editTextStartName.text.toString().trim() != "") {
+                    edit.putBoolean("multiplayer", binding.checkBoxStartMultiplayer.isChecked)
+                    edit.putBoolean("multiplayerAsked", binding.checkBoxStartMultiplayer.isChecked)
                     edit.putBoolean("welcomeShown", true)
-                    edit.putString("name", editTextStartName.text.toString())
+                    edit.putString("name", binding.editTextStartName.text.toString())
                     edit.commit()
                     val myIntent = Intent(this, MainActivity::class.java)
                     this.startActivity(myIntent)
                     finish()
                 } else {
-                    editTextStartName.error = getString(R.string.username_required_error)
+                    binding.editTextStartName.error = getString(R.string.username_required_error)
                 }
             } else {
-                edit.putBoolean("multiplayer", checkBoxStartMultiplayer.isChecked)
-                edit.putBoolean("multiplayerAsked", checkBoxStartMultiplayer.isChecked)
+                edit.putBoolean("multiplayer", binding.checkBoxStartMultiplayer.isChecked)
+                edit.putBoolean("multiplayerAsked", binding.checkBoxStartMultiplayer.isChecked)
                 edit.putBoolean("welcomeShown", true)
                 edit.commit()
                 val myIntent = Intent(this, MainActivity::class.java)
