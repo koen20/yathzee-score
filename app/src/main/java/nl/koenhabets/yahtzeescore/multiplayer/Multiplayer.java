@@ -7,9 +7,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.gms.nearby.Nearby;
-import com.google.android.gms.nearby.messages.Message;
-import com.google.android.gms.nearby.messages.MessageListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -42,7 +39,6 @@ public class Multiplayer implements OnFailureListener {
     private Context context;
     private String name;
     private int score;
-    private Mqtt mqtt;
 
     public Multiplayer(Context context, String name, int score, String firebaseUserUid) {
         database = FirebaseDatabase.getInstance().getReference();
@@ -65,12 +61,6 @@ public class Multiplayer implements OnFailureListener {
     }
 
     public void initMultiplayer(Context context, String name) {
-        try {
-            mqtt = new Mqtt(context, name);
-            mqtt.setMqttListener(message -> proccessMessage(message, true, ""));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         updateTimer = new Timer();
         updateTimer.scheduleAtFixedRate(new updateTask(), 6000, updateInterval);
 
@@ -80,7 +70,7 @@ public class Multiplayer implements OnFailureListener {
         //get manually added players and add them to the players list
         SharedPreferences sharedPref = context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         try {
-            JSONArray playersM = new JSONArray(sharedPref.getString("players", ""));
+            JSONArray playersM = new JSONArray(sharedPref.getString("players", "[]"));
             for (int i = 0; i < playersM.length(); i++) {
                 boolean exists = false;
                 for (int k = 0; k < players.size(); k++) {
@@ -228,11 +218,6 @@ public class Multiplayer implements OnFailureListener {
 
     public void stopMultiplayer() {
         try {
-            mqtt.disconnectMqtt();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
             updateTimer.cancel();
             updateTimer.purge();
             updateTimer2.cancel();
@@ -334,11 +319,6 @@ public class Multiplayer implements OnFailureListener {
         Date date = new Date();
         if (!name.equals("")) {
             String text = name + ";" + (score) + ";" + date.getTime() + ";" + firebaseUserUid;
-            try {
-                mqtt.publish("score", text);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
             if (realtimeDatabaseEnabled) {
                 try {
                     database.child("score").child(firebaseUserUid).setValue(text);
