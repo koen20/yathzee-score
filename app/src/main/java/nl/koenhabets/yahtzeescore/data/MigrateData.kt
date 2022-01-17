@@ -1,20 +1,20 @@
-package nl.koenhabets.yahtzeescore.data;
+package nl.koenhabets.yahtzeescore.data
 
-import android.content.Context;
-import android.content.SharedPreferences;
+import android.content.Context
 
-public class MigrateData {
+class MigrateData(context: Context) {
     //run in onStart in main activity
-    public MigrateData(Context context) {
-        SharedPreferences sharedPref = context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+    init {
+        val sharedPref =
+            context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE)
         if (sharedPref.contains("scores") || sharedPref.contains("name")) {
             if (!sharedPref.contains("version")) {
-                sharedPref.edit().putInt("version", 1).apply();
-                sharedPref.edit().putBoolean("multiplayer", true).apply();
-                sharedPref.edit().putBoolean("multiplayerAsked", true).apply();
+                sharedPref.edit().putInt("version", 1).apply()
+                sharedPref.edit().putBoolean("multiplayer", true).apply()
+                sharedPref.edit().putBoolean("multiplayerAsked", true).apply()
             }
         } else {
-            sharedPref.edit().putInt("version", 1).apply();
+            sharedPref.edit().putInt("version", 1).apply()
         }
     }
 }

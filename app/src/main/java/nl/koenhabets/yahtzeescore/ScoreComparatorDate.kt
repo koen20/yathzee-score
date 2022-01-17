@@ -1,11 +1,9 @@
-package nl.koenhabets.yahtzeescore;
+package nl.koenhabets.yahtzeescore
 
-import java.util.Comparator;
+import java.util.*
 
-public class ScoreComparatorDate implements Comparator<ScoreItem> {
-    @Override
-    public int compare(ScoreItem scoreItem, ScoreItem scoreItem1) {
-
-        return scoreItem1.getDate().compareTo(scoreItem.getDate());
+class ScoreComparatorDate : Comparator<ScoreItem> {
+    override fun compare(scoreItem: ScoreItem, scoreItem1: ScoreItem): Int {
+        return scoreItem1.date.compareTo(scoreItem.date)
     }
 }
