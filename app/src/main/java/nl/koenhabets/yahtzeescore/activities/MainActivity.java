@@ -12,7 +12,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.ScrollingMovementMethod;
@@ -44,7 +43,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -106,9 +104,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setSupportActionBar(findViewById(R.id.toolbar));
-        if ("generic".equalsIgnoreCase(Build.BRAND)) {
-            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false);
-        }
+
         mAuth = FirebaseAuth.getInstance();
         SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         Log.i("multiplayer main", sharedPref.getBoolean("multiplayer", false) + "d");
@@ -305,8 +301,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
     }
 
     private void initMultiplayer() {
-        FirebaseCrashlytics.getInstance().setCustomKey("multiplayerEnabled", true);
-
         SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         Log.i("name", sharedPref.getString("name", ""));
         if (sharedPref.getString("name", "").equals("")) {
@@ -563,8 +557,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         if (!sharedPref.getBoolean("yahtzeeBonus", false)) {
             tvYahtzeeBonus.setVisibility(View.GONE);
             editText28.setVisibility(View.GONE);
-        } else {
-            FirebaseCrashlytics.getInstance().setCustomKey("yathzeeBonus", true);
         }
     }
 
