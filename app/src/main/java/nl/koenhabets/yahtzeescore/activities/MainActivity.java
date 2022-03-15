@@ -12,8 +12,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -40,7 +38,6 @@ import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -56,6 +53,7 @@ import java.util.Locale;
 
 import nl.koenhabets.yahtzeescore.AppUpdates;
 import nl.koenhabets.yahtzeescore.PlayerAdapter;
+import nl.koenhabets.yahtzeescore.ScoresView;
 import nl.koenhabets.yahtzeescore.dialog.GameEndDialog;
 import nl.koenhabets.yahtzeescore.dialog.PlayerScoreDialog;
 import nl.koenhabets.yahtzeescore.R;
@@ -64,33 +62,15 @@ import nl.koenhabets.yahtzeescore.data.MigrateData;
 import nl.koenhabets.yahtzeescore.multiplayer.Multiplayer;
 import nl.koenhabets.yahtzeescore.multiplayer.PlayerItem;
 
-public class MainActivity extends AppCompatActivity implements TextWatcher, OnFailureListener {
+public class MainActivity extends AppCompatActivity implements OnFailureListener {
     public static String name = "";
     Multiplayer multiplayer;
     boolean multiplayerEnabled;
-    private EditText editText1;
-    private EditText editText2;
-    private EditText editText3;
-    private EditText editText4;
-    private EditText editText5;
-    private EditText editText6;
-    private EditText editText21;
-    private EditText editText22;
-    private EditText editText23;
-    private EditText editText24;
-    private EditText editText25;
-    private EditText editText26;
-    private EditText editText27;
-    private EditText editText28;
-    private TextView tvTotalLeft;
-    private TextView tvTotalRight;
     private TextView tvTotal;
     private TextView tvOp;
+    private ScoresView scoresView;
     private RecyclerView recyclerView;
-    private TextView tvYahtzeeBonus;
-    private EditText editTextBonus;
-    private int totalLeft = 0;
-    private int totalRight = 0;
+    public static int score = 0;
     private FirebaseUser firebaseUser;
     private FirebaseAuth mAuth;
     private PlayerAdapter playerAdapter;
@@ -136,36 +116,38 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
 
         playerScoreDialog = new PlayerScoreDialog(this);
 
-        editText1 = findViewById(R.id.editText);
-        editText2 = findViewById(R.id.editText3);
-        editText3 = findViewById(R.id.editText4);
-        editText4 = findViewById(R.id.editText5);
-        editText5 = findViewById(R.id.editText6);
-        editText6 = findViewById(R.id.editText7);
-
-        editText21 = findViewById(R.id.editText9);
-        editText22 = findViewById(R.id.editText10);
-        editText23 = findViewById(R.id.editText8);
-        editText24 = findViewById(R.id.editText11);
-        editText25 = findViewById(R.id.editText12);
-        editText26 = findViewById(R.id.editText13);
-        editText27 = findViewById(R.id.editText14);
-        editText28 = findViewById(R.id.editText16);
-        editTextBonus = findViewById(R.id.editTextBonus);
-
         Button button = findViewById(R.id.button);
 
-        tvTotalLeft = findViewById(R.id.textViewTotalLeft);
-        tvTotalRight = findViewById(R.id.textViewTotalRight);
         tvTotal = findViewById(R.id.textViewTotal);
         tvOp = findViewById(R.id.textViewOp);
-        tvYahtzeeBonus = findViewById(R.id.textView7);
         recyclerView = findViewById(R.id.reyclerViewMultiplayer);
+        scoresView = findViewById(R.id.scoresView);
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         playerAdapter = new PlayerAdapter(this, players2);
         recyclerView.setAdapter(playerAdapter);
+
+        scoresView.setScoreListener(new ScoresView.ScoreListener() {
+            @Override
+            public void onScoreJson(@NonNull JSONObject jsonObjectScores) {
+                DataManager.saveScores(jsonObjectScores, getApplicationContext());
+                if (multiplayerEnabled && multiplayer != null) {
+                    multiplayer.setFullScore(jsonObjectScores);
+                    if (multiplayer.getPlayerAmount() == 0) {
+                        tvOp.setText(R.string.No_players_nearby);
+                        recyclerView.setVisibility(View.GONE);
+                    }
+                    setMultiplayerScore(score);
+                }
+            }
+
+            @Override
+            public void onScore(int score) {
+                MainActivity.score = score;
+                tvTotal.setText(getString(R.string.Total, score));
+            }
+        });
 
         playerAdapter.setClickListener((view, position) -> {
             if (position >= 0 && position < players2.size()) {
@@ -181,31 +163,9 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
         });
 
         try {
-            readScores(new JSONObject(sharedPref.getString("scores", "")));
+            scoresView.setScores(new JSONObject(sharedPref.getString("scores", "")));
         } catch (Exception ignored) {
         }
-
-        editText1.addTextChangedListener(this);
-        editText2.addTextChangedListener(this);
-        editText3.addTextChangedListener(this);
-        editText4.addTextChangedListener(this);
-        editText5.addTextChangedListener(this);
-        editText6.addTextChangedListener(this);
-        editText21.addTextChangedListener(this);
-        editText22.addTextChangedListener(this);
-        editText23.addTextChangedListener(this);
-        editText24.addTextChangedListener(this);
-        editText25.addTextChangedListener(this);
-        editText26.addTextChangedListener(this);
-        editText27.addTextChangedListener(this);
-        editText28.addTextChangedListener(this);
-
-        calculateTotal();
-
-        editText23.setOnClickListener(view -> setDefaultValue(editText23, 25));
-        editText24.setOnClickListener(view -> setDefaultValue(editText24, 30));
-        editText25.setOnClickListener(view -> setDefaultValue(editText25, 40));
-        editText26.setOnClickListener(view -> setDefaultValue(editText26, 50));
 
         final Context context = this;
         button.setOnClickListener(view -> saveScoreDialog(context));
@@ -256,48 +216,33 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
 
             });
             builder2.setPositiveButton(R.string.yes, (dialog2, id2) -> {
-                clearText();
+                scoresView.clearScores();
+                if (multiplayerEnabled) {
+                    multiplayer.updateNearbyScore();
+                }
             });
             builder2.show();
         });
         builder.setPositiveButton(R.string.yes, (dialog, id) -> {
-            if ((totalLeft + totalRight) < 5) {
+            if ((score) < 5) {
                 Toast toast = Toast.makeText(this, R.string.score_too_low_save, Toast.LENGTH_SHORT);
                 toast.show();
             } else {
                 SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
                 if (sharedPref.getBoolean("endDialog", true)) {
                     GameEndDialog gameEndDialog = new GameEndDialog(this);
-                    gameEndDialog.showDialog(totalLeft + totalRight);
+                    gameEndDialog.showDialog(score);
                 }
-                DataManager.saveScore(totalLeft + totalRight, createJsonScores(), getApplicationContext());
+                DataManager.saveScore(score, scoresView.createJsonScores(), getApplicationContext());
             }
-            clearText();
+            scoresView.clearScores();
+            if (multiplayerEnabled) {
+                multiplayer.updateNearbyScore();
+            }
         });
         builder.setNeutralButton(R.string.cancel, (dialogInterface, i) -> {
         });
         builder.show();
-    }
-
-    private void setDefaultValue(EditText editTextD, int value) {
-        int number = -1;
-        try {
-            number = Integer.parseInt(editTextD.getText().toString());
-        } catch (NumberFormatException ignored) {
-        }
-        if (number == value) {
-            editTextD.setText(String.valueOf(0));
-        } else if (number == 0) {
-            editTextD.setText("");
-        } else {
-            editTextD.setText(String.valueOf(value));
-        }
-
-        SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
-        if (!sharedPref.getBoolean("fieldHintShown", false)) {
-            Snackbar.make(findViewById(android.R.id.content), getString(R.string.press_again), Snackbar.LENGTH_LONG).show();
-            sharedPref.edit().putBoolean("fieldHintShown", true).apply();
-        }
     }
 
     private void initMultiplayer() {
@@ -333,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
     }
 
     private void initMultiplayerObj(FirebaseUser firebaseUser) {
-        multiplayer = new Multiplayer(this, name, (totalLeft + totalRight), firebaseUser.getUid());
+        multiplayer = new Multiplayer(this, name, score, firebaseUser.getUid());
         initNearby();
         multiplayer.setMultiplayerListener(new Multiplayer.MultiplayerListener() {
             @Override
@@ -349,7 +294,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                                 break;
                             }
                         }
-                        PlayerItem item = new PlayerItem(name, (totalLeft + totalRight), new Date().getTime(), true, true);
+                        PlayerItem item = new PlayerItem(name, score, new Date().getTime(), true, true);
                         players.add(item);
                         updateMultiplayerText(players);
                     }
@@ -365,8 +310,8 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
                 }
             }
         });
-        setMultiplayerScore(totalLeft + totalRight);
-        multiplayer.setFullScore(createJsonScores());
+        setMultiplayerScore(score);
+        multiplayer.setFullScore(scoresView.createJsonScores());
     }
 
     private void setMultiplayerScore(int score) {
@@ -554,10 +499,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
             tvOp.setVisibility(View.GONE);
         }
 
-        if (!sharedPref.getBoolean("yahtzeeBonus", false)) {
-            tvYahtzeeBonus.setVisibility(View.GONE);
-            editText28.setVisibility(View.GONE);
-        }
+        scoresView.setYahtzeeBonusVisibility(sharedPref.getBoolean("yahtzeeBonus", false));
     }
 
     @Override
@@ -579,184 +521,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, OnFa
     public void onResume() {
         SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         Log.i("onResume", "start");
-        if (!sharedPref.getBoolean("yahtzeeBonus", false)) {
-            tvYahtzeeBonus.setVisibility(View.GONE);
-            editText28.setVisibility(View.GONE);
-        } else {
-            tvYahtzeeBonus.setVisibility(View.VISIBLE);
-            editText28.setVisibility(View.VISIBLE);
-        }
+        scoresView.setYahtzeeBonusVisibility(sharedPref.getBoolean("yahtzeeBonus", false));
         super.onResume();
-    }
-
-    @Override
-    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-    }
-
-    @Override
-    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-        calculateTotal();
-        JSONObject jsonObjectScores = createJsonScores();
-        DataManager.saveScores(jsonObjectScores, getApplicationContext());
-        if (multiplayerEnabled && multiplayer != null) {
-            multiplayer.setFullScore(jsonObjectScores);
-            if (multiplayer.getPlayerAmount() == 0) {
-                tvOp.setText(R.string.No_players_nearby);
-                recyclerView.setVisibility(View.GONE);
-            }
-            setMultiplayerScore(totalLeft + totalRight);
-        }
-    }
-
-    @Override
-    public void afterTextChanged(Editable editable) {
-    }
-
-    private void calculateTotal() {
-        totalLeft = getTextInt(editText1) + getTextInt(editText2) + getTextInt(editText3) + getTextInt(editText4) + getTextInt(editText5) + getTextInt(editText6);
-        totalRight = getTextInt(editText21) + getTextInt(editText22) + getTextInt(editText23)
-                + getTextInt(editText24) + getTextInt(editText25) + getTextInt(editText26) + getTextInt(editText27) + getTextInt(editText28);
-        if (totalLeft >= 63) {
-            editTextBonus.setText(String.valueOf(35));
-            totalLeft = totalLeft + 35;
-        } else {
-            editTextBonus.setText(getString(R.string.bonus_value, 63 - totalLeft));
-        }
-        tvTotalLeft.setText(getString(R.string.left, totalLeft));
-        tvTotalRight.setText(getString(R.string.right, totalRight));
-        tvTotal.setText(getString(R.string.Total, (totalLeft + totalRight)));
-
-        int color = Color.BLACK;
-        // change editText color to white if there is a black theme
-        int nightModeFlags =
-                this.getResources().getConfiguration().uiMode &
-                        Configuration.UI_MODE_NIGHT_MASK;
-        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
-            color = Color.WHITE;
-        }
-        if (getTextInt(editText1) > 5) {
-            editText1.setTextColor(Color.RED);
-        } else {
-            editText1.setTextColor(color);
-        }
-        if (getTextInt(editText2) > 10 || !(getTextInt(editText2) % 2 == 0)) {
-            editText2.setTextColor(Color.RED);
-        } else {
-            editText2.setTextColor(color);
-        }
-        if (getTextInt(editText3) > 15 || !(getTextInt(editText3) % 3 == 0)) {
-            editText3.setTextColor(Color.RED);
-        } else {
-            editText3.setTextColor(color);
-        }
-        if (getTextInt(editText4) > 20 || !(getTextInt(editText4) % 4 == 0)) {
-            editText4.setTextColor(Color.RED);
-        } else {
-            editText4.setTextColor(color);
-        }
-        if (getTextInt(editText5) > 25 || !(getTextInt(editText5) % 5 == 0)) {
-            editText5.setTextColor(Color.RED);
-        } else {
-            editText5.setTextColor(color);
-        }
-        if (getTextInt(editText6) > 30 || !(getTextInt(editText6) % 6 == 0)) {
-            editText6.setTextColor(Color.RED);
-        } else {
-            editText6.setTextColor(color);
-        }
-
-        if (getTextInt(editText21) > 30) {
-            editText21.setTextColor(Color.RED);
-        } else {
-            editText21.setTextColor(color);
-        }
-
-        if (getTextInt(editText22) > 30) {
-            editText22.setTextColor(Color.RED);
-        } else {
-            editText22.setTextColor(color);
-        }
-        if (getTextInt(editText27) > 30) {
-            editText27.setTextColor(Color.RED);
-        } else {
-            editText27.setTextColor(color);
-        }
-    }
-
-    private int getTextInt(EditText editText) {
-        int d = 0;
-        try {
-            d = Integer.parseInt(editText.getText().toString());
-        } catch (Exception ignored) {
-        }
-        return d;
-    }
-
-    private void clearText() {
-        Log.i("clear", "tada");
-        editText1.setText("");
-        editText2.setText("");
-        editText3.setText("");
-        editText4.setText("");
-        editText5.setText("");
-        editText6.setText("");
-        editText21.setText("");
-        editText22.setText("");
-        editText23.setText("");
-        editText24.setText("");
-        editText25.setText("");
-        editText26.setText("");
-        editText27.setText("");
-        editText28.setText("");
-        if (multiplayerEnabled) {
-            multiplayer.updateNearbyScore();
-        }
-    }
-
-    private JSONObject createJsonScores() {
-        JSONObject jsonObject = new JSONObject();
-        Log.i("score", "saving");
-        try {
-            jsonObject.put("1", editText1.getText().toString());
-            jsonObject.put("2", editText2.getText().toString());
-            jsonObject.put("3", editText3.getText().toString());
-            jsonObject.put("4", editText4.getText().toString());
-            jsonObject.put("5", editText5.getText().toString());
-            jsonObject.put("6", editText6.getText().toString());
-            jsonObject.put("21", editText21.getText().toString());
-            jsonObject.put("22", editText22.getText().toString());
-            jsonObject.put("23", editText23.getText().toString());
-            jsonObject.put("24", editText24.getText().toString());
-            jsonObject.put("25", editText25.getText().toString());
-            jsonObject.put("26", editText26.getText().toString());
-            jsonObject.put("27", editText27.getText().toString());
-            jsonObject.put("28", editText28.getText().toString());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return jsonObject;
-    }
-
-
-    private void readScores(JSONObject jsonObject) {
-        Log.i("score", "read" + jsonObject.toString());
-        try {
-            editText1.setText(jsonObject.getString("1"));
-            editText2.setText(jsonObject.getString("2"));
-            editText3.setText(jsonObject.getString("3"));
-            editText4.setText(jsonObject.getString("4"));
-            editText5.setText(jsonObject.getString("5"));
-            editText6.setText(jsonObject.getString("6"));
-            editText21.setText(jsonObject.getString("21"));
-            editText22.setText(jsonObject.getString("22"));
-            editText23.setText(jsonObject.getString("23"));
-            editText24.setText(jsonObject.getString("24"));
-            editText25.setText(jsonObject.getString("25"));
-            editText26.setText(jsonObject.getString("26"));
-            editText27.setText(jsonObject.getString("27"));
-            editText28.setText(jsonObject.getString("28"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
     }
 }
