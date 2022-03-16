@@ -99,7 +99,7 @@ class ScoresView(context: Context, attributeSet: AttributeSet) : ConstraintLayou
 
     interface ScoreListener {
         fun onScoreJson(scores: JSONObject)
-        fun onScore(scores: Int)
+        fun onScore(score: Int)
     }
 
     fun setScoreListener(listener: ScoreListener) {

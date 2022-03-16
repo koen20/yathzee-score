@@ -66,7 +66,7 @@ public class ScoresActivity extends AppCompatActivity {
 
         scoreAdapter = new ScoreAdapter(this, scoreItems);
         listView.setAdapter(scoreAdapter);
-        scoreItems.addAll(DataManager.loadScores(this));
+        scoreItems.addAll(new DataManager().loadScores(this));
         scoreAdapter.notifyDataSetChanged();
         final Context context = this;
         listView.setOnItemLongClickListener((adapterView, view, i, l) -> {
@@ -244,7 +244,7 @@ public class ScoresActivity extends AppCompatActivity {
                 }
                 sharedPref.edit().putString("scoresSaved", jsonArrayExisting.toString()).apply();
                 scoreItems.clear();
-                scoreItems.addAll(DataManager.loadScores(this));
+                scoreItems.addAll(new DataManager().loadScores(this));
                 scoreAdapter.notifyDataSetChanged();
                 updateAverageScore();
 

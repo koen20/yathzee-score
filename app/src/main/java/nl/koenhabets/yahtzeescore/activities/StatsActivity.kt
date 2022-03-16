@@ -54,7 +54,7 @@ class StatsActivity : AppCompatActivity() {
         }
         val jsonObject = processScores(jsonArray)
         readScores(jsonObject)
-        val scoreItemsDate = DataManager.loadScores(this)
+        val scoreItemsDate = DataManager().loadScores(this)
         scoreItemsDate.sortWith { o1: ScoreItem, o2: ScoreItem -> o1.date.compareTo(o2.date) }
         var sum = 0f
         val gamesHidden: Int
@@ -95,7 +95,8 @@ class StatsActivity : AppCompatActivity() {
         dataSet.valueTextColor = Color.YELLOW
         val lineData = LineData(dataSet)
         binding.statChart1.data = lineData
-        binding.statChart1.description.text = getString(R.string.average_score_of_last, scoreItemsDate.size)
+        binding.statChart1.description.text =
+            getString(R.string.average_score_of_last, scoreItemsDate.size)
         lineChartSetFlags(binding.statChart1)
         val dataSetMa = LineDataSet(entriesMa, getString(R.string.average_score))
         dataSetMa.color = Color.BLUE

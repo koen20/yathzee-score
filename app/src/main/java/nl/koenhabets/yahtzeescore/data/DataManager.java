@@ -19,7 +19,10 @@ import nl.koenhabets.yahtzeescore.ScoreComparator;
 import nl.koenhabets.yahtzeescore.ScoreItem;
 
 public class DataManager {
-    public static void saveScore(int score, JSONObject jsonObjectScores, Context context) {
+    public DataManager() {}
+
+
+    public void saveScore(int score, JSONObject jsonObjectScores, Context context) {
         SharedPreferences sharedPref = context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         JSONArray jsonArray = new JSONArray();
         try {
@@ -45,7 +48,7 @@ public class DataManager {
     }
 
     //save the current score sheet to sharedpreferences.
-    public static void saveScores(JSONObject jsonObject, Context context) {
+    public void saveScores(JSONObject jsonObject, Context context) {
         Log.i("score", "saving");
         SharedPreferences sharedPref = context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         Log.i("saving", jsonObject.toString());
@@ -53,7 +56,7 @@ public class DataManager {
     }
 
     //load all scores from sharedprefrences, and sort them by descending by score
-    public static List<ScoreItem> loadScores(Context context) {
+    public List<ScoreItem> loadScores(Context context) {
         List<ScoreItem> scoreItems = new ArrayList<>();
         SharedPreferences sharedPref = context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         JSONArray jsonArray = new JSONArray();

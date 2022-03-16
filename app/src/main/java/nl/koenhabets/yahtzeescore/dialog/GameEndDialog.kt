@@ -20,7 +20,7 @@ class GameEndDialog(private var context: Context) {
         binding = EndGameDialogBinding.inflate(LayoutInflater.from(context))
         val view = binding.root
 
-        scoreItems = DataManager.loadScores(context)
+        scoreItems = DataManager().loadScores(context)
 
         var total = 0.0
         var count = 0.0
