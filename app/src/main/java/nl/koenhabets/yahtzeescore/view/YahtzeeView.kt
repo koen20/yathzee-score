@@ -1,4 +1,4 @@
-package nl.koenhabets.yahtzeescore
+package nl.koenhabets.yahtzeescore.view
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -8,15 +8,15 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
 import android.util.Log
-import android.view.View
 import android.widget.EditText
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.snackbar.Snackbar
+import nl.koenhabets.yahtzeescore.R
 import org.json.JSONException
 import org.json.JSONObject
 
-class ScoresView(context: Context, attributeSet: AttributeSet) : ConstraintLayout(
+class YahtzeeView(context: Context, attributeSet: AttributeSet) : ConstraintLayout(
     context,
     attributeSet
 ), TextWatcher {
@@ -95,6 +95,8 @@ class ScoresView(context: Context, attributeSet: AttributeSet) : ConstraintLayou
         tvTotalLeft = findViewById(R.id.textViewTotalLeft)
         tvTotalRight = findViewById(R.id.textViewTotalRight)
         tvYahtzeeBonus = findViewById(R.id.textView7)
+
+        calculateTotal()
     }
 
     interface ScoreListener {
