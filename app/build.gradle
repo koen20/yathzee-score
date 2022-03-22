@@ -18,11 +18,11 @@ android {
         }
     }*/
 
-    compileSdkVersion 31
+    compileSdkVersion 32
     defaultConfig {
         applicationId "nl.koenhabets.yahtzeescore"
         minSdkVersion 19
-        targetSdkVersion 31
+        targetSdkVersion 32
         versionCode 38
         versionName "1.17"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
