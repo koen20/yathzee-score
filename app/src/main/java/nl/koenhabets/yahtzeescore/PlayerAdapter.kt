@@ -1,84 +1,73 @@
-package nl.koenhabets.yahtzeescore;
+package nl.koenhabets.yahtzeescore
 
-import android.content.Context;
-import android.text.Html;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
+import android.content.Context
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.core.text.HtmlCompat
+import androidx.recyclerview.widget.RecyclerView
+import nl.koenhabets.yahtzeescore.multiplayer.PlayerItem
 
-import androidx.recyclerview.widget.RecyclerView;
-
-import java.util.List;
-
-import nl.koenhabets.yahtzeescore.multiplayer.PlayerItem;
-
-public class PlayerAdapter extends RecyclerView.Adapter<PlayerAdapter.ViewHolder> {
-    private final List<PlayerItem> mData;
-    private final LayoutInflater mInflater;
-    private ItemClickListener mClickListener;
-
-    public PlayerAdapter(Context context, List<PlayerItem> data) {
-        this.mInflater = LayoutInflater.from(context);
-        this.mData = data;
-    }
+class PlayerAdapter(context: Context?, data: List<PlayerItem>) :
+    RecyclerView.Adapter<PlayerAdapter.ViewHolder>() {
+    private val mData: List<PlayerItem>
+    private val mInflater: LayoutInflater
+    private var mClickListener: ItemClickListener? = null
 
     // inflates the row layout from xml when needed
-    @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = mInflater.inflate(R.layout.player_row, parent, false);
-        return new ViewHolder(view);
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = mInflater.inflate(R.layout.player_row, parent, false)
+        return ViewHolder(view)
     }
 
     // binds the data to the TextView in each row
-    @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        String player = mData.get(position).getName();
-        String score = Integer.toString(mData.get(position).getScore());
-        if (mData.get(position).isLocal()){
-            player = "<b>" + player + "</b>";
-            score = "<b>" + score + "</b>";
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        var player = mData[position].name
+        var score = mData[position].score.toString()
+        if (mData[position].isLocal) {
+            player = "<b>$player</b>"
+            score = "<b>$score</b>"
         }
-        holder.textViewPlayer.setText(Html.fromHtml(player));
-        holder.textViewScore.setText(Html.fromHtml(score));
+        holder.textViewPlayer.text = HtmlCompat.fromHtml(player, HtmlCompat.FROM_HTML_MODE_LEGACY)
+        holder.textViewScore.text = HtmlCompat.fromHtml(score, HtmlCompat.FROM_HTML_MODE_LEGACY)
     }
 
-    @Override
-    public int getItemCount() {
-        return mData.size();
+    override fun getItemCount(): Int {
+        return mData.size
     }
-
 
     // stores and recycles views as they are scrolled off screen
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        TextView textViewPlayer;
-        TextView textViewScore;
-
-        ViewHolder(View itemView) {
-            super(itemView);
-            textViewPlayer = itemView.findViewById(R.id.textViewPlayer);
-            textViewScore = itemView.findViewById(R.id.textViewScore);
-            itemView.setOnClickListener(this);
+    inner class ViewHolder internal constructor(itemView: View) : RecyclerView.ViewHolder(itemView),
+        View.OnClickListener {
+        var textViewPlayer: TextView = itemView.findViewById(R.id.textViewPlayer)
+        var textViewScore: TextView = itemView.findViewById(R.id.textViewScore)
+        override fun onClick(view: View) {
+            if (mClickListener != null) mClickListener!!.onItemClick(view, adapterPosition)
         }
 
-        @Override
-        public void onClick(View view) {
-            if (mClickListener != null) mClickListener.onItemClick(view, getAdapterPosition());
+        init {
+            itemView.setOnClickListener(this)
         }
     }
 
     // convenience method for getting data at click position
-    PlayerItem getItem(int id) {
-        return mData.get(id);
+    fun getItem(id: Int): PlayerItem {
+        return mData[id]
     }
 
     // allows clicks events to be caught
-    public void setClickListener(ItemClickListener itemClickListener) {
-        this.mClickListener = itemClickListener;
+    fun setClickListener(itemClickListener: ItemClickListener?) {
+        mClickListener = itemClickListener
     }
 
     // parent activity will implement this method to respond to click events
-    public interface ItemClickListener {
-        void onItemClick(View view, int position);
+    interface ItemClickListener {
+        fun onItemClick(view: View?, position: Int)
+    }
+
+    init {
+        mInflater = LayoutInflater.from(context)
+        mData = data
     }
 }

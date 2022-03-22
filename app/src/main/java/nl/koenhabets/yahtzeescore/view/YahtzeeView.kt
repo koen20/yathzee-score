@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.graphics.Color
 import android.text.Editable
+import android.text.InputType
 import android.text.TextWatcher
 import android.util.AttributeSet
 import android.util.Log
@@ -20,7 +21,7 @@ class YahtzeeView(context: Context, attributeSet: AttributeSet) : ConstraintLayo
     context,
     attributeSet
 ), TextWatcher {
-    lateinit var listener: ScoreListener
+    var listener: ScoreListener? = null
     private var editText1: EditText
     private var editText2: EditText
     private var editText3: EditText
@@ -39,6 +40,7 @@ class YahtzeeView(context: Context, attributeSet: AttributeSet) : ConstraintLayo
     private val tvTotalLeft: TextView
     private val tvTotalRight: TextView
     private val tvYahtzeeBonus: TextView
+    private var editDisabled = false
 
     private var totalLeft = 0
     private var totalRight = 0
@@ -114,8 +116,10 @@ class YahtzeeView(context: Context, attributeSet: AttributeSet) : ConstraintLayo
 
     override fun onTextChanged(charSequence: CharSequence?, i: Int, i1: Int, i2: Int) {
         calculateTotal()
-        listener.onScore(totalLeft + totalRight)
-        listener.onScoreJson(createJsonScores())
+        if (listener !== null) {
+            listener!!.onScore(totalLeft + totalRight)
+            listener!!.onScoreJson(createJsonScores())
+        }
     }
 
     override fun afterTextChanged(p0: Editable?) {
@@ -123,27 +127,29 @@ class YahtzeeView(context: Context, attributeSet: AttributeSet) : ConstraintLayo
     }
 
     private fun setDefaultValue(editTextD: EditText, value: Int) {
-        var number = -1
-        try {
-            number = editTextD.text.toString().toInt()
-        } catch (ignored: NumberFormatException) {
-        }
-        if (number == value) {
-            editTextD.setText(0.toString())
-        } else if (number == 0) {
-            editTextD.setText("")
-        } else {
-            editTextD.setText(value.toString())
-        }
-        val sharedPref: SharedPreferences =
-            context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE)
-        if (!sharedPref.getBoolean("fieldHintShown", false)) {
-            Snackbar.make(
-                this,
-                resources.getString(R.string.press_again),
-                Snackbar.LENGTH_LONG
-            ).show()
-            sharedPref.edit().putBoolean("fieldHintShown", true).apply()
+        if (!editDisabled) {
+            var number = -1
+            try {
+                number = editTextD.text.toString().toInt()
+            } catch (ignored: NumberFormatException) {
+            }
+            if (number == value) {
+                editTextD.setText(0.toString())
+            } else if (number == 0) {
+                editTextD.setText("")
+            } else {
+                editTextD.setText(value.toString())
+            }
+            val sharedPref: SharedPreferences =
+                context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE)
+            if (!sharedPref.getBoolean("fieldHintShown", false)) {
+                Snackbar.make(
+                    this,
+                    resources.getString(R.string.press_again),
+                    Snackbar.LENGTH_LONG
+                ).show()
+                sharedPref.edit().putBoolean("fieldHintShown", true).apply()
+            }
         }
     }
 
@@ -300,5 +306,23 @@ class YahtzeeView(context: Context, attributeSet: AttributeSet) : ConstraintLayo
         editText26.setText("")
         editText27.setText("")
         editText28.setText("")
+    }
+
+    fun disableEdit() {
+        editDisabled = true
+        editText1.inputType = InputType.TYPE_NULL
+        editText2.inputType = InputType.TYPE_NULL
+        editText3.inputType = InputType.TYPE_NULL
+        editText4.inputType = InputType.TYPE_NULL
+        editText5.inputType = InputType.TYPE_NULL
+        editText6.inputType = InputType.TYPE_NULL
+        editText21.inputType = InputType.TYPE_NULL
+        editText22.inputType = InputType.TYPE_NULL
+        editText23.inputType = InputType.TYPE_NULL
+        editText24.inputType = InputType.TYPE_NULL
+        editText25.inputType = InputType.TYPE_NULL
+        editText26.inputType = InputType.TYPE_NULL
+        editText27.inputType = InputType.TYPE_NULL
+        editText28.inputType = InputType.TYPE_NULL
     }
 }

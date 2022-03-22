@@ -66,6 +66,8 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
 
+        // Set the score to 0 to prevent showing the default score
+        binding.textViewTotal.text = getString(R.string.Total, 0)
         mAuth = FirebaseAuth.getInstance()
         val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
         Log.i("multiplayer main", sharedPref.getBoolean("multiplayer", false).toString() + "d")
@@ -121,26 +123,30 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
                 binding.textViewTotal.text = getString(R.string.Total, score)
             }
         })
-        playerAdapter!!.setClickListener { _: View?, position: Int ->
-            if (position >= 0 && position < players2.size) {
-                if (players2[position].name != name) {
-                    if (players2[position].fullScore.toString() != "{}") {
-                        playerScoreDialog!!.showDialog(this, players2, position)
-                    } else {
-                        Toast.makeText(
-                            this@MainActivity, R.string.score_nearby_unavailable,
-                            Toast.LENGTH_SHORT
-                        ).show()
+        playerAdapter!!.setClickListener(object : PlayerAdapter.ItemClickListener {
+            override fun onItemClick(view: View?, position: Int) {
+                if (position >= 0 && position < players2.size) {
+                    if (players2[position].name != name) {
+                        if (players2[position].fullScore.toString() != "{}") {
+                            playerScoreDialog!!.showDialog(this@MainActivity, players2, position)
+                        } else {
+                            Toast.makeText(
+                                this@MainActivity, R.string.score_nearby_unavailable,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
                 }
             }
-        }
+        })
         try {
             binding.scoresView.setScores(JSONObject(sharedPref.getString("scores", "")!!))
         } catch (ignored: Exception) {
         }
         val context: Context = this
         binding.button.setOnClickListener { saveScoreDialog(context) }
+
+        // Check for updates after 3 seconds
         Timer().schedule(
             object : TimerTask() {
                 override fun run() {
@@ -189,7 +195,11 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
                     val gameEndDialog = GameEndDialog(this)
                     gameEndDialog.showDialog(score)
                 }
-                DataManager().saveScore(score, binding.scoresView.createJsonScores(), applicationContext)
+                DataManager().saveScore(
+                    score,
+                    binding.scoresView.createJsonScores(),
+                    applicationContext
+                )
             }
             binding.scoresView.clearScores()
             if (multiplayerEnabled) {
