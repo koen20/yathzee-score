@@ -93,4 +93,7 @@
     <string name="next">Next</string>
     <string name="username_required_error">Username is required</string>
     <string name="username_for_multiplayer">Username for multiplayer</string>
+    <string name="yatzy">Yatzy</string>
+    <string name="one_pair">One pair</string>
+    <string name="two_pairs">Two pairs</string>
 </resources>

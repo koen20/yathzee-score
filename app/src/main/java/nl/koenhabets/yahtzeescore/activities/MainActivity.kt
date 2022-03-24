@@ -11,15 +11,14 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.nearby.Nearby
@@ -42,7 +41,8 @@ import nl.koenhabets.yahtzeescore.dialog.PlayerScoreDialog
 import nl.koenhabets.yahtzeescore.multiplayer.Multiplayer
 import nl.koenhabets.yahtzeescore.multiplayer.Multiplayer.MultiplayerListener
 import nl.koenhabets.yahtzeescore.multiplayer.PlayerItem
-import nl.koenhabets.yahtzeescore.view.YahtzeeView.ScoreListener
+import nl.koenhabets.yahtzeescore.view.ScoreView
+import nl.koenhabets.yahtzeescore.view.YahtzeeView
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -59,12 +59,15 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
     var mMessageListener: MessageListener? = null
     private var mMessage: Message? = null
     private lateinit var binding: ActivityMainBinding
+    private lateinit var scoreView: ScoreView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(LayoutInflater.from(this))
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
+
+        setCurrentScoreView()
 
         // Set the score to 0 to prevent showing the default score
         binding.textViewTotal.text = getString(R.string.Total, 0)
@@ -105,7 +108,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
         binding.recyclerViewMultiplayer.layoutManager = layoutManager
         playerAdapter = PlayerAdapter(this, players2)
         binding.recyclerViewMultiplayer.adapter = playerAdapter
-        binding.scoresView.setScoreListener(object : ScoreListener {
+        scoreView.setScoreListener(object : ScoreView.ScoreListener {
             override fun onScoreJson(scores: JSONObject) {
                 DataManager().saveScores(scores, applicationContext)
                 if (multiplayerEnabled && multiplayer != null) {
@@ -140,7 +143,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
             }
         })
         try {
-            binding.scoresView.setScores(JSONObject(sharedPref.getString("scores", "")!!))
+            scoreView.setScores(JSONObject(sharedPref.getString("scores", "")!!))
         } catch (ignored: Exception) {
         }
         val context: Context = this
@@ -158,6 +161,23 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
             },
             3000
         )
+    }
+
+    private fun setCurrentScoreView() {
+        scoreView = YahtzeeView(this, null)
+        scoreView.id = View.generateViewId()
+        scoreView.layoutParams = ViewGroup.LayoutParams(
+            ConstraintLayout.LayoutParams.MATCH_PARENT,
+            ConstraintLayout.LayoutParams.WRAP_CONTENT
+        )
+        binding.constraintScores.addView(scoreView)
+        val set = ConstraintSet()
+        set.clone(binding.constraintScores)
+        set.connect(scoreView.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        set.connect(scoreView.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+        set.connect(binding.textViewTotal.id, ConstraintSet.TOP, scoreView.id, ConstraintSet.BOTTOM)
+        set.connect(binding.textViewOp.id, ConstraintSet.TOP, scoreView.id, ConstraintSet.BOTTOM)
+        set.applyTo(binding.constraintScores)
     }
 
     private fun showUpdateToast(finalUpdateText: String) {
@@ -178,7 +198,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
             builder2.setTitle(R.string.score_not_save_conf)
             builder2.setNegativeButton(R.string.no) { _: DialogInterface, _: Int -> }
             builder2.setPositiveButton(R.string.yes) { _: DialogInterface, _: Int ->
-                binding.scoresView.clearScores()
+                scoreView.clearScores()
                 if (multiplayerEnabled) {
                     multiplayer!!.updateNearbyScore()
                 }
@@ -197,11 +217,11 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
                 }
                 DataManager().saveScore(
                     score,
-                    binding.scoresView.createJsonScores(),
+                    scoreView.createJsonScores(),
                     applicationContext
                 )
             }
-            binding.scoresView.clearScores()
+            scoreView.clearScores()
             if (multiplayerEnabled) {
                 multiplayer!!.updateNearbyScore()
             }
@@ -273,7 +293,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
             }
         })
         setMultiplayerScore(score)
-        multiplayer!!.setFullScore(binding.scoresView.createJsonScores())
+        multiplayer!!.setFullScore(scoreView.createJsonScores())
     }
 
     private fun setMultiplayerScore(score: Int) {
@@ -437,7 +457,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
             binding.recyclerViewMultiplayer.visibility = View.GONE
             binding.recyclerViewMultiplayer.visibility = View.GONE
         }
-        binding.scoresView.setYahtzeeBonusVisibility(sharedPref.getBoolean("yahtzeeBonus", false))
+        scoreView.setSpecialFieldVis(sharedPref.getBoolean("yahtzeeBonus", false))
     }
 
     public override fun onStop() {
@@ -459,7 +479,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
     public override fun onResume() {
         val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
         Log.i("onResume", "start")
-        binding.scoresView.setYahtzeeBonusVisibility(sharedPref.getBoolean("yahtzeeBonus", false))
+        scoreView.setSpecialFieldVis(sharedPref.getBoolean("yahtzeeBonus", false))
         super.onResume()
     }
 
