@@ -56,7 +56,7 @@ class YahtzeeView(context: Context, attributeSet: AttributeSet?) : ScoreView(
         editText28 = findViewById(R.id.editText16)
         editTextBonus = findViewById(R.id.editTextBonus)
 
-        editTextList.add(ScoreViewItem(editText1, "1", null))
+        editTextList.add(ScoreViewItem(editText1, "1", null, 5))
         editTextList.add(ScoreViewItem(editText2, "2", null))
         editTextList.add(ScoreViewItem(editText3, "3", null))
         editTextList.add(ScoreViewItem(editText4, "4", null))
