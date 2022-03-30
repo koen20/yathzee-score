@@ -240,12 +240,13 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
                 val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
                 if (sharedPref.getBoolean("endDialog", true)) {
                     val gameEndDialog = GameEndDialog(this)
-                    gameEndDialog.showDialog(score)
+                    gameEndDialog.showDialog(score, lastInitGame!!)
                 }
                 DataManager().saveScore(
                     score,
                     scoreView.createJsonScores(),
-                    applicationContext
+                    applicationContext,
+                    lastInitGame
                 )
             }
             scoreView.clearScores()

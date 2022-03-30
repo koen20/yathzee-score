@@ -54,7 +54,7 @@ class StatsActivity : AppCompatActivity() {
         }
         val jsonObject = processScores(jsonArray)
         readScores(jsonObject)
-        val scoreItemsDate = DataManager().loadScores(this)
+        val scoreItemsDate = DataManager().loadScores(this, null) //todo filter games
         scoreItemsDate.sortWith { o1: ScoreItem, o2: ScoreItem -> o1.date.compareTo(o2.date) }
         var sum = 0f
         val gamesHidden: Int

@@ -41,6 +41,7 @@ import nl.koenhabets.yahtzeescore.ScoreComparator;
 import nl.koenhabets.yahtzeescore.ScoreComparatorDate;
 import nl.koenhabets.yahtzeescore.ScoreItem;
 import nl.koenhabets.yahtzeescore.data.DataManager;
+import nl.koenhabets.yahtzeescore.data.Game;
 
 public class ScoresActivity extends AppCompatActivity {
     private List<ScoreItem> scoreItems = new ArrayList<>();
@@ -63,10 +64,10 @@ public class ScoresActivity extends AppCompatActivity {
         textViewAverage = findViewById(R.id.textViewAverage);
         textViewAmount = findViewById(R.id.textViewAmount);
 
-
         scoreAdapter = new ScoreAdapter(this, scoreItems);
         listView.setAdapter(scoreAdapter);
-        scoreItems.addAll(new DataManager().loadScores(this));
+        SharedPreferences sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+        scoreItems.addAll(new DataManager().loadScores(this, Game.valueOf(sharedPref.getString("game", "YahtzeeBonus"))));
         scoreAdapter.notifyDataSetChanged();
         final Context context = this;
         listView.setOnItemLongClickListener((adapterView, view, i, l) -> {
@@ -114,9 +115,10 @@ public class ScoresActivity extends AppCompatActivity {
         listView.setOnItemClickListener((parent, view, position, id) -> {
             final ScoreItem item = scoreItems.get(position);
             if (!item.getAllScores().toString().equals("{}")) {
-                Intent myIntent = new Intent(getApplicationContext(), ScoreActivity.class);
-                myIntent.putExtra("data", item.getAllScores().toString());
-                startActivity(myIntent);
+                Intent intent = new Intent(getApplicationContext(), ScoreActivity.class);
+                intent.putExtra("data", item.getAllScores().toString());
+                intent.putExtra("game", item.getGame().toString());
+                startActivity(intent);
             }
         });
         updateAverageScore();
@@ -244,7 +246,7 @@ public class ScoresActivity extends AppCompatActivity {
                 }
                 sharedPref.edit().putString("scoresSaved", jsonArrayExisting.toString()).apply();
                 scoreItems.clear();
-                scoreItems.addAll(new DataManager().loadScores(this));
+                scoreItems.addAll(new DataManager().loadScores(this, null));
                 scoreAdapter.notifyDataSetChanged();
                 updateAverageScore();
 

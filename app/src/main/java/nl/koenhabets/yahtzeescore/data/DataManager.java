@@ -19,10 +19,11 @@ import nl.koenhabets.yahtzeescore.ScoreComparator;
 import nl.koenhabets.yahtzeescore.ScoreItem;
 
 public class DataManager {
-    public DataManager() {}
+    public DataManager() {
+    }
 
-
-    public void saveScore(int score, JSONObject jsonObjectScores, Context context) {
+    // save the game to shared preferences
+    public void saveScore(int score, JSONObject jsonObjectScores, Context context, Game game) {
         SharedPreferences sharedPref = context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         JSONArray jsonArray = new JSONArray();
         try {
@@ -37,7 +38,7 @@ public class DataManager {
             jsonObject.put("date", new Date().getTime());
             jsonObject.put("id", UUID.randomUUID().toString());
             jsonObject.put("allScores", jsonObjectScores);
-            jsonObject.put("yahtzeeBonus", sharedPref.getBoolean("yahtzeeBonus", false));
+            jsonObject.put("game", game);
             jsonArray.put(jsonObject);
             sharedPref.edit().putString("scoresSaved", jsonArray.toString()).apply();
         } catch (JSONException e) {
@@ -47,7 +48,7 @@ public class DataManager {
         backupManager.dataChanged();
     }
 
-    //save the current score sheet to sharedpreferences.
+    //save the current score sheet to shared preferences.
     public void saveScores(JSONObject jsonObject, Context context, String game) {
         Log.i("score", "saving");
         SharedPreferences sharedPref = context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
@@ -55,8 +56,8 @@ public class DataManager {
         sharedPref.edit().putString("scores-" + game, jsonObject.toString()).apply();
     }
 
-    //load all scores from sharedprefrences, and sort them by descending by score
-    public List<ScoreItem> loadScores(Context context) {
+    //get all scores from sharedprefrences, and sort them descending by score
+    public List<ScoreItem> loadScores(Context context, Game gameFilter) {
         List<ScoreItem> scoreItems = new ArrayList<>();
         SharedPreferences sharedPref = context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         JSONArray jsonArray = new JSONArray();
@@ -74,13 +75,34 @@ public class DataManager {
                     allScores = jsonObject.getJSONObject("allScores");
                 } catch (JSONException ignored) {
                 }
+                Game game = Game.YahtzeeBonus;
+                boolean filterEnabled = false;
 
-                ScoreItem scoreItem = new ScoreItem(jsonObject.getInt("score"), jsonObject.getLong("date"), jsonObject.getString("id"), allScores);
-                scoreItems.add(scoreItem);
+                if (jsonObject.has("game")){
+                    game = Game.valueOf(jsonObject.getString("game"));
+                    filterEnabled = true;
+                } else {
+                    if (jsonObject.has("yahtzeeBonus")) {
+                        if (!jsonObject.getBoolean("yahtzeeBonus")) {
+                            game = Game.Yahtzee;
+                        }
+                    }
+                }
+
+                if (gameFilter == null) {
+                    filterEnabled = false;
+                } else if (gameFilter == Game.Yatzy) {
+                    filterEnabled = true;
+                }
+
+                if (!filterEnabled || game == gameFilter) {
+                    ScoreItem scoreItem = new ScoreItem(jsonObject.getInt("score"), jsonObject.getLong("date"),
+                            jsonObject.getString("id"), game, allScores);
+                    scoreItems.add(scoreItem);
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
         }
         Collections.sort(scoreItems, new ScoreComparator());
         return scoreItems;
