@@ -115,7 +115,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
                 if (position >= 0 && position < players2.size) {
                     if (players2[position].name != name) {
                         if (players2[position].fullScore.toString() != "{}") {
-                            playerScoreDialog!!.showDialog(this@MainActivity, players2, position)
+                            playerScoreDialog!!.showDialog(this@MainActivity, players2, position, lastInitGame?: Game.YahtzeeBonus)
                         } else {
                             Toast.makeText(
                                 this@MainActivity, R.string.score_nearby_unavailable,
