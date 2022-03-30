@@ -48,11 +48,11 @@ public class DataManager {
     }
 
     //save the current score sheet to sharedpreferences.
-    public void saveScores(JSONObject jsonObject, Context context) {
+    public void saveScores(JSONObject jsonObject, Context context, String game) {
         Log.i("score", "saving");
         SharedPreferences sharedPref = context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
         Log.i("saving", jsonObject.toString());
-        sharedPref.edit().putString("scores", jsonObject.toString()).apply();
+        sharedPref.edit().putString("scores-" + game, jsonObject.toString()).apply();
     }
 
     //load all scores from sharedprefrences, and sort them by descending by score

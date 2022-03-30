@@ -12,9 +12,13 @@
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/other">
-        <SwitchPreferenceCompat
-            app:key="yahtzeeBonus"
-            app:title="@string/yahtzee_bonus" />
+        <ListPreference
+            app:defaultValue="Yahtzee"
+            app:entries="@array/game_options"
+            app:entryValues="@array/game_values"
+            app:key="game"
+            app:title="Game"
+            app:useSimpleSummaryProvider="true" />
         <SwitchPreference
             android:defaultValue="true"
             android:key="endDialog"

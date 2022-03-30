@@ -34,6 +34,7 @@ import nl.koenhabets.yahtzeescore.AppUpdates
 import nl.koenhabets.yahtzeescore.PlayerAdapter
 import nl.koenhabets.yahtzeescore.R
 import nl.koenhabets.yahtzeescore.data.DataManager
+import nl.koenhabets.yahtzeescore.data.Game
 import nl.koenhabets.yahtzeescore.data.MigrateData
 import nl.koenhabets.yahtzeescore.databinding.ActivityMainBinding
 import nl.koenhabets.yahtzeescore.dialog.GameEndDialog
@@ -43,6 +44,7 @@ import nl.koenhabets.yahtzeescore.multiplayer.Multiplayer.MultiplayerListener
 import nl.koenhabets.yahtzeescore.multiplayer.PlayerItem
 import nl.koenhabets.yahtzeescore.view.ScoreView
 import nl.koenhabets.yahtzeescore.view.YahtzeeView
+import nl.koenhabets.yahtzeescore.view.YatzyView
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -60,14 +62,13 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
     private var mMessage: Message? = null
     private lateinit var binding: ActivityMainBinding
     private lateinit var scoreView: ScoreView
+    private var lastInitGame: Game? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(LayoutInflater.from(this))
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
-
-        setCurrentScoreView()
 
         // Set the score to 0 to prevent showing the default score
         binding.textViewTotal.text = getString(R.string.Total, 0)
@@ -108,24 +109,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
         binding.recyclerViewMultiplayer.layoutManager = layoutManager
         playerAdapter = PlayerAdapter(this, players2)
         binding.recyclerViewMultiplayer.adapter = playerAdapter
-        scoreView.setScoreListener(object : ScoreView.ScoreListener {
-            override fun onScoreJson(scores: JSONObject) {
-                DataManager().saveScores(scores, applicationContext)
-                if (multiplayerEnabled && multiplayer != null) {
-                    multiplayer!!.setFullScore(scores)
-                    if (multiplayer!!.playerAmount == 0) {
-                        binding.textViewOp.setText(R.string.No_players_nearby)
-                        binding.recyclerViewMultiplayer.visibility = View.GONE
-                    }
-                    setMultiplayerScore(score)
-                }
-            }
 
-            override fun onScore(score: Int) {
-                Companion.score = score
-                binding.textViewTotal.text = getString(R.string.Total, score)
-            }
-        })
         playerAdapter!!.setClickListener(object : PlayerAdapter.ItemClickListener {
             override fun onItemClick(view: View?, position: Int) {
                 if (position >= 0 && position < players2.size) {
@@ -142,10 +126,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
                 }
             }
         })
-        try {
-            scoreView.setScores(JSONObject(sharedPref.getString("scores", "")!!))
-        } catch (ignored: Exception) {
-        }
+
         val context: Context = this
         binding.button.setOnClickListener { saveScoreDialog(context) }
 
@@ -163,8 +144,54 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
         )
     }
 
-    private fun setCurrentScoreView() {
-        scoreView = YahtzeeView(this, null)
+    private fun initScoreView() {
+        val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
+        val game = sharedPref.getString("game", Game.Yahtzee.toString())
+
+        scoreView.setScoreListener(object : ScoreView.ScoreListener {
+            override fun onScoreJson(scores: JSONObject) {
+                DataManager().saveScores(scores, applicationContext, game)
+                if (multiplayerEnabled && multiplayer != null) {
+                    multiplayer!!.setFullScore(scores)
+                    if (multiplayer!!.playerAmount == 0) {
+                        binding.textViewOp.setText(R.string.No_players_nearby)
+                        binding.recyclerViewMultiplayer.visibility = View.GONE
+                    }
+                    setMultiplayerScore(score)
+                }
+            }
+
+            override fun onScore(score: Int) {
+                Companion.score = score
+                binding.textViewTotal.text = getString(R.string.Total, score)
+            }
+        })
+
+        try {
+            scoreView.setScores(JSONObject(sharedPref.getString("scores-$game", "")!!))
+        } catch (ignored: Exception) {
+        }
+    }
+
+    private fun setCurrentScoreView(game: Game) {
+        if (this::scoreView.isInitialized) {
+            binding.constraintScores.removeView(scoreView)
+        }
+        lastInitGame = game
+        when (game) {
+            Game.Yahtzee -> {
+                scoreView = YahtzeeView(this, null)
+                scoreView.setSpecialFieldVis(false)
+            }
+            Game.YahtzeeBonus -> {
+                scoreView = YahtzeeView(this, null)
+                scoreView.setSpecialFieldVis(true)
+            }
+            Game.Yatzy -> {
+                scoreView = YatzyView(this, null)
+            }
+        }
+
         scoreView.id = View.generateViewId()
         scoreView.layoutParams = ViewGroup.LayoutParams(
             ConstraintLayout.LayoutParams.MATCH_PARENT,
@@ -446,6 +473,10 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
         Log.i("onStart", "start")
         val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
         MigrateData(this)
+        if (Game.valueOf(sharedPref.getString("game", Game.Yahtzee.toString())!!) !== lastInitGame) {
+            setCurrentScoreView(Game.valueOf(sharedPref.getString("game", Game.Yahtzee.toString())!!))
+            initScoreView()
+        }
         if (sharedPref.getBoolean("multiplayer", false)) {
             initMultiplayer()
             multiplayerEnabled = true
@@ -457,7 +488,6 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
             binding.recyclerViewMultiplayer.visibility = View.GONE
             binding.recyclerViewMultiplayer.visibility = View.GONE
         }
-        scoreView.setSpecialFieldVis(sharedPref.getBoolean("yahtzeeBonus", false))
     }
 
     public override fun onStop() {
@@ -479,7 +509,10 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
     public override fun onResume() {
         val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
         Log.i("onResume", "start")
-        scoreView.setSpecialFieldVis(sharedPref.getBoolean("yahtzeeBonus", false))
+        if (Game.valueOf(sharedPref.getString("game", Game.Yahtzee.toString())!!) !== lastInitGame) {
+            setCurrentScoreView(Game.valueOf(sharedPref.getString("game", Game.Yahtzee.toString())!!))
+            initScoreView()
+        }
         super.onResume()
     }
 

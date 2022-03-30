@@ -16,5 +16,33 @@ class MigrateData(context: Context) {
         } else {
             sharedPref.edit().putInt("version", 1).apply()
         }
+
+        // The version property was not being used correctly in previous versions. config-version is a new variable added in version 1.18.
+        var configVersion = sharedPref.getInt("config-version", 0)
+        val editor = sharedPref.edit()
+
+        // This is to prevent the config version from skipping 0 if the app is upgraded from an old version to a future version.
+        if (sharedPref.contains("scores")) {
+            configVersion = 0
+        }
+
+        // V1.18 (39) migrate from only Yahtzee to multiple game types
+        if (configVersion == 0) {
+            if (sharedPref.contains("scores")) {
+                if (sharedPref.getBoolean("yahtzeeBonus", false)) {
+                    editor.putString("scores-${Game.YahtzeeBonus}", sharedPref.getString("scores", ""))
+                    editor.putString("game", Game.YahtzeeBonus.toString())
+                } else {
+                    editor.putString("scores-${Game.Yahtzee}", sharedPref.getString("scores", ""))
+                    editor.putString("game", Game.Yahtzee.toString())
+                }
+                editor.remove("scores")
+                editor.remove("yahtzeeBonus")
+            }
+            configVersion = 1
+        }
+
+        editor.putInt("config-version", configVersion)
+        editor.apply()
     }
 }
