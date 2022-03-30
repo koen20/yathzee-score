@@ -146,7 +146,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
 
     private fun initScoreView() {
         val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
-        val game = sharedPref.getString("game", Game.Yahtzee.toString())
+        val game = Game.valueOf(sharedPref.getString("game", Game.Yahtzee.toString())!!)
 
         scoreView.setScoreListener(object : ScoreView.ScoreListener {
             override fun onScoreJson(scores: JSONObject) {
@@ -246,7 +246,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
                     score,
                     scoreView.createJsonScores(),
                     applicationContext,
-                    lastInitGame
+                    lastInitGame!!
                 )
             }
             scoreView.clearScores()

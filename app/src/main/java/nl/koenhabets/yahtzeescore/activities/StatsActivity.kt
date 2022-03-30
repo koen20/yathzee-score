@@ -7,7 +7,6 @@ import nl.koenhabets.yahtzeescore.R
 import org.json.JSONArray
 import org.json.JSONException
 import com.github.mikephil.charting.charts.LineChart
-import java.util.ArrayList
 import org.json.JSONObject
 import nl.koenhabets.yahtzeescore.ScoreItem
 import nl.koenhabets.yahtzeescore.data.DataManager
@@ -21,10 +20,12 @@ import android.graphics.Color
 import android.util.Log
 import android.view.*
 import com.github.mikephil.charting.data.Entry
+import nl.koenhabets.yahtzeescore.ScoreComparatorDate
 import nl.koenhabets.yahtzeescore.databinding.ActivityStatsBinding
 import java.lang.NumberFormatException
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.util.*
 
 class StatsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityStatsBinding
@@ -55,7 +56,7 @@ class StatsActivity : AppCompatActivity() {
         val jsonObject = processScores(jsonArray)
         readScores(jsonObject)
         val scoreItemsDate = DataManager().loadScores(this, null) //todo filter games
-        scoreItemsDate.sortWith { o1: ScoreItem, o2: ScoreItem -> o1.date.compareTo(o2.date) }
+        Collections.sort(scoreItemsDate, ScoreComparatorDate())
         var sum = 0f
         val gamesHidden: Int
         if (scoreItemsDate.size > 200) {
