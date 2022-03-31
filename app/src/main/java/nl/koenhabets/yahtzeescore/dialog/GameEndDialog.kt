@@ -7,6 +7,7 @@ import androidx.appcompat.app.AlertDialog
 import nl.koenhabets.yahtzeescore.R
 import nl.koenhabets.yahtzeescore.ScoreItem
 import nl.koenhabets.yahtzeescore.data.DataManager
+import nl.koenhabets.yahtzeescore.data.Game
 import nl.koenhabets.yahtzeescore.databinding.EndGameDialogBinding
 import java.util.*
 
@@ -14,13 +15,13 @@ class GameEndDialog(private var context: Context) {
     private var scoreItems: List<ScoreItem> = ArrayList()
     private lateinit var binding: EndGameDialogBinding
 
-    fun showDialog(score: Int) {
+    fun showDialog(score: Int, game: Game) {
         val builder = AlertDialog.Builder(context)
 
         binding = EndGameDialogBinding.inflate(LayoutInflater.from(context))
         val view = binding.root
 
-        scoreItems = DataManager.loadScores(context)
+        scoreItems = DataManager().loadScores(context, game)
 
         var total = 0.0
         var count = 0.0

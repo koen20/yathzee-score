@@ -4,12 +4,9 @@ import android.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import nl.koenhabets.yahtzeescore.R
-import org.json.JSONArray
 import org.json.JSONException
 import com.github.mikephil.charting.charts.LineChart
-import java.util.ArrayList
 import org.json.JSONObject
-import nl.koenhabets.yahtzeescore.ScoreItem
 import nl.koenhabets.yahtzeescore.data.DataManager
 import nl.koenhabets.yahtzeescore.MovingAverage
 import com.github.mikephil.charting.data.LineDataSet
@@ -20,14 +17,22 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.util.Log
 import android.view.*
+import androidx.constraintlayout.widget.ConstraintSet
 import com.github.mikephil.charting.data.Entry
+import nl.koenhabets.yahtzeescore.ScoreComparatorDate
+import nl.koenhabets.yahtzeescore.ScoreItem
+import nl.koenhabets.yahtzeescore.data.Game
 import nl.koenhabets.yahtzeescore.databinding.ActivityStatsBinding
+import nl.koenhabets.yahtzeescore.view.ScoreView
 import java.lang.NumberFormatException
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.util.*
+import kotlin.math.roundToInt
 
 class StatsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityStatsBinding
+    private lateinit var scoreView: ScoreView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,24 +43,20 @@ class StatsActivity : AppCompatActivity() {
 
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
-        var jsonArray = JSONArray()
-        try {
-            jsonArray = JSONArray(sharedPref.getString("scoresSaved", ""))
-        } catch (e: JSONException) {
-            e.printStackTrace()
-        }
+        val game = Game.valueOf(sharedPref.getString("game", "Yahtzee")!!)
+        setScoreView(game)
+        scoreView.setTotalVisibility(false)
+        scoreView.disableEdit()
+
+        val scoreItemsDate = DataManager().loadScores(this, game)
 
         val entries: MutableList<Entry> = ArrayList()
         val entriesMa: MutableList<Entry> = ArrayList()
         binding.appBarLayout.visibility = View.GONE
-        if (!sharedPref.getBoolean("yahtzeeBonus", false)) {
-            binding.textViewStatBonus.visibility = View.GONE
-            binding.editTextStat28.visibility = View.GONE
-        }
-        val jsonObject = processScores(jsonArray)
-        readScores(jsonObject)
-        val scoreItemsDate = DataManager.loadScores(this)
-        scoreItemsDate.sortWith { o1: ScoreItem, o2: ScoreItem -> o1.date.compareTo(o2.date) }
+
+        val jsonObject = processScores(scoreItemsDate)
+        scoreView.setScores(jsonObject)
+        Collections.sort(scoreItemsDate, ScoreComparatorDate())
         var sum = 0f
         val gamesHidden: Int
         if (scoreItemsDate.size > 200) {
@@ -95,7 +96,8 @@ class StatsActivity : AppCompatActivity() {
         dataSet.valueTextColor = Color.YELLOW
         val lineData = LineData(dataSet)
         binding.statChart1.data = lineData
-        binding.statChart1.description.text = getString(R.string.average_score_of_last, scoreItemsDate.size)
+        binding.statChart1.description.text =
+            getString(R.string.average_score_of_last, scoreItemsDate.size)
         lineChartSetFlags(binding.statChart1)
         val dataSetMa = LineDataSet(entriesMa, getString(R.string.average_score))
         dataSetMa.color = Color.BLUE
@@ -104,10 +106,20 @@ class StatsActivity : AppCompatActivity() {
         binding.chartMa.data = lineDataMa
         binding.chartMa.description.text = getString(R.string.average_score_of_last_ma)
         lineChartSetFlags(binding.chartMa)
-        disableEdit()
         if (sharedPref.getBoolean("statsInfoDialog", true)) {
             infoDialog(false)
         }
+    }
+
+    private fun setScoreView(game: Game) {
+        scoreView = ScoreView.getView(game, this)
+        binding.activityStatsConstraint.addView(scoreView)
+        val set = ConstraintSet()
+        set.clone(binding.activityStatsConstraint)
+        set.connect(scoreView.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        set.connect(scoreView.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+        set.connect(binding.statChart1.id, ConstraintSet.TOP, scoreView.id, ConstraintSet.BOTTOM)
+        set.applyTo(binding.activityStatsConstraint)
     }
 
     private fun lineChartSetFlags(lineChart: LineChart) {
@@ -129,8 +141,8 @@ class StatsActivity : AppCompatActivity() {
         val checkBox = view.findViewById<CheckBox>(R.id.checkBox)
         checkBox.isChecked = checkboxChecked
         builder.setView(view)
-        builder.setPositiveButton("Ok") { dialog: DialogInterface?, id: Int -> }
-        checkBox.setOnClickListener { view2: View? ->
+        builder.setPositiveButton("Ok") { _: DialogInterface?, _: Int -> }
+        checkBox.setOnClickListener {
             val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
             sharedPref.edit().putBoolean("statsInfoDialog", !checkBox.isChecked).apply()
         }
@@ -153,18 +165,18 @@ class StatsActivity : AppCompatActivity() {
         return true
     }
 
-    private fun processScores(jsonArray: JSONArray): JSONObject {
+    private fun processScores(scoreItems: List<ScoreItem>): JSONObject {
         val jsonObject = JSONObject()
         for (k in 1..6) {
             try {
-                jsonObject.put(k.toString() + "", proccessField(jsonArray, k))
+                jsonObject.put(k.toString() + "", processField(scoreItems, k))
             } catch (e: JSONException) {
                 e.printStackTrace()
             }
         }
-        for (k in 21..28) {
+        for (k in 21..29) {
             try {
-                jsonObject.put(k.toString() + "", proccessField(jsonArray, k))
+                jsonObject.put(k.toString() + "", processField(scoreItems, k))
             } catch (e: JSONException) {
                 e.printStackTrace()
             }
@@ -172,14 +184,14 @@ class StatsActivity : AppCompatActivity() {
         return jsonObject
     }
 
-    private fun proccessField(jsonArray: JSONArray, d: Int): String {
+    private fun processField(scoreItems: List<ScoreItem>, d: Int): String {
         var totalScore = 0.0
         var scoreCount = 0.0
         var scoreCountMax = 0.0
-        for (i in 0 until jsonArray.length()) {
+        for (it in scoreItems) {
             try {
-                val jsonObject = jsonArray.getJSONObject(i).getJSONObject("allScores")
-                val score = jsonObject.getString(d.toString() + "")
+                val item = it.allScores
+                val score = item.getString(d.toString() + "")
                 if (score != "" && score != "0") {
                     val valInt = score.toInt()
                     totalScore += valInt
@@ -190,48 +202,12 @@ class StatsActivity : AppCompatActivity() {
             } catch (ignored: NumberFormatException) {
             }
         }
-        val chance = Math.round(scoreCount / scoreCountMax * 100.0).toInt()
+        if (scoreCount == 0.0) {
+            return "0"
+        }
+        val chance = (scoreCount / scoreCountMax * 100.0).roundToInt()
         val average = totalScore / scoreCountMax
         return round(average, 1).toString() + "(" + chance + ")"
-    }
-
-    private fun readScores(jsonObject: JSONObject) {
-        Log.i("score", "read$jsonObject")
-        try {
-            binding.editTextStat1.setText(jsonObject.getString("1"))
-            binding.editTextStat2.setText(jsonObject.getString("2"))
-            binding.editTextStat3.setText(jsonObject.getString("3"))
-            binding.editTextStat4.setText(jsonObject.getString("4"))
-            binding.editTextStat5.setText(jsonObject.getString("5"))
-            binding.editTextStat6.setText(jsonObject.getString("6"))
-            binding.editTextStat21.setText(jsonObject.getString("21"))
-            binding.editTextStat22.setText(jsonObject.getString("22"))
-            binding.editTextStat23.setText(jsonObject.getString("23"))
-            binding.editTextStat24.setText(jsonObject.getString("24"))
-            binding.editTextStat25.setText(jsonObject.getString("25"))
-            binding.editTextStat26.setText(jsonObject.getString("26"))
-            binding.editTextStat27.setText(jsonObject.getString("27"))
-            binding.editTextStat28.setText(jsonObject.getString("28"))
-        } catch (e: JSONException) {
-            e.printStackTrace()
-        }
-    }
-
-    private fun disableEdit() {
-        binding.editTextStat1.isEnabled = false
-        binding.editTextStat2.isEnabled = false
-        binding.editTextStat3.isEnabled = false
-        binding.editTextStat4.isEnabled = false
-        binding.editTextStat5.isEnabled = false
-        binding.editTextStat6.isEnabled = false
-        binding.editTextStat21.isEnabled = false
-        binding.editTextStat22.isEnabled = false
-        binding.editTextStat23.isEnabled = false
-        binding.editTextStat24.isEnabled = false
-        binding.editTextStat25.isEnabled = false
-        binding.editTextStat26.isEnabled = false
-        binding.editTextStat27.isEnabled = false
-        binding.editTextStat28.isEnabled = false
     }
 
     companion object {

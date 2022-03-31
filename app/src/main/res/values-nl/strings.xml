@@ -92,4 +92,7 @@
     <string name="next">Volgende</string>
     <string name="username_required_error">Gebruikersnaam is verplicht</string>
     <string name="username_for_multiplayer">Gebruikersnaam voor multiplayer</string>
+    <string name="yatzy">Yatzy</string>
+    <string name="one_pair">Een paar</string>
+    <string name="two_pairs">Twee paren</string>
 </resources>

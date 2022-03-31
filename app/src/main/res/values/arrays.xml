@@ -10,4 +10,16 @@
         <item>2</item>
         <item>1</item>
     </string-array>
+
+    <string-array name="game_options">
+        <item>@string/yahtzee</item>
+        <item>@string/yahtzee_bonus</item>
+        <item>@string/yatzy</item>
+    </string-array>
+
+    <string-array name="game_values">
+        <item>Yahtzee</item>
+        <item>YahtzeeBonus</item>
+        <item>Yatzy</item>
+    </string-array>
 </resources>
