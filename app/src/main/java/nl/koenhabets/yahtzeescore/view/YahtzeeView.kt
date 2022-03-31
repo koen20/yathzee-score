@@ -31,6 +31,7 @@ class YahtzeeView(context: Context, attributeSet: AttributeSet?) : ScoreView(
     private val tvTotalLeft: TextView
     private val tvTotalRight: TextView
     private val tvYahtzeeBonus: TextView
+    private val tvBonus: TextView
 
     private var totalLeft = 0
     private var totalRight = 0
@@ -74,6 +75,7 @@ class YahtzeeView(context: Context, attributeSet: AttributeSet?) : ScoreView(
         tvTotalLeft = findViewById(R.id.textViewTotalLeft)
         tvTotalRight = findViewById(R.id.textViewTotalRight)
         tvYahtzeeBonus = findViewById(R.id.textView7)
+        tvBonus = findViewById(R.id.textViewBonus)
 
         addListeners()
         calculateTotal()
@@ -147,13 +149,27 @@ class YahtzeeView(context: Context, attributeSet: AttributeSet?) : ScoreView(
         }
     }
 
-    override fun setSpecialFieldVis(visible: Boolean) {
+    override fun setSpecialFieldVisibility(visible: Boolean) {
         if (visible) {
             tvYahtzeeBonus.visibility = VISIBLE
             editText28.visibility = VISIBLE
         } else {
             tvYahtzeeBonus.visibility = GONE
             editText28.visibility = GONE
+        }
+    }
+
+    override fun setTotalVisibility(visible: Boolean) {
+        if (visible) {
+            tvTotalLeft.visibility = VISIBLE
+            tvTotalRight.visibility = VISIBLE
+            editTextBonus.visibility = VISIBLE
+            tvBonus.visibility = VISIBLE
+        } else {
+            tvTotalLeft.visibility = GONE
+            tvTotalRight.visibility = GONE
+            editTextBonus.visibility = GONE
+            tvBonus.visibility = GONE
         }
     }
 }

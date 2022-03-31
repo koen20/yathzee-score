@@ -3,16 +3,11 @@ package nl.koenhabets.yahtzeescore.activities
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import nl.koenhabets.yahtzeescore.data.Game
 import nl.koenhabets.yahtzeescore.databinding.ScoreActivityBinding
 import nl.koenhabets.yahtzeescore.view.ScoreView
-import nl.koenhabets.yahtzeescore.view.YahtzeeView
-import nl.koenhabets.yahtzeescore.view.YatzyView
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -44,25 +39,7 @@ class ScoreActivity : AppCompatActivity() {
     }
 
     private fun setScoreView(game: Game) {
-        when (game) {
-            Game.Yahtzee -> {
-                scoreView = YahtzeeView(this, null)
-                scoreView.setSpecialFieldVis(false)
-            }
-            Game.YahtzeeBonus -> {
-                scoreView = YahtzeeView(this, null)
-                scoreView.setSpecialFieldVis(true)
-            }
-            Game.Yatzy -> {
-                scoreView = YatzyView(this, null)
-            }
-        }
-
-        scoreView.id = View.generateViewId()
-        scoreView.layoutParams = ViewGroup.LayoutParams(
-            ConstraintLayout.LayoutParams.MATCH_PARENT,
-            ConstraintLayout.LayoutParams.WRAP_CONTENT
-        )
+        scoreView = ScoreView.getView(game, this)
         binding.scoreActivityLayout.addView(scoreView)
         val set = ConstraintSet()
         set.clone(binding.scoreActivityLayout)

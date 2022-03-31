@@ -178,25 +178,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
             binding.constraintScores.removeView(scoreView)
         }
         lastInitGame = game
-        when (game) {
-            Game.Yahtzee -> {
-                scoreView = YahtzeeView(this, null)
-                scoreView.setSpecialFieldVis(false)
-            }
-            Game.YahtzeeBonus -> {
-                scoreView = YahtzeeView(this, null)
-                scoreView.setSpecialFieldVis(true)
-            }
-            Game.Yatzy -> {
-                scoreView = YatzyView(this, null)
-            }
-        }
-
-        scoreView.id = View.generateViewId()
-        scoreView.layoutParams = ViewGroup.LayoutParams(
-            ConstraintLayout.LayoutParams.MATCH_PARENT,
-            ConstraintLayout.LayoutParams.WRAP_CONTENT
-        )
+        scoreView = ScoreView.getView(game, this)
         binding.constraintScores.addView(scoreView)
         val set = ConstraintSet()
         set.clone(binding.constraintScores)

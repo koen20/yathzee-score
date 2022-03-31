@@ -39,25 +39,7 @@ class PlayerScoreDialog(private val context: Context) {
     }
 
     private fun setScoreView(game: Game) {
-        when (game) {
-            Game.Yahtzee -> {
-                scoreView = YahtzeeView(context, null)
-                scoreView.setSpecialFieldVis(false)
-            }
-            Game.YahtzeeBonus -> {
-                scoreView = YahtzeeView(context, null)
-                scoreView.setSpecialFieldVis(true)
-            }
-            Game.Yatzy -> {
-                scoreView = YatzyView(context, null)
-            }
-        }
-
-        scoreView.id = View.generateViewId()
-        scoreView.layoutParams = ViewGroup.LayoutParams(
-            ConstraintLayout.LayoutParams.MATCH_PARENT,
-            ConstraintLayout.LayoutParams.WRAP_CONTENT
-        )
+        scoreView = ScoreView.getView(game, context)
         binding.scorePopupConstraint.addView(scoreView)
         val set = ConstraintSet()
         set.clone(binding.scorePopupConstraint)

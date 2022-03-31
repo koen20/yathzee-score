@@ -31,6 +31,7 @@ class YatzyView(context: Context, attributeSet: AttributeSet?) : ScoreView(
     private val editTextBonus: EditText
     private val tvTotalLeft: TextView
     private val tvTotalRight: TextView
+    private val tvBonus: TextView
 
     private var totalLeft = 0
     private var totalRight = 0
@@ -75,6 +76,7 @@ class YatzyView(context: Context, attributeSet: AttributeSet?) : ScoreView(
 
         tvTotalLeft = findViewById(R.id.textViewTotalLeft)
         tvTotalRight = findViewById(R.id.textViewTotalRight)
+        tvBonus = findViewById(R.id.textViewBonus)
 
         addListeners()
         calculateTotal()
@@ -145,6 +147,20 @@ class YatzyView(context: Context, attributeSet: AttributeSet?) : ScoreView(
             editText6.setTextColor(Color.RED)
         } else {
             editText6.setTextColor(color)
+        }
+    }
+
+    override fun setTotalVisibility(visible: Boolean) {
+        if (visible) {
+            tvTotalLeft.visibility = VISIBLE
+            tvTotalRight.visibility = VISIBLE
+            editTextBonus.visibility = VISIBLE
+            tvBonus.visibility = VISIBLE
+        } else {
+            tvTotalLeft.visibility = GONE
+            tvTotalRight.visibility = GONE
+            editTextBonus.visibility = GONE
+            tvBonus.visibility = GONE
         }
     }
 }

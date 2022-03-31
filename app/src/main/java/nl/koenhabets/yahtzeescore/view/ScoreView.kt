@@ -9,10 +9,13 @@ import android.text.InputType
 import android.text.TextWatcher
 import android.util.AttributeSet
 import android.util.Log
+import android.view.View
+import android.view.ViewGroup
 import android.widget.EditText
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.snackbar.Snackbar
 import nl.koenhabets.yahtzeescore.R
+import nl.koenhabets.yahtzeescore.data.Game
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -155,7 +158,37 @@ open class ScoreView(context: Context, attributeSet: AttributeSet?) : Constraint
         }
     }
 
-    open fun setSpecialFieldVis(visible: Boolean) {
+    open fun setSpecialFieldVisibility(visible: Boolean) {
 
+    }
+
+    open fun setTotalVisibility(visible: Boolean) {
+
+    }
+
+    companion object {
+        fun getView(game: Game, context: Context): ScoreView {
+            val scoreView: ScoreView
+            when (game) {
+                Game.Yahtzee -> {
+                    scoreView = YahtzeeView(context, null)
+                    scoreView.setSpecialFieldVisibility(false)
+                }
+                Game.YahtzeeBonus -> {
+                    scoreView = YahtzeeView(context, null)
+                    scoreView.setSpecialFieldVisibility(true)
+                }
+                Game.Yatzy -> {
+                    scoreView = YatzyView(context, null)
+                }
+            }
+
+            scoreView.id = View.generateViewId()
+            scoreView.layoutParams = ViewGroup.LayoutParams(
+                LayoutParams.MATCH_PARENT,
+                LayoutParams.WRAP_CONTENT
+            )
+            return scoreView
+        }
     }
 }
