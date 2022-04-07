@@ -1,130 +1,19 @@
 [
   {
     "eventType": "VIEW_CLICKED",
-    "timestamp": 1622578692814,
-    "replacementText": "Yes",
-    "actionCode": -1,
-    "delayTime": 0,
-    "canScrollTo": true,
-    "elementDescriptors": [
-      {
-        "className": "com.google.android.material.button.MaterialButton",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 3,
-        "resourceId": "android:id/button1",
-        "contentDescription": "",
-        "text": "Yes"
-      },
-      {
-        "className": "androidx.appcompat.widget.ButtonBarLayout",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 0,
-        "resourceId": "",
-        "contentDescription": "",
-        "text": ""
-      },
-      {
-        "className": "android.widget.ScrollView",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 3,
-        "resourceId": "nl.koenhabets.yahtzeescore:id/buttonPanel",
-        "contentDescription": "",
-        "text": ""
-      }
-    ]
-  },
-  {
-    "eventType": "VIEW_TEXT_CHANGED",
-    "timestamp": 1622578696680,
-    "replacementText": "testrobo",
+    "timestamp": 1649337555879,
+    "replacementText": "",
     "actionCode": -1,
     "delayTime": 0,
     "canScrollTo": false,
     "elementDescriptors": [
       {
-        "className": "androidx.appcompat.widget.AppCompatEditText",
+        "className": "androidx.appcompat.widget.AppCompatImageButton",
         "recyclerViewChildPosition": -1,
         "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 0,
-        "resourceId": "nl.koenhabets.yahtzeescore:id/editText2",
-        "contentDescription": "",
-        "text": ""
-      },
-      {
-        "className": "android.widget.LinearLayout",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 0,
-        "resourceId": "",
-        "contentDescription": "",
-        "text": ""
-      },
-      {
-        "className": "android.widget.FrameLayout",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 0,
-        "resourceId": "nl.koenhabets.yahtzeescore:id/custom",
-        "contentDescription": "",
-        "text": ""
-      }
-    ]
-  },
-  {
-    "eventType": "VIEW_CLICKED",
-    "timestamp": 1622578709701,
-    "replacementText": "Ok",
-    "actionCode": -1,
-    "delayTime": 0,
-    "canScrollTo": true,
-    "elementDescriptors": [
-      {
-        "className": "com.google.android.material.button.MaterialButton",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 3,
-        "resourceId": "android:id/button1",
-        "contentDescription": "",
-        "text": "Ok"
-      },
-      {
-        "className": "androidx.appcompat.widget.ButtonBarLayout",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 0,
-        "resourceId": "",
-        "contentDescription": "",
-        "text": ""
-      },
-      {
-        "className": "android.widget.ScrollView",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 3,
-        "resourceId": "nl.koenhabets.yahtzeescore:id/buttonPanel",
-        "contentDescription": "",
-        "text": ""
-      }
-    ]
-  },
-  {
-    "eventType": "VIEW_TEXT_CHANGED",
-    "timestamp": 1622578717564,
-    "replacementText": "10",
-    "actionCode": -1,
-    "delayTime": 0,
-    "canScrollTo": true,
-    "elementDescriptors": [
-      {
-        "className": "androidx.appcompat.widget.AppCompatEditText",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 14,
-        "resourceId": "nl.koenhabets.yahtzeescore:id/editText6",
-        "contentDescription": "",
+        "groupViewChildPosition": 6,
+        "resourceId": "nl.koenhabets.yahtzeescore:id/next",
+        "contentDescription": "VOLGENDE",
         "text": ""
       },
       {
@@ -132,81 +21,7 @@
         "recyclerViewChildPosition": -1,
         "adapterViewChildPosition": -1,
         "groupViewChildPosition": 0,
-        "resourceId": "",
-        "contentDescription": "",
-        "text": ""
-      },
-      {
-        "className": "android.widget.ScrollView",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 1,
-        "resourceId": "",
-        "contentDescription": "",
-        "text": ""
-      }
-    ]
-  },
-  {
-    "eventType": "PRESSED_EDITOR_ACTION",
-    "timestamp": 1622578720844,
-    "replacementText": "10",
-    "actionCode": -1,
-    "delayTime": 0,
-    "canScrollTo": true,
-    "elementDescriptors": [
-      {
-        "className": "androidx.appcompat.widget.AppCompatEditText",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 14,
-        "resourceId": "nl.koenhabets.yahtzeescore:id/editText6",
-        "contentDescription": "",
-        "text": "10"
-      },
-      {
-        "className": "androidx.constraintlayout.widget.ConstraintLayout",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 0,
-        "resourceId": "",
-        "contentDescription": "",
-        "text": ""
-      },
-      {
-        "className": "android.widget.ScrollView",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 1,
-        "resourceId": "",
-        "contentDescription": "",
-        "text": ""
-      }
-    ]
-  },
-  {
-    "eventType": "VIEW_CLICKED",
-    "timestamp": 1622578723147,
-    "replacementText": "Alles wissen / opslaan",
-    "actionCode": -1,
-    "delayTime": 0,
-    "canScrollTo": false,
-    "elementDescriptors": [
-      {
-        "className": "com.google.android.material.button.MaterialButton",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 2,
-        "resourceId": "nl.koenhabets.yahtzeescore:id/button",
-        "contentDescription": "",
-        "text": "Alles wissen / opslaan"
-      },
-      {
-        "className": "androidx.constraintlayout.widget.ConstraintLayout",
-        "recyclerViewChildPosition": -1,
-        "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 0,
-        "resourceId": "",
+        "resourceId": "nl.koenhabets.yahtzeescore:id/background",
         "contentDescription": "",
         "text": ""
       },
@@ -214,7 +29,7 @@
         "className": "androidx.appcompat.widget.ContentFrameLayout",
         "recyclerViewChildPosition": -1,
         "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 1,
+        "groupViewChildPosition": 0,
         "resourceId": "android:id/content",
         "contentDescription": "",
         "text": ""
@@ -223,36 +38,147 @@
   },
   {
     "eventType": "VIEW_CLICKED",
-    "timestamp": 1622578727991,
-    "replacementText": "Ja",
+    "timestamp": 1649337561168,
+    "replacementText": "",
     "actionCode": -1,
     "delayTime": 0,
-    "canScrollTo": true,
+    "canScrollTo": false,
     "elementDescriptors": [
       {
-        "className": "com.google.android.material.button.MaterialButton",
+        "className": "androidx.appcompat.widget.AppCompatImageButton",
         "recyclerViewChildPosition": -1,
         "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 3,
-        "resourceId": "android:id/button1",
-        "contentDescription": "",
-        "text": "Ja"
+        "groupViewChildPosition": 6,
+        "resourceId": "nl.koenhabets.yahtzeescore:id/next",
+        "contentDescription": "VOLGENDE",
+        "text": ""
       },
       {
-        "className": "androidx.appcompat.widget.ButtonBarLayout",
+        "className": "androidx.constraintlayout.widget.ConstraintLayout",
         "recyclerViewChildPosition": -1,
         "adapterViewChildPosition": -1,
         "groupViewChildPosition": 0,
+        "resourceId": "nl.koenhabets.yahtzeescore:id/background",
+        "contentDescription": "",
+        "text": ""
+      },
+      {
+        "className": "androidx.appcompat.widget.ContentFrameLayout",
+        "recyclerViewChildPosition": -1,
+        "adapterViewChildPosition": -1,
+        "groupViewChildPosition": 0,
+        "resourceId": "android:id/content",
+        "contentDescription": "",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "eventType": "VIEW_TEXT_CHANGED",
+    "timestamp": 1649337564681,
+    "replacementText": "test",
+    "actionCode": -1,
+    "delayTime": 0,
+    "canScrollTo": false,
+    "elementDescriptors": [
+      {
+        "className": "androidx.appcompat.widget.AppCompatEditText",
+        "recyclerViewChildPosition": -1,
+        "adapterViewChildPosition": -1,
+        "groupViewChildPosition": 1,
+        "resourceId": "nl.koenhabets.yahtzeescore:id/editTextStartName",
+        "contentDescription": "",
+        "text": ""
+      },
+      {
+        "className": "androidx.constraintlayout.widget.ConstraintLayout",
+        "recyclerViewChildPosition": -1,
+        "adapterViewChildPosition": -1,
+        "groupViewChildPosition": 1,
         "resourceId": "",
         "contentDescription": "",
         "text": ""
       },
       {
-        "className": "android.widget.ScrollView",
+        "className": "com.github.appintro.internal.AppIntroViewPager",
         "recyclerViewChildPosition": -1,
         "adapterViewChildPosition": -1,
-        "groupViewChildPosition": 3,
-        "resourceId": "nl.koenhabets.yahtzeescore:id/buttonPanel",
+        "groupViewChildPosition": 0,
+        "resourceId": "nl.koenhabets.yahtzeescore:id/view_pager",
+        "contentDescription": "",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "eventType": "PRESSED_EDITOR_ACTION",
+    "timestamp": 1649337568260,
+    "replacementText": "test",
+    "actionCode": -1,
+    "delayTime": 0,
+    "canScrollTo": false,
+    "elementDescriptors": [
+      {
+        "className": "androidx.appcompat.widget.AppCompatEditText",
+        "recyclerViewChildPosition": -1,
+        "adapterViewChildPosition": -1,
+        "groupViewChildPosition": 1,
+        "resourceId": "nl.koenhabets.yahtzeescore:id/editTextStartName",
+        "contentDescription": "",
+        "text": "test"
+      },
+      {
+        "className": "androidx.constraintlayout.widget.ConstraintLayout",
+        "recyclerViewChildPosition": -1,
+        "adapterViewChildPosition": -1,
+        "groupViewChildPosition": 1,
+        "resourceId": "",
+        "contentDescription": "",
+        "text": ""
+      },
+      {
+        "className": "com.github.appintro.internal.AppIntroViewPager",
+        "recyclerViewChildPosition": -1,
+        "adapterViewChildPosition": -1,
+        "groupViewChildPosition": 0,
+        "resourceId": "nl.koenhabets.yahtzeescore:id/view_pager",
+        "contentDescription": "",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "eventType": "VIEW_CLICKED",
+    "timestamp": 1649337570577,
+    "replacementText": "VOLTOOIEN",
+    "actionCode": -1,
+    "delayTime": 0,
+    "canScrollTo": false,
+    "elementDescriptors": [
+      {
+        "className": "com.google.android.material.button.MaterialButton",
+        "recyclerViewChildPosition": -1,
+        "adapterViewChildPosition": -1,
+        "groupViewChildPosition": 7,
+        "resourceId": "nl.koenhabets.yahtzeescore:id/done",
+        "contentDescription": "",
+        "text": "VOLTOOIEN"
+      },
+      {
+        "className": "androidx.constraintlayout.widget.ConstraintLayout",
+        "recyclerViewChildPosition": -1,
+        "adapterViewChildPosition": -1,
+        "groupViewChildPosition": 0,
+        "resourceId": "nl.koenhabets.yahtzeescore:id/background",
+        "contentDescription": "",
+        "text": ""
+      },
+      {
+        "className": "androidx.appcompat.widget.ContentFrameLayout",
+        "recyclerViewChildPosition": -1,
+        "adapterViewChildPosition": -1,
+        "groupViewChildPosition": 0,
+        "resourceId": "android:id/content",
         "contentDescription": "",
         "text": ""
       }
