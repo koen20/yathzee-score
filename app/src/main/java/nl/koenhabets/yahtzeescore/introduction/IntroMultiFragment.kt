@@ -23,7 +23,11 @@ class IntroMultiFragment : Fragment() {
     }
 
     fun multiplayerEnabled(): Boolean {
-        return checkBox.isChecked
+        var checked = false
+        if (::checkBox.isInitialized) {
+            checked = checkBox.isChecked
+        }
+        return checked
     }
 
     companion object {

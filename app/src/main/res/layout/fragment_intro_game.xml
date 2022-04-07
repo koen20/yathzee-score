@@ -30,27 +30,29 @@
         app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
     <RadioGroup
+        android:id="@+id/radioGroupGame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
+        android:checkedButton="@id/radioYahtzee"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView24">
 
         <RadioButton
-            android:id="@+id/radioButton3"
+            android:id="@+id/radioYahtzee"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/yahtzee" />
 
         <RadioButton
-            android:id="@+id/radioButton2"
+            android:id="@+id/radioYahtzeeBonus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/yahtzee_bonus" />
 
         <RadioButton
-            android:id="@+id/radioButton"
+            android:id="@+id/radioYatzy"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/yatzy" />
@@ -60,8 +62,8 @@
         android:id="@+id/textView24"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="TextView"
+        android:layout_marginTop="32dp"
+        android:text="@string/select_game_type"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewWelcome" />

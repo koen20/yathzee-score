@@ -11,13 +11,15 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -43,8 +45,6 @@ import nl.koenhabets.yahtzeescore.multiplayer.Multiplayer
 import nl.koenhabets.yahtzeescore.multiplayer.Multiplayer.MultiplayerListener
 import nl.koenhabets.yahtzeescore.multiplayer.PlayerItem
 import nl.koenhabets.yahtzeescore.view.ScoreView
-import nl.koenhabets.yahtzeescore.view.YahtzeeView
-import nl.koenhabets.yahtzeescore.view.YatzyView
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -469,7 +469,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
         } else {
             multiplayerEnabled = false
             binding.recyclerViewMultiplayer.visibility = View.GONE
-            binding.recyclerViewMultiplayer.visibility = View.GONE
+            binding.textViewOp.visibility = View.GONE
         }
     }
 

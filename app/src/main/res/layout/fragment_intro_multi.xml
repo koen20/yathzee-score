@@ -51,7 +51,7 @@
         android:id="@+id/textView8"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="32dp"
         android:fontFamily="sans-serif"
         android:text="@string/multiplayer"
         android:textSize="20sp"
