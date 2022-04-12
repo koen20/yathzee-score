@@ -12,16 +12,14 @@
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/Theme.MyApp.AppBarOverlay"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.appcompat.widget.Toolbar
+        <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:popupTheme="@style/Theme.MyApp.PopupOverlay" />
+            android:layout_height="?attr/actionBarSize" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -36,13 +34,6 @@
             android:id="@+id/constraintScores"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
-            <!--<nl.koenhabets.yahtzeescore.view.YahtzeeView
-                android:id="@+id/scoresView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />-->
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/guideline3"
@@ -62,7 +53,8 @@
                 android:text="@string/No_players_nearby"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toStartOf="@+id/guideline3"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                tools:ignore="MissingConstraints" />
 
             <TextView
                 android:id="@+id/textViewMultiScore"
@@ -84,7 +76,8 @@
                 android:textSize="20sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="@+id/guideline3" />
+                app:layout_constraintStart_toStartOf="@+id/guideline3"
+                tools:ignore="MissingConstraints" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerViewMultiplayer"

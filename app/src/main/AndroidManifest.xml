@@ -19,7 +19,7 @@
         <activity
             android:name=".activities.WelcomeActivity"
             android:exported="true"
-            android:theme="@style/Theme.Dark" />
+            android:theme="@style/Theme.Material3.Dark" />
         <activity
             android:name=".activities.SettingsActivity"
             android:exported="true"

@@ -4,11 +4,7 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.res.Configuration
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -28,6 +24,7 @@ import com.google.android.gms.nearby.messages.Message
 import com.google.android.gms.nearby.messages.MessageListener
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.Task
+import com.google.android.material.color.DynamicColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
@@ -69,6 +66,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
         binding = ActivityMainBinding.inflate(LayoutInflater.from(this))
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
+        DynamicColors.applyToActivitiesIfAvailable(application)
 
         // Set the score to 0 to prevent showing the default score
         binding.textViewTotal.text = getString(R.string.Total, 0)
@@ -94,16 +92,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
                 AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
             )
         )
-        val nightModeFlags = this.resources.configuration.uiMode and
-                Configuration.UI_MODE_NIGHT_MASK
-        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
-            val actionBar = supportActionBar
-            actionBar?.setBackgroundDrawable(ColorDrawable(Color.parseColor("#121212")))
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                val window = this.window
-                window.statusBarColor = Color.parseColor("#121212")
-            }
-        }
+
         playerScoreDialog = PlayerScoreDialog(this)
         val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(this)
         binding.recyclerViewMultiplayer.layoutManager = layoutManager
