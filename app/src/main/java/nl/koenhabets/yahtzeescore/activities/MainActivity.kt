@@ -458,7 +458,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
         } else {
             multiplayerEnabled = false
             binding.recyclerViewMultiplayer.visibility = View.GONE
-            binding.recyclerViewMultiplayer.visibility = View.GONE
+            binding.textViewOp.visibility = View.GONE
         }
     }
 

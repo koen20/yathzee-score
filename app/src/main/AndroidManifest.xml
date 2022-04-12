@@ -18,7 +18,8 @@
         tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".activities.WelcomeActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:theme="@style/Theme.Dark" />
         <activity
             android:name=".activities.SettingsActivity"
             android:exported="true"

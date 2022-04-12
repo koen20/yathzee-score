@@ -95,4 +95,7 @@
     <string name="yatzy">Yatzy</string>
     <string name="one_pair">Een paar</string>
     <string name="two_pairs">Twee paren</string>
+    <string name="name_required_error">Een gebruikersnaam is verplicht als multiplayer aan staat.</string>
+    <string name="username">Gebruikersnaam</string>
+    <string name="select_game_type">Kies de spel regels</string>
 </resources>

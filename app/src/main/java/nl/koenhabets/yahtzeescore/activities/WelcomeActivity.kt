@@ -2,90 +2,70 @@ package nl.koenhabets.yahtzeescore.activities
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import nl.koenhabets.yahtzeescore.R
-import android.view.WindowManager
-
-import android.os.Build
 import android.util.Log
-import android.view.View
-import android.view.Window
-import nl.koenhabets.yahtzeescore.databinding.ActivityWelcomeBinding
+import androidx.fragment.app.Fragment
+import com.github.appintro.AppIntro
+import nl.koenhabets.yahtzeescore.introduction.IntroGameFragment
+import nl.koenhabets.yahtzeescore.introduction.IntroMultiFragment
+import nl.koenhabets.yahtzeescore.introduction.IntroNameFragment
 
-class WelcomeActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityWelcomeBinding
-
+class WelcomeActivity : AppIntro() {
+    private lateinit var multiFragment: IntroMultiFragment
+    private lateinit var nameFragment: IntroNameFragment
+    private lateinit var gameFragment: IntroGameFragment
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityWelcomeBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
-        changeStatusBarColor()
+
+        gameFragment = IntroGameFragment.newInstance()
+        multiFragment = IntroMultiFragment.newInstance()
+        nameFragment = IntroNameFragment.newInstance()
+
+        addSlide(gameFragment)
+        addSlide(multiFragment)
+        addSlide(nameFragment)
+        showStatusBar(true)
+        isWizardMode = true
         supportActionBar?.hide()
+    }
 
-        binding.checkBoxStartMultiplayer.setOnClickListener {
-            if (binding.checkBoxStartMultiplayer.isChecked) {
-                binding.tVM1.visibility = View.VISIBLE
-                binding.tVM2.visibility = View.VISIBLE
-            } else {
-                binding.tVM1.visibility = View.INVISIBLE
-                binding.tVM2.visibility = View.INVISIBLE
-            }
-        }
+    override fun onSkipPressed(currentFragment: Fragment?) {
+        super.onSkipPressed(currentFragment)
+        finish()
+    }
 
-        val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
-        Log.i("multiplayer", sharedPref.getBoolean("multiplayer", false).toString())
-        binding.checkBoxStartMultiplayer.setOnCheckedChangeListener { button, b ->
-            if (!b) {
-                binding.buttonOpenApp.visibility = View.VISIBLE
-                binding.buttonNext.visibility = View.INVISIBLE
-            }
-        }
+    override fun onDonePressed(currentFragment: Fragment?) {
+        super.onDonePressed(currentFragment)
+        save()
+    }
 
-        binding.buttonNext.setOnClickListener {
-            binding.buttonOpenApp.visibility = View.VISIBLE
-            binding.buttonNext.visibility = View.INVISIBLE
-            binding.tVM1.visibility = View.INVISIBLE
-            binding.tVM2.visibility = View.INVISIBLE
-            binding.checkBoxStartMultiplayer.visibility = View.INVISIBLE
-            binding.editTextStartName.visibility = View.VISIBLE
-            binding.textViewStartName.visibility = View.VISIBLE
-        }
-
-        binding.buttonOpenApp.setOnClickListener {
-            val edit = sharedPref.edit()
-            if (binding.checkBoxStartMultiplayer.isChecked) {
-                if (binding.editTextStartName.text.toString().trim() != "") {
-                    edit.putBoolean("multiplayer", binding.checkBoxStartMultiplayer.isChecked)
-                    edit.putBoolean("multiplayerAsked", binding.checkBoxStartMultiplayer.isChecked)
-                    edit.putBoolean("welcomeShown", true)
-                    edit.putString("name", binding.editTextStartName.text.toString())
-                    edit.commit()
-                    val myIntent = Intent(this, MainActivity::class.java)
-                    this.startActivity(myIntent)
-                    finish()
-                } else {
-                    binding.editTextStartName.error = getString(R.string.username_required_error)
-                }
-            } else {
-                edit.putBoolean("multiplayer", binding.checkBoxStartMultiplayer.isChecked)
-                edit.putBoolean("multiplayerAsked", binding.checkBoxStartMultiplayer.isChecked)
-                edit.putBoolean("welcomeShown", true)
-                edit.commit()
-                val myIntent = Intent(this, MainActivity::class.java)
-                this.startActivity(myIntent)
-                finish()
+    override fun onPageSelected(position: Int) {
+        super.onPageSelected(position)
+        Log.i("page", "page selected")
+        if (::multiFragment.isInitialized) {
+            if (!multiFragment.multiplayerEnabled() && position == 2) {
+                save()
             }
         }
     }
 
-    private fun changeStatusBarColor() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            val window: Window = window
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            window.statusBarColor = Color.TRANSPARENT
+    fun save() {
+        val name = nameFragment.getName()
+        val multiplayer = multiFragment.multiplayerEnabled()
+        val game = gameFragment.getGame()
+
+        val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE);
+        val edit = sharedPref.edit()
+        if (multiplayer) {
+            edit.putString("name", name)
         }
+        edit.putBoolean("multiplayer", multiplayer)
+        edit.putBoolean("multiplayerAsked", multiplayer)
+        edit.putBoolean("welcomeShown", true)
+        edit.putString("game", game.toString())
+        edit.apply()
+        val myIntent = Intent(this, MainActivity::class.java)
+        this.startActivity(myIntent)
+        finish()
     }
 }
