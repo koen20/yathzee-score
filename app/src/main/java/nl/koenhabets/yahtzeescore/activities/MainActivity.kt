@@ -392,13 +392,21 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
             this.startActivity(myIntent3)
             return true
         } else if (itemId == R.id.rules) {
-            when (Locale.getDefault().language) {
-                "nl" -> openUrl("https://nl.wikipedia.org/wiki/Yahtzee#Spelverloop")
-                "fr" -> openUrl("https://fr.wikipedia.org/wiki/Yahtzee#R%C3%A8gles")
-                "de" -> openUrl("https://de.wikipedia.org/wiki/Kniffel#Spielregeln")
-                "pl" -> openUrl("https://pl.wikipedia.org/wiki/Ko%C5%9Bci_(gra)#Klasyczne_zasady_gry_(Yahtzee)")
-                "it" -> openUrl("https://it.wikipedia.org/wiki/Yahtzee")
-                else -> openUrl("https://en.wikipedia.org/wiki/Yahtzee#Rules")
+            if (lastInitGame == Game.Yahtzee || lastInitGame == Game.YahtzeeBonus) {
+                when (Locale.getDefault().language) {
+                    "nl" -> openUrl("https://nl.wikipedia.org/wiki/Yahtzee#Spelverloop")
+                    "fr" -> openUrl("https://fr.wikipedia.org/wiki/Yahtzee#R%C3%A8gles")
+                    "de" -> openUrl("https://de.wikipedia.org/wiki/Kniffel#Spielregeln")
+                    "pl" -> openUrl("https://pl.wikipedia.org/wiki/Ko%C5%9Bci_(gra)#Klasyczne_zasady_gry_(Yahtzee)")
+                    "it" -> openUrl("https://it.wikipedia.org/wiki/Yahtzee")
+                    else -> openUrl("https://en.wikipedia.org/wiki/Yahtzee#Rules")
+                }
+            } else if (lastInitGame == Game.Yatzy) {
+                when (Locale.getDefault().language) {
+                    "no" -> openUrl("https://no.wikipedia.org/wiki/Yatzy#Kombinasjonstyper_og_poengberegning")
+                    "da" -> openUrl("https://da.wikipedia.org/wiki/Yatzy#Regler")
+                    else -> openUrl("https://en.wikipedia.org/wiki/Yatzy#Scoring")
+                }
             }
             return true
         } else if (itemId == R.id.add_player) {
