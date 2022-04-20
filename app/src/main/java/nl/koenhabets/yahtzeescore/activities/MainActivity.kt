@@ -1,10 +1,8 @@
 package nl.koenhabets.yahtzeescore.activities
 
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -32,6 +30,7 @@ import com.google.firebase.auth.FirebaseUser
 import nl.koenhabets.yahtzeescore.AppUpdates
 import nl.koenhabets.yahtzeescore.PlayerAdapter
 import nl.koenhabets.yahtzeescore.R
+import nl.koenhabets.yahtzeescore.Rules
 import nl.koenhabets.yahtzeescore.data.DataManager
 import nl.koenhabets.yahtzeescore.data.Game
 import nl.koenhabets.yahtzeescore.data.MigrateData
@@ -104,7 +103,12 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
                 if (position >= 0 && position < players2.size) {
                     if (players2[position].name != name) {
                         if (players2[position].fullScore.toString() != "{}") {
-                            playerScoreDialog!!.showDialog(this@MainActivity, players2, position, lastInitGame?: Game.YahtzeeBonus)
+                            playerScoreDialog!!.showDialog(
+                                this@MainActivity,
+                                players2,
+                                position,
+                                lastInitGame ?: Game.YahtzeeBonus
+                            )
                         } else {
                             Toast.makeText(
                                 this@MainActivity, R.string.score_nearby_unavailable,
@@ -377,7 +381,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val itemId = item.itemId
         if (itemId == R.id.privacy_policy) {
-            openUrl("https://koenhabets.nl/privacy_policy.html")
+            Rules.openUrl("https://koenhabets.nl/privacy_policy.html", this)
             return true
         } else if (itemId == R.id.scores2) {
             val myIntent = Intent(this, ScoresActivity::class.java)
@@ -392,20 +396,10 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
             this.startActivity(myIntent3)
             return true
         } else if (itemId == R.id.rules) {
-            if (lastInitGame == Game.Yahtzee || lastInitGame == Game.YahtzeeBonus) {
-                when (Locale.getDefault().language) {
-                    "nl" -> openUrl("https://nl.wikipedia.org/wiki/Yahtzee#Spelverloop")
-                    "fr" -> openUrl("https://fr.wikipedia.org/wiki/Yahtzee#R%C3%A8gles")
-                    "de" -> openUrl("https://de.wikipedia.org/wiki/Kniffel#Spielregeln")
-                    "pl" -> openUrl("https://pl.wikipedia.org/wiki/Ko%C5%9Bci_(gra)#Klasyczne_zasady_gry_(Yahtzee)")
-                    "it" -> openUrl("https://it.wikipedia.org/wiki/Yahtzee")
-                    else -> openUrl("https://en.wikipedia.org/wiki/Yahtzee#Rules")
-                }
-            } else if (lastInitGame == Game.Yatzy) {
-                when (Locale.getDefault().language) {
-                    "no" -> openUrl("https://no.wikipedia.org/wiki/Yatzy#Kombinasjonstyper_og_poengberegning")
-                    "da" -> openUrl("https://da.wikipedia.org/wiki/Yatzy#Regler")
-                    else -> openUrl("https://en.wikipedia.org/wiki/Yatzy#Scoring")
+            if (lastInitGame !== null) {
+                val url = Rules.getRules(lastInitGame!!)
+                if (url !== null) {
+                    Rules.openUrl(url, this)
                 }
             }
             return true
@@ -417,16 +411,6 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
             return super.onOptionsItemSelected(item)
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    private fun openUrl(url: String) {
-        try {
-            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-            startActivity(browserIntent)
-        } catch (exception: ActivityNotFoundException) {
-            val toast = Toast.makeText(this, R.string.browser_fail, Toast.LENGTH_SHORT)
-            toast.show()
-        }
     }
 
     private fun nameDialog(context: Context) {
@@ -453,8 +437,21 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
         Log.i("onStart", "start")
         val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
         MigrateData(this)
-        if (Game.valueOf(sharedPref.getString("game", Game.Yahtzee.toString())!!) !== lastInitGame) {
-            setCurrentScoreView(Game.valueOf(sharedPref.getString("game", Game.Yahtzee.toString())!!))
+        if (Game.valueOf(
+                sharedPref.getString(
+                    "game",
+                    Game.Yahtzee.toString()
+                )!!
+            ) !== lastInitGame
+        ) {
+            setCurrentScoreView(
+                Game.valueOf(
+                    sharedPref.getString(
+                        "game",
+                        Game.Yahtzee.toString()
+                    )!!
+                )
+            )
             initScoreView()
         }
         if (sharedPref.getBoolean("multiplayer", false)) {
@@ -489,8 +486,21 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
     public override fun onResume() {
         val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
         Log.i("onResume", "start")
-        if (Game.valueOf(sharedPref.getString("game", Game.Yahtzee.toString())!!) !== lastInitGame) {
-            setCurrentScoreView(Game.valueOf(sharedPref.getString("game", Game.Yahtzee.toString())!!))
+        if (Game.valueOf(
+                sharedPref.getString(
+                    "game",
+                    Game.Yahtzee.toString()
+                )!!
+            ) !== lastInitGame
+        ) {
+            setCurrentScoreView(
+                Game.valueOf(
+                    sharedPref.getString(
+                        "game",
+                        Game.Yahtzee.toString()
+                    )!!
+                )
+            )
             initScoreView()
         }
         super.onResume()

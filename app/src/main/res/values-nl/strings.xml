@@ -98,4 +98,6 @@
     <string name="name_required_error">Een gebruikersnaam is verplicht als multiplayer aan staat.</string>
     <string name="username">Gebruikersnaam</string>
     <string name="select_game_type">Kies de spel regels</string>
+    <string name="yahtzee_bonus_select_text">Yahtzee regels met een extra veld om meerdere keren Yahtzee te scoren.</string>
+    <string name="view_rules_game">Bekijk regels van geselecteerd spel</string>
 </resources>

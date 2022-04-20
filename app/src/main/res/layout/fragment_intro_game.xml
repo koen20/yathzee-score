@@ -31,9 +31,11 @@
 
     <RadioGroup
         android:id="@+id/radioGroupGame"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
         android:checkedButton="@id/radioYahtzee"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -51,12 +53,28 @@
             android:layout_height="wrap_content"
             android:text="@string/yahtzee_bonus" />
 
+        <TextView
+            android:id="@+id/textView25"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/yahtzee_bonus_select_text" />
+
         <RadioButton
             android:id="@+id/radioYatzy"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/yatzy" />
     </RadioGroup>
+
+    <Button
+        android:id="@+id/buttonRules"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="@string/view_rules_game"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/radioGroupGame" />
 
     <TextView
         android:id="@+id/textView24"

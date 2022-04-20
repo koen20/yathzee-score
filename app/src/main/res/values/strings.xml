@@ -99,4 +99,6 @@
     <string name="name_required_error">An username is required if multiplayer is enabled</string>
     <string name="username">Username</string>
     <string name="select_game_type">Select a game type</string>
+    <string name="view_rules_game">View rules of selected game</string>
+    <string name="yahtzee_bonus_select_text">Yahtzee rules with an extra field to score Yahtzee multiple times.</string>
 </resources>
