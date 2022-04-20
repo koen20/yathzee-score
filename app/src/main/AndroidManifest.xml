@@ -19,7 +19,8 @@
         <activity
             android:name=".activities.WelcomeActivity"
             android:exported="true"
-            android:theme="@style/Theme.Material3.Dark" />
+            android:theme="@style/Theme.Material3.Dark"
+            android:configChanges="orientation|screenSize" />
         <activity
             android:name=".activities.SettingsActivity"
             android:exported="true"
