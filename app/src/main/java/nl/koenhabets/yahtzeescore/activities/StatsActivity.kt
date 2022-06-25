@@ -1,30 +1,31 @@
 package nl.koenhabets.yahtzeescore.activities
 
 import android.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import nl.koenhabets.yahtzeescore.R
-import org.json.JSONException
-import com.github.mikephil.charting.charts.LineChart
-import org.json.JSONObject
-import nl.koenhabets.yahtzeescore.data.DataManager
-import nl.koenhabets.yahtzeescore.MovingAverage
-import com.github.mikephil.charting.data.LineDataSet
-import com.github.mikephil.charting.data.LineData
-import android.widget.CheckBox
 import android.content.DialogInterface
 import android.content.res.Configuration
 import android.graphics.Color
+import android.os.Bundle
 import android.util.Log
-import android.view.*
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.widget.CheckBox
+import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
+import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import nl.koenhabets.yahtzeescore.MovingAverage
+import nl.koenhabets.yahtzeescore.R
 import nl.koenhabets.yahtzeescore.ScoreComparatorDate
 import nl.koenhabets.yahtzeescore.ScoreItem
+import nl.koenhabets.yahtzeescore.data.DataManager
 import nl.koenhabets.yahtzeescore.data.Game
 import nl.koenhabets.yahtzeescore.databinding.ActivityStatsBinding
 import nl.koenhabets.yahtzeescore.view.ScoreView
-import java.lang.NumberFormatException
+import org.json.JSONException
+import org.json.JSONObject
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
@@ -48,7 +49,7 @@ class StatsActivity : AppCompatActivity() {
         scoreView.setTotalVisibility(false)
         scoreView.disableEdit()
 
-        val scoreItemsDate = DataManager().loadScores(this, game)
+        var scoreItemsDate = DataManager().loadScores(this, game)
 
         val entries: MutableList<Entry> = ArrayList()
         val entriesMa: MutableList<Entry> = ArrayList()
@@ -57,6 +58,7 @@ class StatsActivity : AppCompatActivity() {
         val jsonObject = processScores(scoreItemsDate)
         scoreView.setScores(jsonObject)
         Collections.sort(scoreItemsDate, ScoreComparatorDate())
+        scoreItemsDate = scoreItemsDate.reversed()
         var sum = 0f
         val gamesHidden: Int
         if (scoreItemsDate.size > 200) {
@@ -72,6 +74,7 @@ class StatsActivity : AppCompatActivity() {
             gamesHidden = 0
         }
         for (d in scoreItemsDate.indices) {
+            Log.i("score", Date(scoreItemsDate[d].date).toString())
             sum += scoreItemsDate[d].score
             val value = sum / (d + 1)
             if (d > gamesHidden - 1) {
