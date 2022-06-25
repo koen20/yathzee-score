@@ -1,38 +1,34 @@
 package nl.koenhabets.yahtzeescore.activities
 
-import androidx.appcompat.app.AppCompatActivity
-import nl.koenhabets.yahtzeescore.ScoreItem
-import nl.koenhabets.yahtzeescore.ScoreAdapter
-import androidx.activity.result.ActivityResultLauncher
+import android.app.backup.BackupManager
+import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import nl.koenhabets.yahtzeescore.R
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.widget.AdapterView
+import android.widget.AdapterView.OnItemLongClickListener
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import nl.koenhabets.yahtzeescore.*
 import nl.koenhabets.yahtzeescore.data.DataManager
 import nl.koenhabets.yahtzeescore.data.Game
-import android.widget.AdapterView.OnItemLongClickListener
-import android.widget.AdapterView
-import android.content.DialogInterface
+import nl.koenhabets.yahtzeescore.databinding.ActivityScoresBinding
 import org.json.JSONArray
 import org.json.JSONException
-import android.app.backup.BackupManager
-import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
-import android.content.Context
-import android.net.Uri
-import nl.koenhabets.yahtzeescore.ScoreComparatorDate
-import nl.koenhabets.yahtzeescore.ScoreComparator
-import android.util.Log
-import android.view.*
-import androidx.activity.result.ActivityResult
-import androidx.appcompat.app.AlertDialog
-import nl.koenhabets.yahtzeescore.databinding.ActivityScoresBinding
 import java.io.BufferedReader
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStreamReader
-import java.lang.Exception
-import java.lang.StringBuilder
 import java.util.*
-import kotlin.Throws
 
 class ScoresActivity : AppCompatActivity() {
     private val scoreItems: MutableList<ScoreItem> = ArrayList()
@@ -214,7 +210,6 @@ class ScoresActivity : AppCompatActivity() {
                         }
                     }
                     if (!exists) {
-                        Log.i("add", "asdds")
                         jsonArrayExisting.put(jsonObject)
                     }
                 }
