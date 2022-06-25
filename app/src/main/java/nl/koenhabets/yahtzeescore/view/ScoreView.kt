@@ -113,7 +113,6 @@ open class ScoreView(context: Context, attributeSet: AttributeSet?) : Constraint
     }
 
     fun clearScores() {
-        Log.i("clear", "tada")
         editTextList.forEach {
             it.editText.setText("")
         }
@@ -122,7 +121,6 @@ open class ScoreView(context: Context, attributeSet: AttributeSet?) : Constraint
     fun setScores(jsonObject: JSONObject) {
         Log.i("score", "read$jsonObject")
         try {
-            Log.i("clear", "tada")
             editTextList.forEach {
                 it.editText.setText(jsonObject.getString(it.id))
             }
