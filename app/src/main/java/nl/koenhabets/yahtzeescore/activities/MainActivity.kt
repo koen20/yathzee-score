@@ -334,7 +334,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
         builder.setView(view)
         builder.setMessage(R.string.add_player)
         builder.setPositiveButton("Ok") { _: DialogInterface, _: Int ->
-            if (editTextName.text.toString() != "") {
+            if (editTextName.text.toString() != "" && multiplayer !== null) {
                 val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
                 var playersM = JSONArray()
                 try {
