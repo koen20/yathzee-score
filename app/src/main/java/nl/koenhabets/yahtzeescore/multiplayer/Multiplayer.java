@@ -91,6 +91,7 @@ public class Multiplayer implements OnFailureListener {
         Log.i("players", players.toString() + "");
 
         initDatabase();
+        new YatzyServerClient();
     }
 
     public void initDatabase() {
