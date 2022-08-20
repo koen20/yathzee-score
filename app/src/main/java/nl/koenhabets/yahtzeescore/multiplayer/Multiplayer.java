@@ -31,6 +31,7 @@ public class Multiplayer implements OnFailureListener {
     private DatabaseReference database;
     private ChildEventListener childEventListener;
     private ChildEventListener childEventListener2;
+    private YatzyServerClient yatzyServerClient;
 
     private List<PlayerItem> players = new ArrayList<>();
     private Timer updateTimer;
@@ -39,6 +40,7 @@ public class Multiplayer implements OnFailureListener {
     private Context context;
     private String name;
     private int score;
+    private JSONObject fullScore;
 
     public Multiplayer(Context context, String name, int score, String firebaseUserUid) {
         database = FirebaseDatabase.getInstance().getReference();
@@ -49,7 +51,6 @@ public class Multiplayer implements OnFailureListener {
         this.firebaseUserUid = firebaseUserUid;
         initMultiplayer(context, name);
     }
-
 
     public interface MultiplayerListener {
         void onChange(List<PlayerItem> players);
@@ -90,12 +91,22 @@ public class Multiplayer implements OnFailureListener {
 
         Log.i("players", players.toString() + "");
 
+        String userKey;
+
+        if (sharedPref.contains("userKey")) {
+            userKey = sharedPref.getString("userKey", null);
+        } else {
+            userKey = YatzyServerClient.Companion.getRandomString(15);
+            sharedPref.edit().putString("userKey", userKey).apply();
+        }
+
+        yatzyServerClient = new YatzyServerClient(firebaseUserUid, userKey);
+        yatzyServerClient.setUsername(name);
         initDatabase();
-        new YatzyServerClient();
     }
 
     public void initDatabase() {
-        if (realtimeDatabaseEnabled) {//todo only listen to players nearby
+        if (realtimeDatabaseEnabled) {
             childEventListener = database.child("score").addChildEventListener(new ChildEventListener() {
 
                 @Override
@@ -163,17 +174,9 @@ public class Multiplayer implements OnFailureListener {
         }
     }
 
-    public void setScore(int score) {
+    public void setScore(int score, JSONObject jsonObject) {
         this.score = score;
-        listener.onChange(players);
-        updateNearbyScore();
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setFullScore(JSONObject jsonObject) {
+        this.fullScore = jsonObject;
         if (realtimeDatabaseEnabled) {
             try {
                 database.child("scoreFull").child(firebaseUserUid).setValue(jsonObject.toString());
@@ -181,6 +184,13 @@ public class Multiplayer implements OnFailureListener {
                 e.printStackTrace();
             }
         }
+        listener.onChange(players);
+        updateNearbyScore();
+    }
+
+    public void setName(String name) {
+        this.name = name;
+        yatzyServerClient.setUsername(name);
     }
 
     public int getPlayerAmount() {
@@ -236,6 +246,7 @@ public class Multiplayer implements OnFailureListener {
                 e.printStackTrace();
             }
         }
+        yatzyServerClient.disconnect();
     }
 
     @Override
@@ -323,6 +334,7 @@ public class Multiplayer implements OnFailureListener {
             if (realtimeDatabaseEnabled) {
                 try {
                     database.child("score").child(firebaseUserUid).setValue(text);
+                    yatzyServerClient.setScore(score, fullScore);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
