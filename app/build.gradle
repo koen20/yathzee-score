@@ -22,6 +22,10 @@ android {
         }
     }*/
 
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+
     compileSdkVersion 32
     defaultConfig {
         applicationId "nl.koenhabets.yahtzeescore"
