@@ -10,6 +10,7 @@ import io.ktor.websocket.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
@@ -22,7 +23,7 @@ import nl.koenhabets.yahtzeescore.model.ResponseType
 import org.json.JSONObject
 import java.util.*
 
-class YatzyServerClient(private val userId: String, private val userKey: String) {
+class YatzyServerClient(private val userId: String, private val userKey: String, private val clientVersion: Int) {
     private val tag = "YatzyServerClient"
     private var listener: YatzyClientListener? = null
     val client: HttpClient
@@ -32,6 +33,7 @@ class YatzyServerClient(private val userId: String, private val userKey: String)
     val subscriptions = ArrayList<String>()
     private var lastScore: Message.Score? = null
     var username: String? = null
+    var game: String? = null
     var connecting = false
     var reconnectTimer: Timer? = null
 
@@ -84,10 +86,10 @@ class YatzyServerClient(private val userId: String, private val userKey: String)
     private suspend fun startWebsocket() {
         try {
             connecting = true
-            client.webSocket(
+            client.wss(
                 method = HttpMethod.Get,
-                host = "192.168.178.43",
-                port = 8080,
+                host = "yahtzee.koenhabets.nl",
+                port = 443,
                 path = "/api/v1/ws"
             ) {
                 webSocketSession = this
@@ -96,9 +98,13 @@ class YatzyServerClient(private val userId: String, private val userKey: String)
                 while (true) {
                     val message = incoming.receive() as? Frame.Text
                     if (message !== null) {
-                        val res = Json.decodeFromString<Response>(message.readText())
-                        Log.i(tag, res.toString())
-                        processResponse(res)
+                        try {
+                            val res = Json.decodeFromString<Response>(message.readText())
+                            Log.i(tag, res.toString())
+                            processResponse(res)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
                     }
                 }
             }
@@ -110,6 +116,20 @@ class YatzyServerClient(private val userId: String, private val userKey: String)
             loggedIn = false
             connecting = false
         }
+    }
+
+    fun endGame(game: String, versionString: String, versionCode: Int) {
+        scope.launch {
+            sendGameEnd(game, versionString, versionCode)
+        }
+    }
+
+    private suspend fun sendGameEnd(game: String, versionString: String, versionCode: Int) {
+        Log.i(tag, "Sending game end")
+        val endAction = Message.EndGame(game, versionString, versionCode)
+        val message =
+            Message(ActionType.endGame, Json.encodeToJsonElement(endAction).jsonObject)
+        webSocketSession?.sendSerialized(message)
     }
 
     fun subscribe(userId: String) {
@@ -130,9 +150,10 @@ class YatzyServerClient(private val userId: String, private val userKey: String)
             val scoreObj =
                 Message.Score(
                     username,
-                    "yahtzee",
+                    game ?: "",
                     score,
-                    Json.decodeFromString(fullScore.toString())
+                    Json.decodeFromString(fullScore.toString()),
+                    Date().time
                 )
             lastScore = scoreObj
             if (loggedIn) {
@@ -144,7 +165,7 @@ class YatzyServerClient(private val userId: String, private val userKey: String)
     }
 
     private suspend fun sendScore(score: Message.Score) {
-        Log.i(tag, "Sending score")
+        Log.i(tag, "Sending score ${score.score}")
         val message =
             Message(ActionType.score, Json.encodeToJsonElement(score).jsonObject)
         webSocketSession?.sendSerialized(message)
@@ -164,7 +185,7 @@ class YatzyServerClient(private val userId: String, private val userKey: String)
 
     }
 
-    private fun processResponse(response: Response) {
+    private suspend fun processResponse(response: Response) {
         if (response.response === ResponseType.loginResponse) {
             val resData = Json.decodeFromJsonElement<Response.LoginResponse>(response.data)
             if (resData.success) {
@@ -177,17 +198,22 @@ class YatzyServerClient(private val userId: String, private val userKey: String)
                     }
                 }
             } else {
-                Log.i(tag, "Login error")
+                Log.e(tag, "Login error")
             }
         } else if (response.response === ResponseType.scoreResponse) {
             val resData = Json.decodeFromJsonElement<Response.ScoreResponse>(response.data)
-            listener?.onScore(resData)
+            withContext(Dispatchers.Main) {
+                listener?.onScore(resData)
+            }
+        } else if (response.response === ResponseType.errorResponse) {
+            val resData = Json.decodeFromJsonElement<Response.ErrorResponse>(response.data)
+            Log.e(tag, resData.message)
         }
     }
 
     private suspend fun login() {
         Log.i(tag, "Start login $userId")
-        val loginAction = Message.Login(userId, userKey, 2)
+        val loginAction = Message.Login(userId, userKey, clientVersion)
         val message =
             Message(ActionType.login, Json.encodeToJsonElement(loginAction).jsonObject)
         webSocketSession?.sendSerialized(message)

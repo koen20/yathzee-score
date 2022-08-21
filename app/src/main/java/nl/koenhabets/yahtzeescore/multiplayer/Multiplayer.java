@@ -24,9 +24,12 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import nl.koenhabets.yahtzeescore.BuildConfig;
+import nl.koenhabets.yahtzeescore.model.Response;
+
 public class Multiplayer implements OnFailureListener {
     private MultiplayerListener listener;
-    private Boolean realtimeDatabaseEnabled = true;
+    private Boolean realtimeDatabaseEnabled = false;
     private String firebaseUserUid;
     private DatabaseReference database;
     private ChildEventListener childEventListener;
@@ -54,6 +57,7 @@ public class Multiplayer implements OnFailureListener {
 
     public interface MultiplayerListener {
         void onChange(List<PlayerItem> players);
+
         void onChangeFullScore(List<PlayerItem> players);
     }
 
@@ -96,12 +100,20 @@ public class Multiplayer implements OnFailureListener {
         if (sharedPref.contains("userKey")) {
             userKey = sharedPref.getString("userKey", null);
         } else {
-            userKey = YatzyServerClient.Companion.getRandomString(15);
+            userKey = YatzyServerClient.Companion.getRandomString(22);
             sharedPref.edit().putString("userKey", userKey).apply();
         }
 
-        yatzyServerClient = new YatzyServerClient(firebaseUserUid, userKey);
+        yatzyServerClient = new YatzyServerClient(firebaseUserUid, userKey, BuildConfig.VERSION_CODE);
         yatzyServerClient.setUsername(name);
+        yatzyServerClient.setYatzyClientListener(new YatzyServerClient.YatzyClientListener() {
+            @Override
+            public void onScore(@NonNull Response.ScoreResponse score) {
+                proccessMessage(score.getUsername() + ";" + score.getScore() + ";" + score.getLastUpdate() + ";" + score.getUserId(), true, score.getUserId());
+                proccessFullScore(score.getFullScore().toString(), score.getUserId());
+            }
+        });
+
         initDatabase();
     }
 
@@ -193,6 +205,15 @@ public class Multiplayer implements OnFailureListener {
         yatzyServerClient.setUsername(name);
     }
 
+    public void setGame(String game) {
+        Log.i("gameset", game);
+        yatzyServerClient.setGame(game);
+    }
+
+    public void endGame(String game, String verionString, int versionCode) {
+        yatzyServerClient.endGame(game, verionString, versionCode);
+    }
+
     public int getPlayerAmount() {
         int count = 0;
         for (int i = 0; i < players.size(); i++) {
@@ -275,6 +296,18 @@ public class Multiplayer implements OnFailureListener {
         }
     }
 
+    public void subscribe(String message) {
+        try {
+            String[] messageSplit = message.split(";");
+            if (messageSplit.length >= 4) {
+                yatzyServerClient.subscribe(messageSplit[3]);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        proccessMessage(message, false, "");
+    }
+
     public void proccessMessage(String message, boolean mqtt, String id) {
         try {
             if (!message.equals("new player")) {
@@ -334,12 +367,11 @@ public class Multiplayer implements OnFailureListener {
             if (realtimeDatabaseEnabled) {
                 try {
                     database.child("score").child(firebaseUserUid).setValue(text);
-                    yatzyServerClient.setScore(score, fullScore);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
+            yatzyServerClient.setScore(score, fullScore);
         }
-
     }
 }

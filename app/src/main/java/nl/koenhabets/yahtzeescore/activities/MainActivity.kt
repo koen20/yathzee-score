@@ -27,10 +27,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import nl.koenhabets.yahtzeescore.AppUpdates
-import nl.koenhabets.yahtzeescore.PlayerAdapter
-import nl.koenhabets.yahtzeescore.R
-import nl.koenhabets.yahtzeescore.Rules
+import nl.koenhabets.yahtzeescore.*
 import nl.koenhabets.yahtzeescore.data.DataManager
 import nl.koenhabets.yahtzeescore.data.Game
 import nl.koenhabets.yahtzeescore.data.MigrateData
@@ -199,10 +196,16 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
             builder2.setTitle(R.string.score_not_save_conf)
             builder2.setNegativeButton(R.string.no) { _: DialogInterface, _: Int -> }
             builder2.setPositiveButton(R.string.yes) { _: DialogInterface, _: Int ->
-                scoreView.clearScores()
                 if (multiplayerEnabled) {
-                    multiplayer?.updateNearbyScore()
+                    if (score > 40) {
+                        multiplayer?.endGame(
+                            (lastInitGame ?: "").toString(),
+                            BuildConfig.VERSION_NAME,
+                            BuildConfig.VERSION_CODE
+                        )
+                    }
                 }
+                scoreView.clearScores()
             }
             builder2.show()
         }
@@ -223,10 +226,10 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
                     lastInitGame!!
                 )
             }
-            scoreView.clearScores()
             if (multiplayerEnabled) {
-                multiplayer?.updateNearbyScore()
+                multiplayer?.endGame((lastInitGame?:"").toString(), BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE)
             }
+            scoreView.clearScores()
         }
         builder.setNeutralButton(R.string.cancel) { _: DialogInterface, _: Int -> }
         builder.show()
@@ -297,6 +300,9 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
                 }
             }
         })
+        lastInitGame?.let {
+            multiplayer?.setGame(it.name)
+        }
         setMultiplayerScore(score, scoreView.createJsonScores())
     }
 
@@ -315,7 +321,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
         mMessageListener = object : MessageListener() {
             override fun onFound(message: Message) {
                 Log.d("t", "Found message: " + String(message.content))
-                multiplayer?.proccessMessage(String(message.content), false, "")
+                multiplayer?.subscribe(String(message.content))
             }
 
             override fun onLost(message: Message) {

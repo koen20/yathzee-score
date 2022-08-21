@@ -6,12 +6,14 @@ import kotlinx.serialization.json.JsonObject
 enum class ActionType {
     login,
     subscribe,
-    score
+    score,
+    endGame
 }
 
 enum class ResponseType {
     loginResponse,
-    scoreResponse
+    scoreResponse,
+    errorResponse
 }
 
 @Serializable
@@ -27,11 +29,15 @@ data class Message(
         val username: String,
         val game: String,
         val score: Int,
-        val fullScore: JsonObject
+        val fullScore: JsonObject,
+        val lastUpdate: Long
     )
 
     @Serializable
     data class Login(val userId: String, val key: String, val clientVersion: Int)
+
+    @Serializable
+    data class EndGame(val game: String, val versionString: String, val versionCode: Int)
 }
 
 @Serializable
@@ -45,8 +51,15 @@ data class Response(
     @Serializable
     data class ScoreResponse(
         val username: String,
+        val userId: String,
         val game: String,
         val score: Int,
-        val fullScore: JsonObject
+        val fullScore: JsonObject,
+        val lastUpdate: Long
+    )
+
+    @Serializable
+    data class ErrorResponse(
+        val message: String
     )
 }
