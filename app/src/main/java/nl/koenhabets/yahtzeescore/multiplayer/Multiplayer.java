@@ -29,7 +29,7 @@ import nl.koenhabets.yahtzeescore.model.Response;
 
 public class Multiplayer implements OnFailureListener {
     private MultiplayerListener listener;
-    private Boolean realtimeDatabaseEnabled = false;
+    private Boolean realtimeDatabaseEnabled = true;
     private String firebaseUserUid;
     private DatabaseReference database;
     private ChildEventListener childEventListener;
