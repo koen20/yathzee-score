@@ -27,10 +27,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import nl.koenhabets.yahtzeescore.AppUpdates
-import nl.koenhabets.yahtzeescore.PlayerAdapter
-import nl.koenhabets.yahtzeescore.R
-import nl.koenhabets.yahtzeescore.Rules
+import nl.koenhabets.yahtzeescore.*
 import nl.koenhabets.yahtzeescore.data.DataManager
 import nl.koenhabets.yahtzeescore.data.Game
 import nl.koenhabets.yahtzeescore.data.MigrateData
@@ -145,12 +142,11 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
             override fun onScoreJson(scores: JSONObject) {
                 DataManager().saveScores(scores, applicationContext, game)
                 if (multiplayerEnabled && multiplayer != null) {
-                    multiplayer!!.setFullScore(scores)
                     if (multiplayer!!.playerAmount == 0) {
                         binding.textViewOp.setText(R.string.No_players_nearby)
                         binding.recyclerViewMultiplayer.visibility = View.GONE
                     }
-                    setMultiplayerScore(score)
+                    setMultiplayerScore(score, scores)
                 }
             }
 
@@ -200,10 +196,16 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
             builder2.setTitle(R.string.score_not_save_conf)
             builder2.setNegativeButton(R.string.no) { _: DialogInterface, _: Int -> }
             builder2.setPositiveButton(R.string.yes) { _: DialogInterface, _: Int ->
-                scoreView.clearScores()
                 if (multiplayerEnabled) {
-                    multiplayer!!.updateNearbyScore()
+                    if (score > 40) {
+                        multiplayer?.endGame(
+                            (lastInitGame ?: "").toString(),
+                            BuildConfig.VERSION_NAME,
+                            BuildConfig.VERSION_CODE
+                        )
+                    }
                 }
+                scoreView.clearScores()
             }
             builder2.show()
         }
@@ -224,10 +226,10 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
                     lastInitGame!!
                 )
             }
-            scoreView.clearScores()
             if (multiplayerEnabled) {
-                multiplayer!!.updateNearbyScore()
+                multiplayer?.endGame((lastInitGame?:"").toString(), BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE)
             }
+            scoreView.clearScores()
         }
         builder.setNeutralButton(R.string.cancel) { _: DialogInterface, _: Int -> }
         builder.show()
@@ -265,6 +267,9 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
     }
 
     private fun initMultiplayerObj(firebaseUser: FirebaseUser) {
+        // save firebaseuid. Firebase will be removed in a future version but the same id still needs to be used.
+        val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
+        sharedPref.edit().putString("userId", firebaseUser.uid).apply()
         multiplayer = Multiplayer(this, name, score, firebaseUser.uid)
         initNearby()
         multiplayer!!.setMultiplayerListener(object : MultiplayerListener {
@@ -295,11 +300,13 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
                 }
             }
         })
-        setMultiplayerScore(score)
-        multiplayer!!.setFullScore(scoreView.createJsonScores())
+        lastInitGame?.let {
+            multiplayer?.setGame(it.name)
+        }
+        setMultiplayerScore(score, scoreView.createJsonScores())
     }
 
-    private fun setMultiplayerScore(score: Int) {
+    private fun setMultiplayerScore(score: Int, fullScore: JSONObject) {
         Nearby.getMessagesClient(this).unpublish(mMessage!!)
         val date = Date()
         if (name != "") {
@@ -307,14 +314,14 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
             mMessage = Message(text.toByteArray())
             Nearby.getMessagesClient(this).publish(mMessage!!).addOnFailureListener(this)
         }
-        multiplayer!!.setScore(score)
+        multiplayer?.setScore(score, fullScore)
     }
 
     private fun initNearby() {
         mMessageListener = object : MessageListener() {
             override fun onFound(message: Message) {
                 Log.d("t", "Found message: " + String(message.content))
-                multiplayer!!.proccessMessage(String(message.content), false, "")
+                multiplayer?.subscribe(String(message.content))
             }
 
             override fun onLost(message: Message) {
@@ -345,8 +352,10 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
                 playersM.put(editTextName.text.toString())
                 sharedPref.edit().putString("players", playersM.toString()).apply()
                 val playerItem = PlayerItem(editTextName.text.toString(), 0, 0, true, false)
-                multiplayer!!.addPlayer(playerItem)
-                updateMultiplayerText(multiplayer!!.players)
+                multiplayer?.let {
+                    it.addPlayer(playerItem)
+                    updateMultiplayerText(it.players)
+                }
             }
         }
         builder.setNegativeButton(R.string.cancel) { _: DialogInterface, _: Int -> }
@@ -427,7 +436,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
                 context.getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
             sharedPref.edit().putString("name", editTextName.text.toString()).apply()
             name = editTextName.text.toString()
-            multiplayer!!.setName(name)
+            multiplayer?.setName(name)
         }
         builder.show()
     }
@@ -478,7 +487,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-            multiplayer!!.stopMultiplayer()
+            multiplayer?.stopMultiplayer()
         }
         super.onStop()
     }

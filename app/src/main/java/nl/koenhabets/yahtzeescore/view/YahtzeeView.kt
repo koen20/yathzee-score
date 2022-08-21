@@ -7,6 +7,8 @@ import android.text.TextWatcher
 import android.util.AttributeSet
 import android.widget.EditText
 import android.widget.TextView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import nl.koenhabets.yahtzeescore.R
 
 class YahtzeeView(context: Context, attributeSet: AttributeSet?) : ScoreView(

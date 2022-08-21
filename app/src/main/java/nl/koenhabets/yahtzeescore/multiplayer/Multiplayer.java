@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import nl.koenhabets.yahtzeescore.BuildConfig;
+import nl.koenhabets.yahtzeescore.model.Response;
+
 public class Multiplayer implements OnFailureListener {
     private MultiplayerListener listener;
     private Boolean realtimeDatabaseEnabled = true;
@@ -31,6 +34,7 @@ public class Multiplayer implements OnFailureListener {
     private DatabaseReference database;
     private ChildEventListener childEventListener;
     private ChildEventListener childEventListener2;
+    private YatzyServerClient yatzyServerClient;
 
     private List<PlayerItem> players = new ArrayList<>();
     private Timer updateTimer;
@@ -39,6 +43,7 @@ public class Multiplayer implements OnFailureListener {
     private Context context;
     private String name;
     private int score;
+    private JSONObject fullScore;
 
     public Multiplayer(Context context, String name, int score, String firebaseUserUid) {
         database = FirebaseDatabase.getInstance().getReference();
@@ -50,9 +55,9 @@ public class Multiplayer implements OnFailureListener {
         initMultiplayer(context, name);
     }
 
-
     public interface MultiplayerListener {
         void onChange(List<PlayerItem> players);
+
         void onChangeFullScore(List<PlayerItem> players);
     }
 
@@ -90,11 +95,30 @@ public class Multiplayer implements OnFailureListener {
 
         Log.i("players", players.toString() + "");
 
+        String userKey;
+
+        if (sharedPref.contains("userKey")) {
+            userKey = sharedPref.getString("userKey", null);
+        } else {
+            userKey = YatzyServerClient.Companion.getRandomString(22);
+            sharedPref.edit().putString("userKey", userKey).apply();
+        }
+
+        yatzyServerClient = new YatzyServerClient(firebaseUserUid, userKey, BuildConfig.VERSION_CODE);
+        yatzyServerClient.setUsername(name);
+        yatzyServerClient.setYatzyClientListener(new YatzyServerClient.YatzyClientListener() {
+            @Override
+            public void onScore(@NonNull Response.ScoreResponse score) {
+                proccessMessage(score.getUsername() + ";" + score.getScore() + ";" + score.getLastUpdate() + ";" + score.getUserId(), true, score.getUserId());
+                proccessFullScore(score.getFullScore().toString(), score.getUserId());
+            }
+        });
+
         initDatabase();
     }
 
     public void initDatabase() {
-        if (realtimeDatabaseEnabled) {//todo only listen to players nearby
+        if (realtimeDatabaseEnabled) {
             childEventListener = database.child("score").addChildEventListener(new ChildEventListener() {
 
                 @Override
@@ -162,17 +186,9 @@ public class Multiplayer implements OnFailureListener {
         }
     }
 
-    public void setScore(int score) {
+    public void setScore(int score, JSONObject jsonObject) {
         this.score = score;
-        listener.onChange(players);
-        updateNearbyScore();
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setFullScore(JSONObject jsonObject) {
+        this.fullScore = jsonObject;
         if (realtimeDatabaseEnabled) {
             try {
                 database.child("scoreFull").child(firebaseUserUid).setValue(jsonObject.toString());
@@ -180,6 +196,22 @@ public class Multiplayer implements OnFailureListener {
                 e.printStackTrace();
             }
         }
+        listener.onChange(players);
+        updateNearbyScore();
+    }
+
+    public void setName(String name) {
+        this.name = name;
+        yatzyServerClient.setUsername(name);
+    }
+
+    public void setGame(String game) {
+        Log.i("gameset", game);
+        yatzyServerClient.setGame(game);
+    }
+
+    public void endGame(String game, String verionString, int versionCode) {
+        yatzyServerClient.endGame(game, verionString, versionCode);
     }
 
     public int getPlayerAmount() {
@@ -235,6 +267,7 @@ public class Multiplayer implements OnFailureListener {
                 e.printStackTrace();
             }
         }
+        yatzyServerClient.disconnect();
     }
 
     @Override
@@ -261,6 +294,18 @@ public class Multiplayer implements OnFailureListener {
                 }
             }
         }
+    }
+
+    public void subscribe(String message) {
+        try {
+            String[] messageSplit = message.split(";");
+            if (messageSplit.length >= 4) {
+                yatzyServerClient.subscribe(messageSplit[3]);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        proccessMessage(message, false, "");
     }
 
     public void proccessMessage(String message, boolean mqtt, String id) {
@@ -326,7 +371,7 @@ public class Multiplayer implements OnFailureListener {
                     e.printStackTrace();
                 }
             }
+            yatzyServerClient.setScore(score, fullScore);
         }
-
     }
 }
