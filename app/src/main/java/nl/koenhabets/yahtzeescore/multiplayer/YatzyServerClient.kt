@@ -2,7 +2,7 @@ package nl.koenhabets.yahtzeescore.multiplayer
 
 import android.util.Log
 import io.ktor.client.*
-import io.ktor.client.engine.cio.*
+import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.websocket.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.*
@@ -38,7 +38,7 @@ class YatzyServerClient(private val userId: String, private val userKey: String,
     var reconnectTimer: Timer? = null
 
     init {
-        client = HttpClient(CIO) {
+        client = HttpClient(OkHttp) {
             install(WebSockets) {
                 contentConverter = KotlinxWebsocketSerializationConverter((Json {
                     ignoreUnknownKeys = true
@@ -86,10 +86,10 @@ class YatzyServerClient(private val userId: String, private val userKey: String,
     private suspend fun startWebsocket() {
         try {
             connecting = true
-            client.wss(
+            client.webSocket(
                 method = HttpMethod.Get,
-                host = "yahtzee.koenhabets.nl",
-                port = 443,
+                host = "192.168.178.43",
+                port = 8080,
                 path = "/api/v1/ws"
             ) {
                 webSocketSession = this

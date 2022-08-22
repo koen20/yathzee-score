@@ -5,7 +5,7 @@ import org.json.JSONObject
 import org.junit.Test
 
 class YatzyClientTest {
-    private val client = YatzyServerClient("test", "test")
+    private val client = YatzyServerClient("test", "test", 0)
 
     @Test
     fun login() {
