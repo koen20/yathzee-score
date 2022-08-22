@@ -86,10 +86,10 @@ class YatzyServerClient(private val userId: String, private val userKey: String,
     private suspend fun startWebsocket() {
         try {
             connecting = true
-            client.webSocket(
+            client.wss(
                 method = HttpMethod.Get,
-                host = "192.168.178.43",
-                port = 8080,
+                host = "yahtzee.koenhabets.nl",
+                port = 443,
                 path = "/api/v1/ws"
             ) {
                 webSocketSession = this
