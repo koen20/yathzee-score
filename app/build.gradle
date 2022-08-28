@@ -1,3 +1,7 @@
+plugins {
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.7.10'
+}
+
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: "com.google.android.gms.oss-licenses-plugin"
@@ -18,13 +22,17 @@ android {
         }
     }*/
 
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+
     compileSdkVersion 32
     defaultConfig {
         applicationId "nl.koenhabets.yahtzeescore"
         minSdkVersion 19
         targetSdkVersion 32
-        versionCode 43
-        versionName "1.18.2"
+        versionCode 46
+        versionName "1.19"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
@@ -52,6 +60,7 @@ repositories {
 }
 
 dependencies {
+    def ktor_version = "2.0.3"
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.4.2'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
@@ -59,13 +68,18 @@ dependencies {
 
     implementation platform('com.google.firebase:firebase-bom:26.4.0')
     implementation 'com.google.firebase:firebase-database:20.0.5'
-    implementation 'com.google.firebase:firebase-auth:21.0.6'
+    implementation 'com.google.firebase:firebase-auth:21.0.7'
+
+    implementation "io.ktor:ktor-client-core:$ktor_version"
+    implementation "io.ktor:ktor-client-okhttp:$ktor_version"
+    implementation "io.ktor:ktor-client-websockets:$ktor_version"
+    implementation "io.ktor:ktor-serialization-kotlinx-json:$ktor_version"
 
     implementation 'com.google.android.material:material:1.6.1'
     implementation 'com.google.code.gson:gson:2.9.0'
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
-    implementation("com.google.android.gms:play-services-oss-licenses:17.0.0")
-    implementation 'com.google.android.gms:play-services-nearby:18.2.0'
+    implementation "com.google.android.gms:play-services-oss-licenses:17.0.0"
+    implementation 'com.google.android.gms:play-services-nearby:18.3.0'
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'androidx.preference:preference-ktx:1.2.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
