@@ -100,7 +100,7 @@ public class Multiplayer implements OnFailureListener {
         if (sharedPref.contains("userKey")) {
             userKey = sharedPref.getString("userKey", null);
         } else {
-            userKey = YatzyServerClient.Companion.getRandomString(22);
+            userKey = YatzyServerClient.Companion.getRandomString(60);
             sharedPref.edit().putString("userKey", userKey).apply();
         }
 

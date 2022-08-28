@@ -21,6 +21,7 @@ import nl.koenhabets.yahtzeescore.model.Message
 import nl.koenhabets.yahtzeescore.model.Response
 import nl.koenhabets.yahtzeescore.model.ResponseType
 import org.json.JSONObject
+import java.security.SecureRandom
 import java.util.*
 
 class YatzyServerClient(private val userId: String, private val userKey: String, private val clientVersion: Int) {
@@ -220,11 +221,20 @@ class YatzyServerClient(private val userId: String, private val userKey: String,
     }
 
     companion object { // todo this will be moved when Multiplayer.java is rewritten
+        // https://medium.com/android-news/password-generator-and-tester-with-kotlin-6db3c22488ff
         fun getRandomString(length: Int): String {
-            val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
-            return (1..length)
-                .map { allowedChars.random() }
-                .joinToString("")
+            val rnd = SecureRandom.getInstance("SHA1PRNG")
+            val sb = StringBuilder(length)
+            var i = 0
+            val result = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+            while (i < length) {
+                val randomInt: Int = rnd.nextInt(result.length)
+                sb.append(result[randomInt])
+                i++
+            }
+
+            return sb.toString()
         }
     }
 }
