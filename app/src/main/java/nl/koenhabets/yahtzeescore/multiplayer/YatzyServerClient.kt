@@ -37,6 +37,7 @@ class YatzyServerClient(private val userId: String, private val userKey: String,
     var game: String? = null
     var connecting = false
     var reconnectTimer: Timer? = null
+    var lastGameEnd = 0L
 
     init {
         client = HttpClient(OkHttp) {
@@ -120,8 +121,12 @@ class YatzyServerClient(private val userId: String, private val userKey: String,
     }
 
     fun endGame(game: String, versionString: String, versionCode: Int) {
-        scope.launch {
-            sendGameEnd(game, versionString, versionCode)
+        // limit sending game end to once every 2.5 minutes
+        if (Date().time - lastGameEnd > 150000) {
+            scope.launch {
+                sendGameEnd(game, versionString, versionCode)
+            }
+            lastGameEnd = Date().time
         }
     }
 

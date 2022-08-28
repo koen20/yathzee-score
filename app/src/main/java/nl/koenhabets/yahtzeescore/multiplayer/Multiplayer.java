@@ -2,6 +2,8 @@ package nl.koenhabets.yahtzeescore.multiplayer;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
+import android.provider.Settings;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -211,6 +213,12 @@ public class Multiplayer implements OnFailureListener {
     }
 
     public void endGame(String game, String verionString, int versionCode) {
+        String testLabSetting =
+                Settings.System.getString(context.getContentResolver(), "firebase.test.lab");
+        if ("true".equals(testLabSetting) || "generic".equalsIgnoreCase(Build.BRAND)) {
+            game = "test";
+        }
+
         yatzyServerClient.endGame(game, verionString, versionCode);
     }
 
