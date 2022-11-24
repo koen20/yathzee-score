@@ -23,6 +23,10 @@
             android:defaultValue="true"
             android:key="endDialog"
             android:title="@string/stats_dialog_setting" />
+        <SwitchPreferenceCompat
+            app:key="dividableColorEnabled"
+            app:title="Colors left side"
+            app:summary="Change color if score is lower or higher than the required amount to reach the bonus" />
         <ListPreference
             app:defaultValue="-1"
             app:entries="@array/theme_options"
