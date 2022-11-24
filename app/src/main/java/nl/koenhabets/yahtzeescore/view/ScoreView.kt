@@ -12,6 +12,7 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.snackbar.Snackbar
 import nl.koenhabets.yahtzeescore.R
@@ -143,14 +144,31 @@ open class ScoreView(context: Context, attributeSet: AttributeSet?) : Constraint
     }
 
     open fun validateScores() {
+        val sharedPref = context.getSharedPreferences(
+            "nl.koenhabets.yahtzeescore",
+            AppCompatActivity.MODE_PRIVATE
+        )
+        val dividableColorEnabled = sharedPref.getBoolean("dividableColorEnabled", false)
         val color = getColor()
         editTextList.forEach {
+            val score = getTextInt(it.editText)
             // scores with a default value do not need to be validated
             if (it.defaultValue == null) {
-                if (getTextInt(it.editText) > it.maxScore) {
+                if (score > it.maxScore) {
                     it.editText.setTextColor(Color.RED)
                 } else {
                     it.editText.setTextColor(color)
+                }
+                if (it.dividable != null) {
+                    if (score % it.dividable != 0) {
+                        it.editText.setTextColor(Color.RED)
+                    } else if (score < it.dividable * 3 && dividableColorEnabled) {
+                        it.editText.setTextColor(Color.YELLOW)
+                    } else if (score > it.dividable * 3 && dividableColorEnabled) {
+                        it.editText.setTextColor(Color.GREEN)
+                    } else {
+                        it.editText.setTextColor(color)
+                    }
                 }
             }
         }

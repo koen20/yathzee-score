@@ -7,8 +7,6 @@ import android.text.TextWatcher
 import android.util.AttributeSet
 import android.widget.EditText
 import android.widget.TextView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import nl.koenhabets.yahtzeescore.R
 
 class YahtzeeView(context: Context, attributeSet: AttributeSet?) : ScoreView(
@@ -59,12 +57,12 @@ class YahtzeeView(context: Context, attributeSet: AttributeSet?) : ScoreView(
         editText28 = findViewById(R.id.editText16)
         editTextBonus = findViewById(R.id.editTextBonus)
 
-        editTextList.add(ScoreViewItem(editText1, "1", null, 5))
-        editTextList.add(ScoreViewItem(editText2, "2", null))
-        editTextList.add(ScoreViewItem(editText3, "3", null))
-        editTextList.add(ScoreViewItem(editText4, "4", null))
-        editTextList.add(ScoreViewItem(editText5, "5", null))
-        editTextList.add(ScoreViewItem(editText6, "6", null))
+        editTextList.add(ScoreViewItem(editText1, "1", null, 5, 1))
+        editTextList.add(ScoreViewItem(editText2, "2", null, 10, 2))
+        editTextList.add(ScoreViewItem(editText3, "3", null, 15, 3))
+        editTextList.add(ScoreViewItem(editText4, "4", null, 20, 4))
+        editTextList.add(ScoreViewItem(editText5, "5", null, 25, 5))
+        editTextList.add(ScoreViewItem(editText6, "6", null, 30, 6))
         editTextList.add(ScoreViewItem(editText21, "21", null))
         editTextList.add(ScoreViewItem(editText22, "22", null))
         editTextList.add(ScoreViewItem(editText23, "23", 25))
@@ -118,37 +116,6 @@ class YahtzeeView(context: Context, attributeSet: AttributeSet?) : ScoreView(
         tvTotalRight.text = resources.getString(R.string.right, totalRight)
 
         validateScores()
-    }
-
-    override fun validateScores() {
-        super.validateScores()
-
-        val color = getColor()
-        if (getTextInt(editText2) > 10 || getTextInt(editText2) % 2 != 0) {
-            editText2.setTextColor(Color.RED)
-        } else {
-            editText2.setTextColor(color)
-        }
-        if (getTextInt(editText3) > 15 || getTextInt(editText3) % 3 != 0) {
-            editText3.setTextColor(Color.RED)
-        } else {
-            editText3.setTextColor(color)
-        }
-        if (getTextInt(editText4) > 20 || getTextInt(editText4) % 4 != 0) {
-            editText4.setTextColor(Color.RED)
-        } else {
-            editText4.setTextColor(color)
-        }
-        if (getTextInt(editText5) > 25 || getTextInt(editText5) % 5 != 0) {
-            editText5.setTextColor(Color.RED)
-        } else {
-            editText5.setTextColor(color)
-        }
-        if (getTextInt(editText6) > 30 || getTextInt(editText6) % 6 != 0) {
-            editText6.setTextColor(Color.RED)
-        } else {
-            editText6.setTextColor(color)
-        }
     }
 
     override fun setSpecialFieldVisibility(visible: Boolean) {

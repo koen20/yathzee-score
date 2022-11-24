@@ -101,4 +101,6 @@
     <string name="select_game_type">Select a game type</string>
     <string name="view_rules_game">View rules of selected game</string>
     <string name="yahtzee_bonus_select_text">Yahtzee rules with an extra field to score Yahtzee multiple times.</string>
+    <string name="color_left_side_summary">Change color if score is lower or higher than the required amount to reach the bonus</string>
+    <string name="colors_left_side">Colors left side</string>
 </resources>

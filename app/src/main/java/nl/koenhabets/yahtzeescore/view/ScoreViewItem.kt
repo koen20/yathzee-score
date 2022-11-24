@@ -6,5 +6,6 @@ data class ScoreViewItem(
     val editText: EditText,
     val id: String,
     val defaultValue: Int?,
-    val maxScore: Int = 30
+    val maxScore: Int = 30,
+    val dividable: Int? = null
 )
