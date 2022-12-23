@@ -70,7 +70,7 @@ class YahtzeeView(context: Context, attributeSet: AttributeSet?) : ScoreView(
         editTextList.add(ScoreViewItem(editText25, "25", 40))
         editTextList.add(ScoreViewItem(editText26, "26", 50))
         editTextList.add(ScoreViewItem(editText27, "27", null))
-        editTextList.add(ScoreViewItem(editText28, "28", null))
+        editTextList.add(ScoreViewItem(editText28, "28", null, 10000))
 
         tvTotalLeft = findViewById(R.id.textViewTotalLeft)
         tvTotalRight = findViewById(R.id.textViewTotalRight)

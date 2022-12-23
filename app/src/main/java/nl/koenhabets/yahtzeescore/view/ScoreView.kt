@@ -150,6 +150,15 @@ open class ScoreView(context: Context, attributeSet: AttributeSet?) : Constraint
         )
         val dividableColorEnabled = sharedPref.getBoolean("dividableColorEnabled", false)
         val color = getColor()
+        var yellow = Color.parseColor("#ef6c00")
+        var green = Color.parseColor("#008006")
+
+        val nightModeFlags = this.resources.configuration.uiMode and
+                Configuration.UI_MODE_NIGHT_MASK
+        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+            yellow = Color.YELLOW
+            green = Color.parseColor("#00c709")
+        }
         editTextList.forEach {
             val score = getTextInt(it.editText)
             // scores with a default value do not need to be validated
@@ -158,16 +167,16 @@ open class ScoreView(context: Context, attributeSet: AttributeSet?) : Constraint
                     it.editText.setTextColor(Color.RED)
                 } else {
                     it.editText.setTextColor(color)
-                }
-                if (it.dividable != null) {
-                    if (score % it.dividable != 0) {
-                        it.editText.setTextColor(Color.RED)
-                    } else if (score < it.dividable * 3 && dividableColorEnabled) {
-                        it.editText.setTextColor(Color.YELLOW)
-                    } else if (score > it.dividable * 3 && dividableColorEnabled) {
-                        it.editText.setTextColor(Color.GREEN)
-                    } else {
-                        it.editText.setTextColor(color)
+                    if (it.dividable != null) {
+                        if (score % it.dividable != 0) {
+                            it.editText.setTextColor(Color.RED)
+                        } else if (score < it.dividable * 3 && dividableColorEnabled) {
+                            it.editText.setTextColor(yellow)
+                        } else if (score > it.dividable * 3 && dividableColorEnabled) {
+                            it.editText.setTextColor(green)
+                        } else {
+                            it.editText.setTextColor(color)
+                        }
                     }
                 }
             }
