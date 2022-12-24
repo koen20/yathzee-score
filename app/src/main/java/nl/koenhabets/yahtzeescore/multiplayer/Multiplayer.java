@@ -212,6 +212,10 @@ public class Multiplayer implements OnFailureListener {
         yatzyServerClient.setGame(game);
     }
 
+    public String getUserId() {
+        return firebaseUserUid;
+    }
+
     public void endGame(String game, String verionString, int versionCode) {
         String testLabSetting =
                 Settings.System.getString(context.getContentResolver(), "firebase.test.lab");
