@@ -46,6 +46,7 @@ public class Multiplayer implements OnFailureListener {
     private String name;
     private int score;
     private JSONObject fullScore;
+    private String pairCode;
 
     public Multiplayer(Context context, String name, int score, String firebaseUserUid) {
         database = FirebaseDatabase.getInstance().getReference();
@@ -210,6 +211,17 @@ public class Multiplayer implements OnFailureListener {
     public void setGame(String game) {
         Log.i("gameset", game);
         yatzyServerClient.setGame(game);
+    }
+
+    public String getUserId() {
+        return firebaseUserUid;
+    }
+
+    public String getPairCode() {
+        if (pairCode == null) {
+            pairCode = YatzyServerClient.Companion.getRandomString(10);
+        }
+        return pairCode;
     }
 
     public void endGame(String game, String verionString, int versionCode) {

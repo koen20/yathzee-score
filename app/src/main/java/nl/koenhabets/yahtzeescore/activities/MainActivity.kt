@@ -32,6 +32,7 @@ import nl.koenhabets.yahtzeescore.data.DataManager
 import nl.koenhabets.yahtzeescore.data.Game
 import nl.koenhabets.yahtzeescore.data.MigrateData
 import nl.koenhabets.yahtzeescore.databinding.ActivityMainBinding
+import nl.koenhabets.yahtzeescore.dialog.AddPlayerDialog
 import nl.koenhabets.yahtzeescore.dialog.GameEndDialog
 import nl.koenhabets.yahtzeescore.dialog.PlayerScoreDialog
 import nl.koenhabets.yahtzeescore.multiplayer.Multiplayer
@@ -334,32 +335,30 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
     }
 
     private fun addPlayerDialog() {
-        val builder = AlertDialog.Builder(this)
-        val inflater = this.layoutInflater
-        val view = inflater.inflate(R.layout.dialog_name, null)
-        val editTextName = view.findViewById<EditText>(R.id.editText2)
-        builder.setView(view)
-        builder.setMessage(R.string.add_player)
-        builder.setPositiveButton("Ok") { _: DialogInterface, _: Int ->
-            if (editTextName.text.toString() != "" && multiplayer !== null) {
-                val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
-                var playersM = JSONArray()
-                try {
-                    playersM = JSONArray(sharedPref.getString("players", "[]"))
-                } catch (e: JSONException) {
-                    e.printStackTrace()
-                }
-                playersM.put(editTextName.text.toString())
-                sharedPref.edit().putString("players", playersM.toString()).apply()
-                val playerItem = PlayerItem(editTextName.text.toString(), 0, 0, true, false)
-                multiplayer?.let {
-                    it.addPlayer(playerItem)
-                    updateMultiplayerText(it.players)
+        val addPlayerDialog = AddPlayerDialog(this)
+        addPlayerDialog.showDialog(multiplayer?.userId, multiplayer?.pairCode)
+        addPlayerDialog.setAddPlayerDialogListener(object :
+            AddPlayerDialog.AddPlayerDialogListener {
+            override fun onAddPlayer(player: String) {
+                if (multiplayer !== null) {
+                    val sharedPref =
+                        getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
+                    var playersM = JSONArray()
+                    try {
+                        playersM = JSONArray(sharedPref.getString("players", "[]"))
+                    } catch (e: JSONException) {
+                        e.printStackTrace()
+                    }
+                    playersM.put(player)
+                    sharedPref.edit().putString("players", playersM.toString()).apply()
+                    val playerItem = PlayerItem(player, 0, 0, true, false)
+                    multiplayer?.let {
+                        it.addPlayer(playerItem)
+                        updateMultiplayerText(it.players)
+                    }
                 }
             }
-        }
-        builder.setNegativeButton(R.string.cancel) { _: DialogInterface, _: Int -> }
-        builder.show()
+        })
     }
 
     fun updateMultiplayerText(players: List<PlayerItem>) {

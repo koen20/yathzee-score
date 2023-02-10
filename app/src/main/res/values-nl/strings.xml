@@ -102,4 +102,8 @@
     <string name="view_rules_game">Bekijk regels van geselecteerd spel</string>
     <string name="colors_left_side">Kleuren linker kant</string>
     <string name="color_left_side_summary">Verander kleur van scores aan de linker kant als de score afwijkt van benodigde hoeveelheid om de bonus te halen</string>
+    <string name="manual_add_player_description">Voer de gebruikersnaam van een andere speler in</string>
+    <string name="show_code">Toon code</string>
+    <string name="scan_code">Scan code</string>
+    <string name="scan_code_description">Scan deze code met een andere telefoon om een speler toe te voegen</string>
 </resources>
