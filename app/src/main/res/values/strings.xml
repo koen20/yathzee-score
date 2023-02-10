@@ -103,4 +103,8 @@
     <string name="yahtzee_bonus_select_text">Yahtzee rules with an extra field to score Yahtzee multiple times.</string>
     <string name="color_left_side_summary">Change color if score is lower or higher than the required amount to reach the bonus</string>
     <string name="colors_left_side">Colors left side</string>
+    <string name="manual_add_player_description">Enter the username of the player to add</string>
+    <string name="show_code">Show code</string>
+    <string name="scan_code">Scan code</string>
+    <string name="scan_code_description">Scan this code with another device to add the player</string>
 </resources>

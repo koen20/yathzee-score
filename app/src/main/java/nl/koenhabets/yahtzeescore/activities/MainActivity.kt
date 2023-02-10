@@ -336,7 +336,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
 
     private fun addPlayerDialog() {
         val addPlayerDialog = AddPlayerDialog(this)
-        addPlayerDialog.showDialog(multiplayer?.userId)
+        addPlayerDialog.showDialog(multiplayer?.userId, multiplayer?.pairCode)
         addPlayerDialog.setAddPlayerDialogListener(object :
             AddPlayerDialog.AddPlayerDialogListener {
             override fun onAddPlayer(player: String) {
