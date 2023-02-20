@@ -39,7 +39,7 @@ class AddPlayerDialog(private var context: Context) {
             binding.imageViewQrCode.setImageBitmap(encodeAsBitmap("$playerId;$pairCode"))
         }
 
-        if (Date().time < 1678474613000) {
+        if (Date().time < 1685658596000) {
             binding.showCodeLayout.visibility = GONE
             binding.scanCodeLayout.visibility = VISIBLE
             binding.tabLayout.visibility = GONE
