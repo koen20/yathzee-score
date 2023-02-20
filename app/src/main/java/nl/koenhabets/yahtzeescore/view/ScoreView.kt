@@ -150,7 +150,7 @@ open class ScoreView(context: Context, attributeSet: AttributeSet?) : Constraint
         )
         val dividableColorEnabled = sharedPref.getBoolean("dividableColorEnabled", false)
         val color = getColor()
-        var yellow = Color.parseColor("#ef6c00")
+        var yellow = Color.parseColor("#bfa600")
         var green = Color.parseColor("#008006")
 
         val nightModeFlags = this.resources.configuration.uiMode and
