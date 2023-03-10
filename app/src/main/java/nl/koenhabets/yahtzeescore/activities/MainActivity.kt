@@ -494,6 +494,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
     public override fun onResume() {
         val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
         Log.i("onResume", "start")
+        scoreView.validateScores()
         if (Game.valueOf(
                 sharedPref.getString(
                     "game",
