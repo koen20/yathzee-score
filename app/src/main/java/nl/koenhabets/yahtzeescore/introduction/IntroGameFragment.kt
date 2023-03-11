@@ -34,15 +34,17 @@ class IntroGameFragment : Fragment() {
 
     fun getGame(): Game {
         var game: Game = Game.Yahtzee
-        when (radioGroup.checkedRadioButtonId) {
-            R.id.radioYahtzee -> {
-                game = Game.Yahtzee
-            }
-            R.id.radioYahtzeeBonus -> {
-                game = Game.YahtzeeBonus
-            }
-            R.id.radioYatzy -> {
-                game = Game.Yatzy
+        if (this::radioGroup.isInitialized) {
+            when (radioGroup.checkedRadioButtonId) {
+                R.id.radioYahtzee -> {
+                    game = Game.Yahtzee
+                }
+                R.id.radioYahtzeeBonus -> {
+                    game = Game.YahtzeeBonus
+                }
+                R.id.radioYatzy -> {
+                    game = Game.Yatzy
+                }
             }
         }
         return game

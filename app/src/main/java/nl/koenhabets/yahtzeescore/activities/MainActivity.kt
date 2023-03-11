@@ -125,10 +125,12 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
         Timer().schedule(
             object : TimerTask() {
                 override fun run() {
-                    val versionText = AppUpdates(applicationContext).getVersionText()
+                    val appUpdates = AppUpdates(applicationContext)
+                    val versionText = appUpdates.getVersionText()
                     if (versionText !== null) {
                         showUpdateToast(versionText)
                     }
+                    appUpdates.updateConfig(context)
                 }
             },
             3000
@@ -494,6 +496,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
     public override fun onResume() {
         val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
         Log.i("onResume", "start")
+        scoreView.validateScores()
         if (Game.valueOf(
                 sharedPref.getString(
                     "game",
