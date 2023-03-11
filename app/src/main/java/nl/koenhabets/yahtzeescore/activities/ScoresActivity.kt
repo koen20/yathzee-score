@@ -18,6 +18,10 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import nl.koenhabets.yahtzeescore.*
 import nl.koenhabets.yahtzeescore.data.DataManager
 import nl.koenhabets.yahtzeescore.data.Game
@@ -37,6 +41,7 @@ class ScoresActivity : AppCompatActivity() {
     var exportResult: ActivityResultLauncher<Intent>? = null
     var importResult: ActivityResultLauncher<Intent>? = null
     private lateinit var binding: ActivityScoresBinding
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -111,7 +116,9 @@ class ScoresActivity : AppCompatActivity() {
         ) { result: ActivityResult ->
             if (result.resultCode == RESULT_OK) {
                 val data = result.data
-                exportScoresMem(data)
+                scope.launch {
+                    exportScoresMem(data)
+                }
             }
         }
         importResult = registerForActivityResult(
@@ -119,7 +126,9 @@ class ScoresActivity : AppCompatActivity() {
         ) { result: ActivityResult ->
             if (result.resultCode == RESULT_OK) {
                 val data = result.data
-                importScoresMem(data)
+                scope.launch {
+                    importScoresMem(data)
+                }
             }
         }
     }
@@ -128,7 +137,7 @@ class ScoresActivity : AppCompatActivity() {
         if (item.itemId == R.id.export_scores) {
             exportScores()
         } else if (item.itemId == R.id.import_scores) {
-            importScores(findViewById<View>(android.R.id.content).rootView)
+            importScores()
         } else if (item.itemId == R.id.change_sort) {
             if (sort == 1) {
                 Collections.sort(scoreItems, ScoreComparatorDate())
@@ -161,7 +170,7 @@ class ScoresActivity : AppCompatActivity() {
         exportResult!!.launch(intent)
     }
 
-    private fun importScores(view: View?) {
+    private fun importScores() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
         intent.addCategory(Intent.CATEGORY_OPENABLE)
         intent.type = "text/plain"
@@ -186,7 +195,7 @@ class ScoresActivity : AppCompatActivity() {
         }
     }
 
-    private fun importScoresMem(resultData: Intent?) {
+    private suspend fun importScoresMem(resultData: Intent?) {
         if (resultData != null) {
             try {
                 val read = readFileContent(resultData.data)
@@ -216,7 +225,9 @@ class ScoresActivity : AppCompatActivity() {
                 sharedPref.edit().putString("scoresSaved", jsonArrayExisting.toString()).apply()
                 scoreItems.clear()
                 scoreItems.addAll(DataManager().loadScores(this, null))
-                scoreAdapter!!.notifyDataSetChanged()
+                withContext(Dispatchers.Main) {
+                    scoreAdapter!!.notifyDataSetChanged()
+                }
                 updateAverageScore()
             } catch (e: IOException) {
                 e.printStackTrace()
