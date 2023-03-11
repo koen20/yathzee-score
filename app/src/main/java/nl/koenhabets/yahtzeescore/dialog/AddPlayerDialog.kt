@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.tabs.TabLayout
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.WriterException
@@ -39,7 +40,12 @@ class AddPlayerDialog(private var context: Context) {
             binding.imageViewQrCode.setImageBitmap(encodeAsBitmap("$playerId;$pairCode"))
         }
 
-        if (Date().time < 1685658596000) {
+        val sharedPref = context.getSharedPreferences(
+            "nl.koenhabets.yahtzeescore",
+            AppCompatActivity.MODE_PRIVATE
+        )
+
+        if (Date().time < sharedPref.getLong("qrCodeEnable", 1685658596000)) {
             binding.showCodeLayout.visibility = GONE
             binding.scanCodeLayout.visibility = VISIBLE
             binding.tabLayout.visibility = GONE
