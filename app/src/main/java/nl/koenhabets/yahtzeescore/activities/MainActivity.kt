@@ -1,9 +1,11 @@
 package nl.koenhabets.yahtzeescore.activities
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -16,6 +18,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.nearby.Nearby
@@ -37,8 +40,6 @@ import nl.koenhabets.yahtzeescore.model.PlayerItem
 import nl.koenhabets.yahtzeescore.multiplayer.Multiplayer
 import nl.koenhabets.yahtzeescore.multiplayer.Multiplayer.MultiplayerListener
 import nl.koenhabets.yahtzeescore.view.ScoreView
-import org.json.JSONArray
-import org.json.JSONException
 import org.json.JSONObject
 import java.util.*
 
@@ -48,6 +49,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
     private var playerAdapter: PlayerAdapter? = null
     private val multiplayerPlayers: MutableList<PlayerItem> = ArrayList()
     private var playerScoreDialog: PlayerScoreDialog? = null
+    private var addPlayerDialog: AddPlayerDialog? = null
     private var mMessageListener: MessageListener? = null
     private var mMessage: Message? = null
     private lateinit var binding: ActivityMainBinding
@@ -94,6 +96,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
             )
         )
 
+        addPlayerDialog = AddPlayerDialog(this)
         playerScoreDialog = PlayerScoreDialog(this)
         val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(this)
         binding.recyclerViewMultiplayer.layoutManager = layoutManager
@@ -327,31 +330,48 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
     }
 
     private fun addPlayerDialog() {
-        val addPlayerDialog = AddPlayerDialog(this)
-        addPlayerDialog.showDialog(multiplayer?.userId, multiplayer?.pairCode)
-        addPlayerDialog.setAddPlayerDialogListener(object :
+        if (multiplayer?.userId != null && multiplayer?.pairCode != null) {
+            addPlayerDialog?.showDialog(multiplayer?.userId!!, multiplayer?.pairCode!!)
+        }
+        addPlayerDialog?.setAddPlayerDialogListener(object :
             AddPlayerDialog.AddPlayerDialogListener {
-            override fun onAddPlayer(player: String) {
-                if (multiplayer != null) {
-                    val sharedPref =
-                        getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
-                    var playersM = JSONArray()
-                    try {
-                        playersM = JSONArray(sharedPref.getString("players", "[]"))
-                    } catch (e: JSONException) {
-                        e.printStackTrace()
-                    }
-                    playersM.put(player)
-                    sharedPref.edit().putString("players", playersM.toString()).apply()
-                    // todo add with id
-                    /*val playerItem = PlayerItem(player, 0, 0, true, false)
-                    multiplayer?.let {
-                        it.addPlayer(playerItem)
-                        updateMultiplayerText(it.players)
-                    }*/
+            override fun onAddPlayer(userId: String, pairCode: String) {
+                multiplayer?.subscribe(userId)
+                runOnUiThread {
+                    Toast.makeText(
+                        this@MainActivity, "Player added",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
+
+            override fun requestPermissions() {
+                ActivityCompat.requestPermissions(
+                    this@MainActivity, arrayOf<String>(
+                        Manifest.permission.CAMERA
+                    ), 23
+                )
+            }
         })
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 23) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                addPlayerDialog?.startCodeScanner()
+            } else {
+                Toast.makeText(
+                    this@MainActivity,
+                    "Unable to add players without camera permission.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -366,7 +386,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
 
         multiplayerPlayers.sort()
 
-        if (position != null && existing != null) {
+        /*if (position != null && existing != null) {
             if (existing) {
                 playerAdapter?.notifyItemChanged(position)
             } else {
@@ -374,7 +394,8 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
             }
         } else {
             playerAdapter?.notifyDataSetChanged()
-        }
+        }*/
+        playerAdapter?.notifyDataSetChanged()
     }
 
     override fun onFailure(e: Exception) {

@@ -65,7 +65,7 @@ class Multiplayer(
             userId = sharedPref.getString("userId", null)
         } else {
             userId = getRandomString(50)
-            sharedPref.edit().putString("userId", userKey).apply()
+            sharedPref.edit().putString("userId", userId).apply()
         }
 
         if (userKey != null && userId != null) {
