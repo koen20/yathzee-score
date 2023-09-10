@@ -3,7 +3,7 @@ package nl.koenhabets.yahtzeescore.data;
 
 import java.util.List;
 
-import nl.koenhabets.yahtzeescore.multiplayer.PlayerItem;
+import nl.koenhabets.yahtzeescore.model.PlayerItem;
 
 public interface PlayerDao {
     List<PlayerItem> getAll();

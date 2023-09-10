@@ -15,8 +15,7 @@ import nl.koenhabets.yahtzeescore.model.Message
 import nl.koenhabets.yahtzeescore.model.Response
 import nl.koenhabets.yahtzeescore.model.ResponseType
 import org.json.JSONObject
-import java.security.SecureRandom
-import java.util.*
+import java.util.Date
 
 class YatzyServerClient(private val userId: String, private val userKey: String, private val clientVersion: Int) {
     private val tag = "YatzyServerClient"
@@ -29,7 +28,7 @@ class YatzyServerClient(private val userId: String, private val userKey: String,
     private var lastScore: Message.Score? = null
     var username: String? = null
     var game: String? = null
-    var lastGameEnd = 0L
+    private var lastGameEnd = 0L
     var wsFailCount = 0
     var loggedIn = false
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
@@ -166,23 +165,5 @@ class YatzyServerClient(private val userId: String, private val userKey: String,
         yatzyServerWs?.disconnect()
         yatzyServerWsBackup?.disconnect()
 
-    }
-
-    companion object { // todo this will be moved when Multiplayer.java is rewritten
-        // https://medium.com/android-news/password-generator-and-tester-with-kotlin-6db3c22488ff
-        fun getRandomString(length: Int): String {
-            val rnd = SecureRandom.getInstance("SHA1PRNG")
-            val sb = StringBuilder(length)
-            var i = 0
-            val result = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-
-            while (i < length) {
-                val randomInt: Int = rnd.nextInt(result.length)
-                sb.append(result[randomInt])
-                i++
-            }
-
-            return sb.toString()
-        }
     }
 }

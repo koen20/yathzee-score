@@ -12,7 +12,7 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.List;
 
-import nl.koenhabets.yahtzeescore.multiplayer.PlayerItem;
+import nl.koenhabets.yahtzeescore.model.PlayerItem;
 
 public class PlayerDaoImpl implements PlayerDao {
     Context context;

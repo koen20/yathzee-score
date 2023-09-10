@@ -15,6 +15,7 @@ import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.serialization.json.JsonObject
 import nl.koenhabets.yahtzeescore.R
 import nl.koenhabets.yahtzeescore.data.Game
 import org.json.JSONException
@@ -29,8 +30,7 @@ open class ScoreView(context: Context, attributeSet: AttributeSet?) : Constraint
     val editTextList: MutableList<ScoreViewItem> = ArrayList()
 
     interface ScoreListener {
-        fun onScoreJson(scores: JSONObject)
-        fun onScore(score: Int)
+        fun onScore(score: Int, scores: JSONObject)
     }
 
     fun setScoreListener(listener: ScoreListener) {
@@ -94,7 +94,7 @@ open class ScoreView(context: Context, attributeSet: AttributeSet?) : Constraint
         return d
     }
 
-    fun getColor(): Int {
+    private fun getColor(): Int {
         var color = Color.BLACK
         // change editText color to white if there is a black theme
         val nightModeFlags = this.resources.configuration.uiMode and
@@ -124,6 +124,17 @@ open class ScoreView(context: Context, attributeSet: AttributeSet?) : Constraint
         try {
             editTextList.forEach {
                 it.editText.setText(jsonObject.getString(it.id))
+            }
+        } catch (e: JSONException) {
+            e.printStackTrace()
+        }
+    }
+
+    fun setScores(jsonObject: JsonObject) {
+        Log.i("score", "read$jsonObject")
+        try {
+            editTextList.forEach {
+                it.editText.setText(jsonObject[it.id].toString().replace("\"", ""))
             }
         } catch (e: JSONException) {
             e.printStackTrace()
