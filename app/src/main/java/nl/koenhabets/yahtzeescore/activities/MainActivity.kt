@@ -146,10 +146,6 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
             override fun onScore(scoreReceived: Int, scores: JSONObject) {
                 DataManager().saveScores(scores, applicationContext, game)
                 if (multiplayerEnabled && multiplayer != null) {
-                    if (multiplayerPlayers.size > 1) {
-                        binding.textViewOp.setText(R.string.No_players_nearby)
-                        binding.recyclerViewMultiplayer.visibility = View.GONE
-                    }
                     setMultiplayerScore(scoreReceived, scores)
                 }
 
@@ -360,8 +356,14 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
 
     @SuppressLint("NotifyDataSetChanged")
     fun updateMultiplayerUI(position: Int?, existing: Boolean?) {
-        binding.recyclerViewMultiplayer.visibility = View.VISIBLE
-        binding.textViewOp.setText(R.string.nearby)
+        if (multiplayerPlayers.size > 1) {
+            binding.recyclerViewMultiplayer.visibility = View.VISIBLE
+            binding.textViewOp.setText(R.string.nearby)
+        } else {
+            binding.recyclerViewMultiplayer.visibility = View.GONE
+            binding.textViewOp.setText(R.string.No_players_nearby)
+        }
+
         multiplayerPlayers.sort()
 
         if (position != null && existing != null) {
