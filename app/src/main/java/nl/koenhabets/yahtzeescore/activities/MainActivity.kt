@@ -1,8 +1,11 @@
 package nl.koenhabets.yahtzeescore.activities
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,19 +18,17 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.nearby.Nearby
 import com.google.android.gms.nearby.messages.Message
 import com.google.android.gms.nearby.messages.MessageListener
 import com.google.android.gms.tasks.OnFailureListener
-import com.google.android.gms.tasks.Task
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.firebase.auth.AuthResult
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import nl.koenhabets.yahtzeescore.*
+import nl.koenhabets.yahtzeescore.data.AppDatabase
 import nl.koenhabets.yahtzeescore.data.DataManager
 import nl.koenhabets.yahtzeescore.data.Game
 import nl.koenhabets.yahtzeescore.data.MigrateData
@@ -35,28 +36,28 @@ import nl.koenhabets.yahtzeescore.databinding.ActivityMainBinding
 import nl.koenhabets.yahtzeescore.dialog.AddPlayerDialog
 import nl.koenhabets.yahtzeescore.dialog.GameEndDialog
 import nl.koenhabets.yahtzeescore.dialog.PlayerScoreDialog
+import nl.koenhabets.yahtzeescore.model.PlayerItem
 import nl.koenhabets.yahtzeescore.multiplayer.Multiplayer
 import nl.koenhabets.yahtzeescore.multiplayer.Multiplayer.MultiplayerListener
-import nl.koenhabets.yahtzeescore.multiplayer.PlayerItem
 import nl.koenhabets.yahtzeescore.view.ScoreView
-import org.json.JSONArray
-import org.json.JSONException
 import org.json.JSONObject
 import java.util.*
 
 class MainActivity : AppCompatActivity(), OnFailureListener {
     var multiplayer: Multiplayer? = null
     var multiplayerEnabled = false
-    private var firebaseUser: FirebaseUser? = null
-    private lateinit var mAuth: FirebaseAuth
     private var playerAdapter: PlayerAdapter? = null
-    private val players2: MutableList<PlayerItem> = ArrayList()
-    var playerScoreDialog: PlayerScoreDialog? = null
-    var mMessageListener: MessageListener? = null
+    private val multiplayerPlayers: MutableList<PlayerItem> = ArrayList()
+    private var playerScoreDialog: PlayerScoreDialog? = null
+    private var addPlayerDialog: AddPlayerDialog? = null
+    private var mMessageListener: MessageListener? = null
     private var mMessage: Message? = null
     private lateinit var binding: ActivityMainBinding
     private lateinit var scoreView: ScoreView
     private var lastInitGame: Game? = null
+    private lateinit var appDatabase: AppDatabase
+    var score = 0
+    var name: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,9 +66,14 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
         setSupportActionBar(binding.toolbar)
         DynamicColors.applyToActivitiesIfAvailable(application)
 
+        val localPlayer = PlayerItem(id = "", null, null, null, 0, true, "")
+        multiplayerPlayers.add(localPlayer)
+        updateMultiplayerUI(multiplayerPlayers.indexOf(localPlayer), false)
+
+        appDatabase = AppDatabase.getDatabase(this)
+
         // Set the score to 0 to prevent showing the default score
         binding.textViewTotal.text = getString(R.string.Total, 0)
-        mAuth = FirebaseAuth.getInstance()
         val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
         Log.i("multiplayer main", sharedPref.getBoolean("multiplayer", false).toString() + "d")
         if (!sharedPref.contains("version") && !sharedPref.contains("multiplayer") && !sharedPref.contains(
@@ -90,29 +96,27 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
             )
         )
 
+        addPlayerDialog = AddPlayerDialog(this)
         playerScoreDialog = PlayerScoreDialog(this)
         val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(this)
         binding.recyclerViewMultiplayer.layoutManager = layoutManager
-        playerAdapter = PlayerAdapter(this, players2)
+        playerAdapter = PlayerAdapter(this, multiplayerPlayers)
         binding.recyclerViewMultiplayer.adapter = playerAdapter
 
-        playerAdapter!!.setClickListener(object : PlayerAdapter.ItemClickListener {
+        playerAdapter?.setClickListener(object : PlayerAdapter.ItemClickListener {
             override fun onItemClick(view: View?, position: Int) {
-                if (position >= 0 && position < players2.size) {
-                    if (players2[position].name != name) {
-                        if (players2[position].fullScore.toString() != "{}") {
-                            playerScoreDialog!!.showDialog(
-                                this@MainActivity,
-                                players2,
-                                position,
-                                lastInitGame ?: Game.YahtzeeBonus
-                            )
-                        } else {
-                            Toast.makeText(
-                                this@MainActivity, R.string.score_nearby_unavailable,
-                                Toast.LENGTH_SHORT
-                            ).show()
+                if (position >= 0 && position < multiplayerPlayers.size) {
+                    val player = multiplayerPlayers[position]
+                    if (player.id != multiplayer?.userId) {
+                        player.fullScore?.let {
+                            playerScoreDialog?.showDialog(this@MainActivity, player, position)
+                            return
                         }
+
+                        Toast.makeText(
+                            this@MainActivity, R.string.score_nearby_unavailable,
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }
@@ -142,20 +146,15 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
         val game = Game.valueOf(sharedPref.getString("game", Game.Yahtzee.toString())!!)
 
         scoreView.setScoreListener(object : ScoreView.ScoreListener {
-            override fun onScoreJson(scores: JSONObject) {
+            override fun onScore(scoreReceived: Int, scores: JSONObject) {
                 DataManager().saveScores(scores, applicationContext, game)
                 if (multiplayerEnabled && multiplayer != null) {
-                    if (multiplayer!!.playerAmount == 0) {
-                        binding.textViewOp.setText(R.string.No_players_nearby)
-                        binding.recyclerViewMultiplayer.visibility = View.GONE
-                    }
-                    setMultiplayerScore(score, scores)
+                    setMultiplayerScore(scoreReceived, scores)
                 }
-            }
 
-            override fun onScore(score: Int) {
-                Companion.score = score
+                score = scoreReceived
                 binding.textViewTotal.text = getString(R.string.Total, score)
+                updateLocalPlayer()
             }
         })
 
@@ -163,6 +162,19 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
             scoreView.setScores(JSONObject(sharedPref.getString("scores-$game", "")!!))
         } catch (ignored: Exception) {
         }
+    }
+
+    private fun updateLocalPlayer() {
+        var playerFound: PlayerItem? = null
+        multiplayerPlayers.forEach {
+            if (it.isLocal) {
+                it.score = score
+                it.name = name
+                playerFound = it
+                return@forEach
+            }
+        }
+        updateMultiplayerUI(multiplayerPlayers.indexOf(playerFound), true)
     }
 
     private fun setCurrentScoreView(game: Game) {
@@ -230,7 +242,11 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
                 )
             }
             if (multiplayerEnabled) {
-                multiplayer?.endGame((lastInitGame?:"").toString(), BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE)
+                multiplayer?.endGame(
+                    (lastInitGame ?: "").toString(),
+                    BuildConfig.VERSION_NAME,
+                    BuildConfig.VERSION_CODE
+                )
             }
             scoreView.clearScores()
         }
@@ -246,61 +262,37 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
         } else {
             name = sharedPref.getString("name", "")
         }
-        firebaseUser = mAuth.currentUser
-        if (firebaseUser == null) {
-            mAuth.signInAnonymously()
-                .addOnCompleteListener(this) { task: Task<AuthResult?> ->
-                    if (task.isSuccessful) {
-                        Log.d("MainActivity", "signInAnonymously:success")
-                        firebaseUser = mAuth.currentUser
-                        initMultiplayerObj(firebaseUser!!)
-                    } else {
-                        Log.w("MainActivity", "signInAnonymously:failure", task.exception)
-                        Toast.makeText(
-                            this@MainActivity, "Authentication failed.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-        } else {
-            initMultiplayerObj(firebaseUser!!)
-        }
+        updateLocalPlayer()
+
+        initMultiplayerObj()
 
         binding.textViewOp.setOnClickListener { addPlayerDialog() }
     }
 
-    private fun initMultiplayerObj(firebaseUser: FirebaseUser) {
-        // save firebaseuid. Firebase will be removed in a future version but the same id still needs to be used.
-        val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
-        sharedPref.edit().putString("userId", firebaseUser.uid).apply()
-        multiplayer = Multiplayer(this, name, score, firebaseUser.uid)
+    private fun initMultiplayerObj() {
+        val subscriptionDao = appDatabase.subscriptionDao()
+        multiplayer = Multiplayer(this, name, subscriptionDao)
         initNearby()
         multiplayer!!.setMultiplayerListener(object : MultiplayerListener {
-            override fun onChange(players: MutableList<PlayerItem>) {
-                if (multiplayerEnabled) {
-                    // add the local player to the players list and update it on screen
-                    if (name != "" && multiplayer!!.playerAmount != 0) {
-                        // remove player if name already exists
-                        for (i in players.indices) {
-                            val playerItem = players[i]
-                            if (playerItem.name == name) {
-                                players.removeAt(i)
-                                break
-                            }
-                        }
-                        val item = PlayerItem(name, score, Date().time, true, true)
-                        players.add(item)
-                        updateMultiplayerText(players)
-                    }
-                }
-            }
+            override fun onPlayerChanged(player: PlayerItem) {
+                Log.i("main", "player changed")
+                val existingPlayer = multiplayerPlayers.find { it.id == player.id }
 
-            override fun onChangeFullScore(players: List<PlayerItem>) {
-                if (playerScoreDialog!!.playerShown != null) {
-                    if (playerScoreDialog!!.playerShown != "") {
-                        playerScoreDialog!!.updateScore(players)
+                if (existingPlayer == null) {
+                    multiplayerPlayers.add(player)
+                    updateMultiplayerUI(multiplayerPlayers.indexOf(player), false)
+                } else {
+                    multiplayerPlayers.remove(existingPlayer)
+                    multiplayerPlayers.add(player)
+                    updateMultiplayerUI(multiplayerPlayers.indexOf(player), true)
+                }
+
+                if (playerScoreDialog?.playerShown != null) {
+                    if (playerScoreDialog?.playerShown != "") {
+                        playerScoreDialog?.updateScore(player)
                     }
                 }
+
             }
         })
         lastInitGame?.let {
@@ -312,8 +304,9 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
     private fun setMultiplayerScore(score: Int, fullScore: JSONObject) {
         Nearby.getMessagesClient(this).unpublish(mMessage!!)
         val date = Date()
-        if (name != "") {
-            val text = name + ";" + score + ";" + date.time + ";" + firebaseUser!!.uid
+        if (name != "" && multiplayer?.userId != null) {
+            val text = name + ";" + score + ";" + date.time + ";" + multiplayer!!.userId
+            Log.i("nearby", text)
             mMessage = Message(text.toByteArray())
             Nearby.getMessagesClient(this).publish(mMessage!!).addOnFailureListener(this)
         }
@@ -324,7 +317,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
         mMessageListener = object : MessageListener() {
             override fun onFound(message: Message) {
                 Log.d("t", "Found message: " + String(message.content))
-                multiplayer?.subscribe(String(message.content))
+                multiplayer?.subscribeMessage(String(message.content))
             }
 
             override fun onLost(message: Message) {
@@ -337,44 +330,72 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
     }
 
     private fun addPlayerDialog() {
-        val addPlayerDialog = AddPlayerDialog(this)
-        addPlayerDialog.showDialog(multiplayer?.userId, multiplayer?.pairCode)
-        addPlayerDialog.setAddPlayerDialogListener(object :
+        if (multiplayer?.userId != null && multiplayer?.pairCode != null) {
+            addPlayerDialog?.showDialog(multiplayer?.userId!!, multiplayer?.pairCode!!)
+        }
+        addPlayerDialog?.setAddPlayerDialogListener(object :
             AddPlayerDialog.AddPlayerDialogListener {
-            override fun onAddPlayer(player: String) {
-                if (multiplayer !== null) {
-                    val sharedPref =
-                        getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
-                    var playersM = JSONArray()
-                    try {
-                        playersM = JSONArray(sharedPref.getString("players", "[]"))
-                    } catch (e: JSONException) {
-                        e.printStackTrace()
-                    }
-                    playersM.put(player)
-                    sharedPref.edit().putString("players", playersM.toString()).apply()
-                    val playerItem = PlayerItem(player, 0, 0, true, false)
-                    multiplayer?.let {
-                        it.addPlayer(playerItem)
-                        updateMultiplayerText(it.players)
-                    }
+            override fun onAddPlayer(userId: String, pairCode: String) {
+                multiplayer?.subscribe(userId)
+                runOnUiThread {
+                    Toast.makeText(
+                        this@MainActivity, "Player added",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
+            }
+
+            override fun requestPermissions() {
+                ActivityCompat.requestPermissions(
+                    this@MainActivity, arrayOf<String>(
+                        Manifest.permission.CAMERA
+                    ), 23
+                )
             }
         })
     }
 
-    fun updateMultiplayerText(players: List<PlayerItem>) {
-        binding.recyclerViewMultiplayer.visibility = View.VISIBLE
-        binding.textViewOp.setText(R.string.nearby)
-        Collections.sort(players)
-        players2.clear()
-        for (i in players.indices) {
-            val playerItem = players[i]
-            if (playerItem.isVisible) {
-                players2.add(playerItem)
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 23) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                addPlayerDialog?.startCodeScanner()
+            } else {
+                Toast.makeText(
+                    this@MainActivity,
+                    "Unable to add players without camera permission.",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
-        playerAdapter!!.notifyDataSetChanged()
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun updateMultiplayerUI(position: Int?, existing: Boolean?) {
+        if (multiplayerPlayers.size > 1) {
+            binding.recyclerViewMultiplayer.visibility = View.VISIBLE
+            binding.textViewOp.setText(R.string.nearby)
+        } else {
+            binding.recyclerViewMultiplayer.visibility = View.GONE
+            binding.textViewOp.setText(R.string.No_players_nearby)
+        }
+
+        multiplayerPlayers.sort()
+
+        /*if (position != null && existing != null) {
+            if (existing) {
+                playerAdapter?.notifyItemChanged(position)
+            } else {
+                playerAdapter?.notifyItemInserted(position)
+            }
+        } else {
+            playerAdapter?.notifyDataSetChanged()
+        }*/
+        playerAdapter?.notifyDataSetChanged()
     }
 
     override fun onFailure(e: Exception) {
@@ -436,7 +457,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
             val sharedPref =
                 context.getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
             sharedPref.edit().putString("name", editTextName.text.toString()).apply()
-            name = editTextName.text.toString()
+            val name = editTextName.text.toString()
             multiplayer?.setName(name)
         }
         builder.show()
@@ -515,10 +536,5 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
             initScoreView()
         }
         super.onResume()
-    }
-
-    companion object {
-        var name: String? = ""
-        var score = 0
     }
 }

@@ -1,19 +1,14 @@
 package nl.koenhabets.yahtzeescore.dialog
 
 import android.content.Context
-import nl.koenhabets.yahtzeescore.multiplayer.PlayerItem
-import android.view.LayoutInflater
 import android.content.DialogInterface
-import android.view.View
-import android.view.ViewGroup
+import android.view.LayoutInflater
 import androidx.appcompat.app.AlertDialog
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import nl.koenhabets.yahtzeescore.data.Game
 import nl.koenhabets.yahtzeescore.databinding.ScorePopupBinding
+import nl.koenhabets.yahtzeescore.model.PlayerItem
 import nl.koenhabets.yahtzeescore.view.ScoreView
-import nl.koenhabets.yahtzeescore.view.YahtzeeView
-import nl.koenhabets.yahtzeescore.view.YatzyView
 
 class PlayerScoreDialog(private val context: Context) {
     var playerShown: String? = null
@@ -21,7 +16,7 @@ class PlayerScoreDialog(private val context: Context) {
     private lateinit var binding: ScorePopupBinding
 
 
-    fun showDialog(context: Context?, players2: List<PlayerItem>, position: Int, game: Game) {
+    fun showDialog(context: Context?, player: PlayerItem, position: Int) {
         val builder = AlertDialog.Builder(
             context!!
         )
@@ -29,12 +24,12 @@ class PlayerScoreDialog(private val context: Context) {
         val view2 = binding.root
 
         builder.setView(view2)
-        setScoreView(game)
-        scoreView.setScores(players2[position].fullScore)
-        builder.setTitle(players2[position].name)
+        setScoreView(Game.valueOf(player.game))
+        player.fullScore?.let { scoreView.setScores(it) }
+        builder.setTitle(player.name)
         builder.setNegativeButton("Close") { _: DialogInterface?, _: Int -> }
         builder.show()
-        playerShown = players2[position].name
+        playerShown = player.id
         builder.setOnDismissListener { playerShown = "" }
     }
 
@@ -49,11 +44,10 @@ class PlayerScoreDialog(private val context: Context) {
         scoreView.disableEdit()
     }
 
-    fun updateScore(players: List<PlayerItem>) {
-        for (k in players.indices) {
-            if (players[k].name == playerShown) {
-                scoreView.setScores(players[k].fullScore)
-                break
+    fun updateScore(player: PlayerItem) {
+        if (player.id == playerShown) {
+            player.fullScore?.let {
+                scoreView.setScores(it)
             }
         }
     }
