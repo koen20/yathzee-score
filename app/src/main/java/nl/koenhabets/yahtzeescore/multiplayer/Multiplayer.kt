@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import nl.koenhabets.yahtzeescore.BuildConfig
 import nl.koenhabets.yahtzeescore.data.dao.SubscriptionDao
 import nl.koenhabets.yahtzeescore.model.PlayerItem
+import nl.koenhabets.yahtzeescore.model.Response
 import nl.koenhabets.yahtzeescore.model.Response.ScoreResponse
 import nl.koenhabets.yahtzeescore.model.Subscription
 import nl.koenhabets.yahtzeescore.multiplayer.YatzyServerClient.YatzyClientListener
@@ -76,6 +77,10 @@ class Multiplayer(
                 override fun onScore(score: ScoreResponse) {
                     processScore(score)
                 }
+
+                override fun onPair(pairResponse: Response.PairResponse) {
+                    processPairRequest(pairResponse.userId, pairCode)
+                }
             })
         } else {
             Log.e("Multiplayer", "userKey or userId is null")
@@ -99,6 +104,12 @@ class Multiplayer(
                 subscriptionDao.insertAll(*subscriptions.toTypedArray())
             }
         }, 6000, 30000)
+    }
+
+    private fun processPairRequest(userIdReceived: String, pairCodeReceived: String) {
+        if (pairCodeReceived == pairCode) {
+            subscribe(userIdReceived)
+        }
     }
 
     private fun processScore(score: ScoreResponse) {
@@ -152,9 +163,9 @@ class Multiplayer(
         yatzyServerClient?.disconnect()
     }
 
-    fun subscribe(id: String) {
-        if (subscriptions.find { it.userId == id } == null) {
-            yatzyServerClient?.subscribe(id)
+    fun subscribe(id: String, scannedPairCode: String? = null) {
+        if (subscriptions.find { it.userId == id } == null && id != userId) {
+            yatzyServerClient?.subscribe(id, scannedPairCode)
             scope.launch {
                 val fetchedSubscription = subscriptionDao.getUserById(id)
                 if (fetchedSubscription == null) {

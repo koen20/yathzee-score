@@ -5,7 +5,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.encodeToJsonElement
@@ -17,7 +16,11 @@ import nl.koenhabets.yahtzeescore.model.ResponseType
 import org.json.JSONObject
 import java.util.Date
 
-class YatzyServerClient(private val userId: String, private val userKey: String, private val clientVersion: Int) {
+class YatzyServerClient(
+    private val userId: String,
+    private val userKey: String,
+    private val clientVersion: Int
+) {
     private val tag = "YatzyServerClient"
     private val host = "yahtzee.koenhabets.nl"
     private val hostBackup = "yatzy-backup.koenhabets.nl"
@@ -67,6 +70,7 @@ class YatzyServerClient(private val userId: String, private val userKey: String,
 
     interface YatzyClientListener {
         fun onScore(score: Response.ScoreResponse)
+        fun onPair(pairResponse: Response.PairResponse)
     }
 
     fun setYatzyClientListener(listener: YatzyClientListener) {
@@ -91,7 +95,7 @@ class YatzyServerClient(private val userId: String, private val userKey: String,
         sendMessage(message)
     }
 
-    fun subscribe(userId: String) {
+    fun subscribe(userId: String, scannedPairCode: String? = null) {
         if (!subscriptions.contains(userId)) {
             subscriptions.add(userId)
         }
@@ -99,7 +103,7 @@ class YatzyServerClient(private val userId: String, private val userKey: String,
             val list = ArrayList<String>()
             list.add(userId)
             scope.launch {
-                sendSubscribe(list)
+                sendSubscribe(list, scannedPairCode)
             }
         }
     }
@@ -130,10 +134,10 @@ class YatzyServerClient(private val userId: String, private val userKey: String,
         sendMessage(message)
     }
 
-    private suspend fun sendSubscribe(userIds: ArrayList<String>) {
+    private suspend fun sendSubscribe(userIds: ArrayList<String>, scannedPairCode: String? = null) {
         userIds.forEach {
             Log.i(tag, "Subscribing to $it")
-            val subscribeAction = Message.Subscribe(it)
+            val subscribeAction = Message.Subscribe(it, scannedPairCode)
             val message =
                 Message(
                     ActionType.subscribe,
@@ -158,12 +162,16 @@ class YatzyServerClient(private val userId: String, private val userKey: String,
         } else if (response.response === ResponseType.errorResponse) {
             val resData = Json.decodeFromJsonElement<Response.ErrorResponse>(response.data)
             Log.e(tag, resData.message)
+        } else if (response.response === ResponseType.pairResponse) {
+            val resData = Json.decodeFromJsonElement<Response.PairResponse>(response.data)
+            withContext(Dispatchers.Main) {
+                listener?.onPair(resData)
+            }
         }
     }
 
     fun disconnect() {
         yatzyServerWs?.disconnect()
         yatzyServerWsBackup?.disconnect()
-
     }
 }

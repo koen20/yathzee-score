@@ -336,7 +336,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
         addPlayerDialog?.setAddPlayerDialogListener(object :
             AddPlayerDialog.AddPlayerDialogListener {
             override fun onAddPlayer(userId: String, pairCode: String) {
-                multiplayer?.subscribe(userId)
+                multiplayer?.subscribe(userId, pairCode)
                 runOnUiThread {
                     Toast.makeText(
                         this@MainActivity, "Player added",
