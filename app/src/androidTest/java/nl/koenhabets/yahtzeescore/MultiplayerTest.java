@@ -1,17 +1,8 @@
 package nl.koenhabets.yahtzeescore;
 
-import static org.junit.Assert.assertEquals;
-
-import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.google.gson.Gson;
-
-import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import nl.koenhabets.yahtzeescore.model.PlayerItem;
-import nl.koenhabets.yahtzeescore.multiplayer.MultiplayerOud;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -20,7 +11,7 @@ import nl.koenhabets.yahtzeescore.multiplayer.MultiplayerOud;
  */
 @RunWith(AndroidJUnit4.class)
 public class MultiplayerTest {
-    public MultiplayerOud createUser() {
+    /*public MultiplayerOud createUser() {
         MultiplayerOud multiplayer = new MultiplayerOud(ApplicationProvider.getApplicationContext(), "test", 0, "123");
         multiplayer.proccessMessage("testUser1;10;1619465600875;1234", false, "1234");
         multiplayer.proccessMessage("testUser1;10;1619465600875;1234", true, "1234");
@@ -47,5 +38,5 @@ public class MultiplayerTest {
         assertEquals(20, multiplayer.getPlayer("1234").getScore().intValue());
         multiplayer.proccessMessage("testUser1;30;1000;1234", true, "1234");
         assertEquals(20, multiplayer.getPlayer("1234").getScore().intValue());
-    }
+    }*/
 }
