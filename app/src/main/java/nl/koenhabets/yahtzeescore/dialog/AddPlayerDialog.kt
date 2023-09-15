@@ -27,7 +27,7 @@ import java.util.*
 class AddPlayerDialog(private var context: Context) {
     private lateinit var binding: AddPlayerDialogBinding
     private var listener: AddPlayerDialogListener? = null
-    private lateinit var codeScanner: CodeScanner
+    private var codeScanner: CodeScanner? = null
     private var mAlertDialog: AlertDialog? = null
 
     interface AddPlayerDialogListener {
@@ -81,9 +81,11 @@ class AddPlayerDialog(private var context: Context) {
     }
 
     fun startCodeScanner() {
-        codeScanner = CodeScanner(context, binding.scannerView)
+        if (codeScanner == null) {
+            codeScanner = CodeScanner(context, binding.scannerView)
+        }
 
-        codeScanner.decodeCallback = DecodeCallback {
+        codeScanner?.decodeCallback = DecodeCallback {
             Log.i("AddPlayerDialog", "Scanned: ${it.text}")
             val split = it.text.split(";")
             if (split.size >= 2) {
@@ -92,11 +94,11 @@ class AddPlayerDialog(private var context: Context) {
             mAlertDialog?.cancel()
         }
 
-        codeScanner.errorCallback = ErrorCallback {
+        codeScanner?.errorCallback = ErrorCallback {
             Log.e("AddPlayerDialog", "Error: ${it.message}")
         }
 
-        codeScanner.startPreview()
+        codeScanner?.startPreview()
     }
 
     @Throws(WriterException::class)
