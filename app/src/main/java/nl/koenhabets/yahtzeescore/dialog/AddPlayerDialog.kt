@@ -40,6 +40,7 @@ class AddPlayerDialog(private var context: Context) {
     }
 
     fun showDialog(playerId: String, pairCode: String) {
+        codeScanner = null
         val builder = AlertDialog.Builder(context)
 
         binding = AddPlayerDialogBinding.inflate(LayoutInflater.from(context))
@@ -55,6 +56,7 @@ class AddPlayerDialog(private var context: Context) {
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(p0: TabLayout.Tab?) {
                 if (p0?.position == 0) {
+                    codeScanner?.releaseResources()
                     binding.showCodeLayout.visibility = VISIBLE
                     binding.scanCodeLayout.visibility = GONE
                 } else if (p0?.position == 1) {
@@ -75,12 +77,16 @@ class AddPlayerDialog(private var context: Context) {
         })
 
         builder.setNegativeButton(context.getString(R.string.close)) { _: DialogInterface?, _: Int -> }
+        builder.setOnDismissListener {
+            codeScanner?.releaseResources()
+        }
 
         mAlertDialog = builder.create()
         mAlertDialog?.show()
     }
 
     fun startCodeScanner() {
+        codeScanner?.releaseResources()
         if (codeScanner == null) {
             codeScanner = CodeScanner(context, binding.scannerView)
         }
