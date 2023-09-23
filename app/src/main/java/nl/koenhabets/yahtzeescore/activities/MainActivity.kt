@@ -28,6 +28,7 @@ import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import nl.koenhabets.yahtzeescore.*
+import nl.koenhabets.yahtzeescore.adapters.PlayerAdapter
 import nl.koenhabets.yahtzeescore.data.AppDatabase
 import nl.koenhabets.yahtzeescore.data.DataManager
 import nl.koenhabets.yahtzeescore.data.Game

@@ -1,4 +1,4 @@
-package nl.koenhabets.yahtzeescore
+package nl.koenhabets.yahtzeescore.adapters
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.text.HtmlCompat
 import androidx.recyclerview.widget.RecyclerView
+import nl.koenhabets.yahtzeescore.R
 import nl.koenhabets.yahtzeescore.model.PlayerItem
 
 class PlayerAdapter(context: Context?, data: List<PlayerItem>) :

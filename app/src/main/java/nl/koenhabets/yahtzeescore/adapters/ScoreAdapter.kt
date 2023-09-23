@@ -1,4 +1,4 @@
-package nl.koenhabets.yahtzeescore
+package nl.koenhabets.yahtzeescore.adapters
 
 import android.content.Context
 import android.icu.text.DateFormat.getDateTimeInstance
@@ -8,9 +8,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import nl.koenhabets.yahtzeescore.R
+import nl.koenhabets.yahtzeescore.ScoreItem
 import java.text.DateFormat
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
 
 
 class ScoreAdapter(context: Context, scoreItems: List<ScoreItem>) : ArrayAdapter<ScoreItem>(
