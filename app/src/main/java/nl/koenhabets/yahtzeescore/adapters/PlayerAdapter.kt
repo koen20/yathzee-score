@@ -51,7 +51,7 @@ class PlayerAdapter(context: Context?, data: List<PlayerItem>) :
         var textViewPlayer: TextView = itemView.findViewById(R.id.textViewPlayer)
         var textViewScore: TextView = itemView.findViewById(R.id.textViewScore)
         override fun onClick(view: View) {
-            if (mClickListener != null) mClickListener!!.onItemClick(view, adapterPosition)
+            mClickListener?.onItemClick(view, adapterPosition)
         }
 
         init {

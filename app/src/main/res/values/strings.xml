@@ -26,6 +26,8 @@
     <string name="previous_scores">Saved scores</string>
     <string name="saved_scores">Saved scores</string>
     <string name="remove_score">Remove score</string>
+    <string name="remove_player">Remove Player</string>
+    <string name="discovered_players">Discovered players</string>
     <string name="remove">Remove</string>
     <string name="average_d">Average: %.1f</string>
     <string name="theme">Theme</string>

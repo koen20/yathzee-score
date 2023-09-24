@@ -274,7 +274,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
         val subscriptionDao = appDatabase.subscriptionDao()
         multiplayer = Multiplayer(this, name, subscriptionDao)
         initNearby()
-        multiplayer!!.setMultiplayerListener(object : MultiplayerListener {
+        multiplayer?.setMultiplayerListener(object : MultiplayerListener {
             override fun onPlayerChanged(player: PlayerItem) {
                 Log.i("main", "player changed")
                 val existingPlayer = multiplayerPlayers.find { it.id == player.id }

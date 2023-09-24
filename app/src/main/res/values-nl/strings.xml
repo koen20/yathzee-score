@@ -106,4 +106,6 @@
     <string name="show_code">Toon code</string>
     <string name="scan_code">Scan code</string>
     <string name="scan_code_description">Scan deze code met een andere telefoon om een speler toe te voegen</string>
+    <string name="remove_player">Verwijder speler</string>
+    <string name="discovered_players">Ontdekte spelers</string>
 </resources>
