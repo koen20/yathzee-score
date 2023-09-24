@@ -104,6 +104,11 @@ class Multiplayer(
                 subscriptionDao.insertAll(*subscriptions.toTypedArray())
             }
         }, 6000, 30000)
+
+        userId?.let {
+            val playerDiscovery = PlayerDiscovery(context, it)
+            playerDiscovery.startDiscovery()
+        }
     }
 
     private fun processPairRequest(userIdReceived: String, pairCodeReceived: String) {
