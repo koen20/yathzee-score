@@ -41,5 +41,5 @@
         android:title="@string/licenses" />
     <Preference
         android:key="subscriptions"
-        android:title="Discovered players" />
+        android:title="@string/discovered_players" />
 </PreferenceScreen>

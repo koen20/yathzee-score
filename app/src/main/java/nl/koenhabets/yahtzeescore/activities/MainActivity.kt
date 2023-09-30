@@ -340,7 +340,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
                 multiplayer?.subscribe(userId, pairCode)
                 runOnUiThread {
                     Toast.makeText(
-                        this@MainActivity, "Player added",
+                        this@MainActivity, getString(R.string.player_added),
                         Toast.LENGTH_SHORT
                     ).show()
                 }
