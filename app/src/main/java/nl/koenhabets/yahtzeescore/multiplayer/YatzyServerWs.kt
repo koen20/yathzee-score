@@ -1,15 +1,20 @@
 package nl.koenhabets.yahtzeescore.multiplayer
 
 import android.util.Log
-import io.ktor.client.*
-import io.ktor.client.engine.okhttp.*
-import io.ktor.client.plugins.websocket.*
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.*
-import io.ktor.websocket.*
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
+import io.ktor.client.plugins.websocket.WebSockets
+import io.ktor.client.plugins.websocket.sendSerialized
+import io.ktor.client.plugins.websocket.wss
+import io.ktor.http.HttpMethod
+import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
+import io.ktor.websocket.Frame
+import io.ktor.websocket.close
+import io.ktor.websocket.readText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.encodeToJsonElement
@@ -18,7 +23,8 @@ import nl.koenhabets.yahtzeescore.model.ActionType
 import nl.koenhabets.yahtzeescore.model.Message
 import nl.koenhabets.yahtzeescore.model.Response
 import nl.koenhabets.yahtzeescore.model.ResponseType
-import java.util.*
+import java.util.Timer
+import java.util.TimerTask
 
 class YatzyServerWs(
     private val host: String,
@@ -29,14 +35,18 @@ class YatzyServerWs(
 ) {
     private val tag = "YatzyServerWs"
     var connecting = false
-    var reconnectTimer: Timer? = null
+    private var reconnectTimer: Timer? = null
     var webSocketSession: DefaultClientWebSocketSession? = null
     var loggedIn = false
     val client: HttpClient
     private var listener: YatzyServerWsListener? = null
 
     init {
-        client = HttpClient(OkHttp) {
+        client = HttpClient(CIO) {
+            install(HttpTimeout) {
+                requestTimeoutMillis = 5000
+                connectTimeoutMillis = 5000
+            }
             install(WebSockets) {
                 contentConverter = KotlinxWebsocketSerializationConverter((Json {
                     ignoreUnknownKeys = true

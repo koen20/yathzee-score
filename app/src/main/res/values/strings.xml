@@ -26,6 +26,8 @@
     <string name="previous_scores">Saved scores</string>
     <string name="saved_scores">Saved scores</string>
     <string name="remove_score">Remove score</string>
+    <string name="remove_player">Remove Player</string>
+    <string name="discovered_players">Discovered players</string>
     <string name="remove">Remove</string>
     <string name="average_d">Average: %.1f</string>
     <string name="theme">Theme</string>
@@ -107,4 +109,5 @@
     <string name="show_code">Show code</string>
     <string name="scan_code">Scan code</string>
     <string name="scan_code_description">Scan this code with another device to add the player</string>
+    <string name="player_added">Player added</string>
 </resources>

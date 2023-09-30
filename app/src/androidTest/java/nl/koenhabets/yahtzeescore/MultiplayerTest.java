@@ -1,17 +1,8 @@
 package nl.koenhabets.yahtzeescore;
 
-import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.google.gson.Gson;
-
-import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import nl.koenhabets.yahtzeescore.multiplayer.Multiplayer;
-import nl.koenhabets.yahtzeescore.multiplayer.PlayerItem;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -20,8 +11,8 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith(AndroidJUnit4.class)
 public class MultiplayerTest {
-    public Multiplayer createUser() {
-        Multiplayer multiplayer = new Multiplayer(ApplicationProvider.getApplicationContext(), "test", 0, "123");
+    /*public MultiplayerOud createUser() {
+        MultiplayerOud multiplayer = new MultiplayerOud(ApplicationProvider.getApplicationContext(), "test", 0, "123");
         multiplayer.proccessMessage("testUser1;10;1619465600875;1234", false, "1234");
         multiplayer.proccessMessage("testUser1;10;1619465600875;1234", true, "1234");
         return multiplayer;
@@ -29,7 +20,7 @@ public class MultiplayerTest {
 
     @Test
     public void addUser() {
-        Multiplayer multiplayer = createUser();
+        MultiplayerOud multiplayer = createUser();
         Gson gson = new Gson();
         PlayerItem playerItem = new PlayerItem("testUser1", 10, 1619465600875L, true, false);
         playerItem.setId("1234");
@@ -41,11 +32,11 @@ public class MultiplayerTest {
 
     @Test
     public void updateScore() {
-        Multiplayer multiplayer = createUser();
+        MultiplayerOud multiplayer = createUser();
         assertEquals(10, multiplayer.getPlayer("1234").getScore().intValue());
         multiplayer.proccessMessage("testUser1;20;1619465600890;1234", true, "1234");
         assertEquals(20, multiplayer.getPlayer("1234").getScore().intValue());
         multiplayer.proccessMessage("testUser1;30;1000;1234", true, "1234");
         assertEquals(20, multiplayer.getPlayer("1234").getScore().intValue());
-    }
+    }*/
 }

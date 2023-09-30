@@ -1,14 +1,20 @@
 package nl.koenhabets.yahtzeescore.dialog
 
+import android.Manifest.permission.CAMERA
 import android.content.Context
 import android.content.DialogInterface
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import com.budiyev.android.codescanner.CodeScanner
+import com.budiyev.android.codescanner.DecodeCallback
+import com.budiyev.android.codescanner.ErrorCallback
 import com.google.android.material.tabs.TabLayout
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.WriterException
@@ -21,47 +27,46 @@ import java.util.*
 class AddPlayerDialog(private var context: Context) {
     private lateinit var binding: AddPlayerDialogBinding
     private var listener: AddPlayerDialogListener? = null
+    private var codeScanner: CodeScanner? = null
+    private var mAlertDialog: AlertDialog? = null
 
     interface AddPlayerDialogListener {
-        fun onAddPlayer(player: String)
+        fun onAddPlayer(userId: String, pairCode: String)
+        fun requestPermissions()
     }
 
     fun setAddPlayerDialogListener(listener: AddPlayerDialogListener) {
         this.listener = listener
     }
 
-    fun showDialog(playerId: String?, pairCode: String?) {
+    fun showDialog(playerId: String, pairCode: String) {
+        codeScanner = null
         val builder = AlertDialog.Builder(context)
 
         binding = AddPlayerDialogBinding.inflate(LayoutInflater.from(context))
         val view = binding.root
 
-        if (playerId != null && pairCode != null) {
-            binding.imageViewQrCode.setImageBitmap(encodeAsBitmap("$playerId;$pairCode"))
-        }
+        binding.imageViewQrCode.setImageBitmap(encodeAsBitmap("$playerId;$pairCode"))
 
-        val sharedPref = context.getSharedPreferences(
-            "nl.koenhabets.yahtzeescore",
-            AppCompatActivity.MODE_PRIVATE
-        )
-
-        if (Date().time < sharedPref.getLong("qrCodeEnable", 1685658596000)) {
-            binding.showCodeLayout.visibility = GONE
-            binding.scanCodeLayout.visibility = VISIBLE
-            binding.tabLayout.visibility = GONE
-        } else {
-            binding.showCodeLayout.visibility = VISIBLE
-            binding.scanCodeLayout.visibility = GONE
-        }
+        binding.showCodeLayout.visibility = VISIBLE
+        binding.scanCodeLayout.visibility = GONE
 
         builder.setView(view)
 
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(p0: TabLayout.Tab?) {
                 if (p0?.position == 0) {
+                    codeScanner?.releaseResources()
                     binding.showCodeLayout.visibility = VISIBLE
                     binding.scanCodeLayout.visibility = GONE
                 } else if (p0?.position == 1) {
+                    if (ContextCompat.checkSelfPermission(context, CAMERA)
+                        == PackageManager.PERMISSION_DENIED
+                    ) {
+                        listener?.requestPermissions()
+                    } else {
+                        startCodeScanner()
+                    }
                     binding.showCodeLayout.visibility = GONE
                     binding.scanCodeLayout.visibility = VISIBLE
                 }
@@ -71,14 +76,35 @@ class AddPlayerDialog(private var context: Context) {
             override fun onTabReselected(tab: TabLayout.Tab?) {}
         })
 
-        builder.setPositiveButton("Ok") { _: DialogInterface, _: Int ->
-            //todo adding with username will be removed
-            if (binding.editTextUsername.text.toString().trim() != "") {
-                listener?.onAddPlayer(binding.editTextUsername.text.toString())
-            }
+        builder.setNegativeButton(context.getString(R.string.close)) { _: DialogInterface?, _: Int -> }
+        builder.setOnDismissListener {
+            codeScanner?.releaseResources()
         }
-        builder.setNegativeButton(context.getString(R.string.close)) { dialog: DialogInterface?, id: Int -> }
-        builder.show()
+
+        mAlertDialog = builder.create()
+        mAlertDialog?.show()
+    }
+
+    fun startCodeScanner() {
+        codeScanner?.releaseResources()
+        if (codeScanner == null) {
+            codeScanner = CodeScanner(context, binding.scannerView)
+        }
+
+        codeScanner?.decodeCallback = DecodeCallback {
+            Log.i("AddPlayerDialog", "Scanned: ${it.text}")
+            val split = it.text.split(";")
+            if (split.size >= 2) {
+                listener?.onAddPlayer(split[0], split[1])
+            }
+            mAlertDialog?.cancel()
+        }
+
+        codeScanner?.errorCallback = ErrorCallback {
+            Log.e("AddPlayerDialog", "Error: ${it.message}")
+        }
+
+        codeScanner?.startPreview()
     }
 
     @Throws(WriterException::class)

@@ -28,7 +28,8 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.util.*
+import java.util.Collections
+import java.util.Date
 import kotlin.math.roundToInt
 
 class StatsActivity : AppCompatActivity() {
@@ -42,7 +43,7 @@ class StatsActivity : AppCompatActivity() {
         setContentView(view)
         title = getString(R.string.stats)
 
-        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
         val game = Game.valueOf(sharedPref.getString("game", "Yahtzee")!!)
         setScoreView(game)

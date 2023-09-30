@@ -1,4 +1,4 @@
-package nl.koenhabets.yahtzeescore
+package nl.koenhabets.yahtzeescore.adapters
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -7,7 +7,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.text.HtmlCompat
 import androidx.recyclerview.widget.RecyclerView
-import nl.koenhabets.yahtzeescore.multiplayer.PlayerItem
+import nl.koenhabets.yahtzeescore.R
+import nl.koenhabets.yahtzeescore.model.PlayerItem
 
 class PlayerAdapter(context: Context?, data: List<PlayerItem>) :
     RecyclerView.Adapter<PlayerAdapter.ViewHolder>() {
@@ -23,14 +24,21 @@ class PlayerAdapter(context: Context?, data: List<PlayerItem>) :
 
     // binds the data to the TextView in each row
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        var player = mData[position].name
-        var score = mData[position].score.toString()
-        if (mData[position].isLocal) {
-            player = "<b>$player</b>"
-            score = "<b>$score</b>"
+        val item = mData[position]
+        if (item.name != null) {
+            var player = item.name
+            var score = item.score.toString()
+            if (mData[position].isLocal) {
+                player = "<b>$player</b>"
+                score = "<b>$score</b>"
+            }
+            if (player != null && score != "null") {
+                holder.textViewPlayer.text =
+                    HtmlCompat.fromHtml(player, HtmlCompat.FROM_HTML_MODE_LEGACY)
+                holder.textViewScore.text =
+                    HtmlCompat.fromHtml(score, HtmlCompat.FROM_HTML_MODE_LEGACY)
+            }
         }
-        holder.textViewPlayer.text = HtmlCompat.fromHtml(player, HtmlCompat.FROM_HTML_MODE_LEGACY)
-        holder.textViewScore.text = HtmlCompat.fromHtml(score, HtmlCompat.FROM_HTML_MODE_LEGACY)
     }
 
     override fun getItemCount(): Int {
@@ -43,7 +51,7 @@ class PlayerAdapter(context: Context?, data: List<PlayerItem>) :
         var textViewPlayer: TextView = itemView.findViewById(R.id.textViewPlayer)
         var textViewScore: TextView = itemView.findViewById(R.id.textViewScore)
         override fun onClick(view: View) {
-            if (mClickListener != null) mClickListener!!.onItemClick(view, adapterPosition)
+            mClickListener?.onItemClick(view, adapterPosition)
         }
 
         init {

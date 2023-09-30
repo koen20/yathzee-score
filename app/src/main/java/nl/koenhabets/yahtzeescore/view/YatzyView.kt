@@ -88,10 +88,7 @@ class YatzyView(context: Context, attributeSet: AttributeSet?) : ScoreView(
 
     override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
         calculateTotal()
-        if (listener !== null) {
-            listener!!.onScore(totalLeft + totalRight)
-            listener!!.onScoreJson(createJsonScores())
-        }
+        listener?.onScore(totalLeft + totalRight, createJsonScores())
     }
 
     override fun afterTextChanged(p0: Editable?) {
