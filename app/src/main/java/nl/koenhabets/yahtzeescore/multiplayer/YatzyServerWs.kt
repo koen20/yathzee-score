@@ -3,6 +3,7 @@ package nl.koenhabets.yahtzeescore.multiplayer
 import android.util.Log
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.plugins.websocket.sendSerialized
@@ -42,6 +43,10 @@ class YatzyServerWs(
 
     init {
         client = HttpClient(CIO) {
+            install(HttpTimeout) {
+                requestTimeoutMillis = 5000
+                connectTimeoutMillis = 5000
+            }
             install(WebSockets) {
                 contentConverter = KotlinxWebsocketSerializationConverter((Json {
                     ignoreUnknownKeys = true

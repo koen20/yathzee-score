@@ -251,7 +251,7 @@ class ScoresActivity : AppCompatActivity() {
         while (reader.readLine().also { currentline = it } != null) {
             stringBuilder.append(currentline).append("\n")
         }
-        inputStream!!.close()
+        inputStream?.close()
         return stringBuilder.toString()
     }
 

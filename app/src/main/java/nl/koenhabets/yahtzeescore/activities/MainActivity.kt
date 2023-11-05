@@ -274,7 +274,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
         val subscriptionDao = appDatabase.subscriptionDao()
         multiplayer = Multiplayer(this, name, subscriptionDao)
         initNearby()
-        multiplayer!!.setMultiplayerListener(object : MultiplayerListener {
+        multiplayer?.setMultiplayerListener(object : MultiplayerListener {
             override fun onPlayerChanged(player: PlayerItem) {
                 Log.i("main", "player changed")
                 val existingPlayer = multiplayerPlayers.find { it.id == player.id }
@@ -340,7 +340,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
                 multiplayer?.subscribe(userId, pairCode)
                 runOnUiThread {
                     Toast.makeText(
-                        this@MainActivity, "Player added",
+                        this@MainActivity, getString(R.string.player_added),
                         Toast.LENGTH_SHORT
                     ).show()
                 }

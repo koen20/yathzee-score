@@ -120,6 +120,11 @@ class Multiplayer(
     private fun processScore(score: ScoreResponse) {
         subscriptions.forEach {
             if (it.userId == score.userId) {
+                if (it.name == null) {
+                    scope.launch {
+                        subscriptionDao.insertAll(it)
+                    }
+                }
                 it.name = score.username
                 it.lastSeen = Date().time
                 return@forEach

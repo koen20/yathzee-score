@@ -5,6 +5,7 @@ import android.content.DialogInterface
 import android.view.LayoutInflater
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintSet
+import nl.koenhabets.yahtzeescore.R
 import nl.koenhabets.yahtzeescore.data.Game
 import nl.koenhabets.yahtzeescore.databinding.ScorePopupBinding
 import nl.koenhabets.yahtzeescore.model.PlayerItem
@@ -27,7 +28,7 @@ class PlayerScoreDialog(private val context: Context) {
         setScoreView(Game.valueOf(player.game))
         player.fullScore?.let { scoreView.setScores(it) }
         builder.setTitle(player.name)
-        builder.setNegativeButton("Close") { _: DialogInterface?, _: Int -> }
+        builder.setNegativeButton(context.getString(R.string.close)) { _: DialogInterface?, _: Int -> }
         builder.show()
         playerShown = player.id
         builder.setOnDismissListener { playerShown = "" }

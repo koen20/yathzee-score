@@ -9,9 +9,9 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.SwitchPreferenceCompat
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import nl.koenhabets.yahtzeescore.R
+import nl.koenhabets.yahtzeescore.dialog.SubscriptionsDialog
 
 
 class SettingsActivity : AppCompatActivity() {
@@ -35,8 +35,8 @@ class SettingsActivity : AppCompatActivity() {
             preferenceManager.sharedPreferencesName = "nl.koenhabets.yahtzeescore"
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
             val listPreference: ListPreference? = findPreference("themePref")
-            val switchPreference: SwitchPreferenceCompat? = findPreference("multiplayer")
             val settingsLicenses: Preference? = findPreference("settingsLicenses")
+            val subscriptionsPreference: Preference? = findPreference("subscriptions")
             val sharedPref: SharedPreferences =
                 requireContext().getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
             if (listPreference != null) {
@@ -58,21 +58,17 @@ class SettingsActivity : AppCompatActivity() {
                 }
             }
 
-            settingsLicenses!!.onPreferenceClickListener =
+            settingsLicenses?.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener { //code for what you want it to do
                     startActivity(Intent(context, OssLicensesMenuActivity::class.java))
                     true
                 }
 
-            /*if (switchPreference != null) {
-                switchPreference.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-                    val enabled = newValue as Boolean
-                    if (enabled) {
-                        sharedPref.edit().putBoolean("multiplayerAsked", false).apply()
-                    }
+            subscriptionsPreference?.onPreferenceClickListener =
+                Preference.OnPreferenceClickListener { //code for what you want it to do
+                    context?.let { it1 -> SubscriptionsDialog(it1).showDialog() }
                     true
                 }
-            }*/
         }
     }
 
