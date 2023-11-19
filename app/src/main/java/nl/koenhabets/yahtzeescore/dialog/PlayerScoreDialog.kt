@@ -21,17 +21,20 @@ class PlayerScoreDialog(private val context: Context) {
         val builder = AlertDialog.Builder(
             context!!
         )
-        binding = ScorePopupBinding.inflate(LayoutInflater.from(context));
-        val view2 = binding.root
+        player.game?.let { game ->
+            binding = ScorePopupBinding.inflate(LayoutInflater.from(context));
+            val view2 = binding.root
 
-        builder.setView(view2)
-        setScoreView(Game.valueOf(player.game))
-        player.fullScore?.let { scoreView.setScores(it) }
-        builder.setTitle(player.name)
-        builder.setNegativeButton(context.getString(R.string.close)) { _: DialogInterface?, _: Int -> }
-        builder.show()
-        playerShown = player.id
-        builder.setOnDismissListener { playerShown = "" }
+            builder.setView(view2)
+            setScoreView(Game.valueOf(game))
+            player.fullScore?.let { scoreView.setScores(it) }
+            builder.setTitle(player.name)
+            builder.setNegativeButton(context.getString(R.string.close)) { _: DialogInterface?, _: Int -> }
+            builder.show()
+            playerShown = player.id
+            builder.setOnDismissListener { playerShown = "" }
+        }
+
     }
 
     private fun setScoreView(game: Game) {

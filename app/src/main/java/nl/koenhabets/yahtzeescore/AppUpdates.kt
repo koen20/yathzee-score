@@ -1,6 +1,7 @@
 package nl.koenhabets.yahtzeescore
 
 import android.content.Context
+import androidx.appcompat.app.AppCompatActivity
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -57,17 +58,17 @@ class AppUpdates(var context: Context) {
     }
 
     fun updateConfig(context: Context) {
-        /*val sharedPref = context.getSharedPreferences(
+        val sharedPref = context.getSharedPreferences(
             "nl.koenhabets.yahtzeescore",
             AppCompatActivity.MODE_PRIVATE
         )
         if (versionInfo.has("config")) {
             val jsonObject = versionInfo.getJSONObject("config")
-            if (jsonObject.has("qrCodeEnable")) {
-                sharedPref.edit().putLong("qrCodeEnable", jsonObject.getLong("qrCodeEnable"))
+            if (jsonObject.has("nearbyMessages")) {
+                sharedPref.edit().putLong("nearbyMessages", jsonObject.getLong("nearbyMessages"))
                     .apply()
             }
-        }*/
+        }
     }
 
     init {

@@ -42,14 +42,13 @@ class MigrateData(context: Context) {
             configVersion = 1
         }
 
-        // todo uncomment this for next version
-        /*// V2.1 (*) remove unused preferences from sharedPreferences
+        // V2.1 (*) remove unused preferences from sharedPreferences
         if (configVersion == 1) {
             editor.remove("players")
             editor.remove("qrCodeEnable")
             editor.remove("playersIdv8")
             configVersion = 2
-        }*/
+        }
 
         editor.putInt("config-version", configVersion)
         editor.apply()

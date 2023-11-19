@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -59,6 +60,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
     private lateinit var appDatabase: AppDatabase
     var score = 0
     var name: String? = null
+    private var nearbyEnabled = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,6 +78,9 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
         // Set the score to 0 to prevent showing the default score
         binding.textViewTotal.text = getString(R.string.Total, 0)
         val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
+
+        nearbyEnabled = Date().time > sharedPref.getLong("nearbyMessages", 1717266612000)
+
         Log.i("multiplayer main", sharedPref.getBoolean("multiplayer", false).toString() + "d")
         if (!sharedPref.contains("version") && !sharedPref.contains("multiplayer") && !sharedPref.contains(
                 "multiplayerAsked"
@@ -140,6 +145,8 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
             },
             3000
         )
+
+        requestNearbyPermissions()
     }
 
     private fun initScoreView() {
@@ -273,7 +280,11 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
     private fun initMultiplayerObj() {
         val subscriptionDao = appDatabase.subscriptionDao()
         multiplayer = Multiplayer(this, name, subscriptionDao)
-        initNearby()
+
+        if (nearbyEnabled) {
+            initNearby()
+        }
+
         multiplayer?.setMultiplayerListener(object : MultiplayerListener {
             override fun onPlayerChanged(player: PlayerItem) {
                 Log.i("main", "player changed")
@@ -284,7 +295,15 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
                     updateMultiplayerUI(multiplayerPlayers.indexOf(player), false)
                 } else {
                     multiplayerPlayers.remove(existingPlayer)
-                    multiplayerPlayers.add(player)
+                    val combinedPlayer = existingPlayer.copy(
+                        name = player.name ?: existingPlayer.name,
+                        score = player.score ?: existingPlayer.score,
+                        fullScore = player.fullScore ?: existingPlayer.fullScore,
+                        lastUpdate = player.lastUpdate,
+                        isLocal = player.isLocal,
+                        game = player.game ?: existingPlayer.game
+                    )
+                    multiplayerPlayers.add(combinedPlayer)
                     updateMultiplayerUI(multiplayerPlayers.indexOf(player), true)
                 }
 
@@ -303,13 +322,17 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
     }
 
     private fun setMultiplayerScore(score: Int, fullScore: JSONObject) {
-        Nearby.getMessagesClient(this).unpublish(mMessage!!)
+        if (nearbyEnabled) {
+            Nearby.getMessagesClient(this).unpublish(mMessage!!)
+        }
         val date = Date()
         if (name != "" && multiplayer?.userId != null) {
             val text = name + ";" + score + ";" + date.time + ";" + multiplayer!!.userId
             Log.i("nearby", text)
             mMessage = Message(text.toByteArray())
-            Nearby.getMessagesClient(this).publish(mMessage!!).addOnFailureListener(this)
+            if (nearbyEnabled) {
+                Nearby.getMessagesClient(this).publish(mMessage!!).addOnFailureListener(this)
+            }
         }
         multiplayer?.setScore(score, fullScore)
     }
@@ -348,12 +371,56 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
 
             override fun requestPermissions() {
                 ActivityCompat.requestPermissions(
-                    this@MainActivity, arrayOf<String>(
+                    this@MainActivity, arrayOf(
                         Manifest.permission.CAMERA
                     ), 23
                 )
             }
         })
+    }
+
+    private fun requestNearbyPermissions() {
+        val REQUIRED_PERMISSIONS: Array<String>
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            REQUIRED_PERMISSIONS = arrayOf(
+                Manifest.permission.BLUETOOTH_SCAN,
+                Manifest.permission.BLUETOOTH_ADVERTISE,
+                Manifest.permission.BLUETOOTH_CONNECT,
+                Manifest.permission.ACCESS_WIFI_STATE,
+                Manifest.permission.CHANGE_WIFI_STATE,
+                Manifest.permission.NEARBY_WIFI_DEVICES
+            )
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            REQUIRED_PERMISSIONS = arrayOf(
+                Manifest.permission.BLUETOOTH_SCAN,
+                Manifest.permission.BLUETOOTH_ADVERTISE,
+                Manifest.permission.BLUETOOTH_CONNECT,
+                Manifest.permission.ACCESS_WIFI_STATE,
+                Manifest.permission.CHANGE_WIFI_STATE,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            REQUIRED_PERMISSIONS = arrayOf(
+                Manifest.permission.BLUETOOTH,
+                Manifest.permission.BLUETOOTH_ADMIN,
+                Manifest.permission.ACCESS_WIFI_STATE,
+                Manifest.permission.CHANGE_WIFI_STATE,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+        } else {
+            REQUIRED_PERMISSIONS = arrayOf(
+                Manifest.permission.BLUETOOTH,
+                Manifest.permission.BLUETOOTH_ADMIN,
+                Manifest.permission.ACCESS_WIFI_STATE,
+                Manifest.permission.CHANGE_WIFI_STATE,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+        }
+        ActivityCompat.requestPermissions(
+            this@MainActivity, REQUIRED_PERMISSIONS, 56
+        )
     }
 
     override fun onRequestPermissionsResult(
@@ -372,6 +439,8 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
                     Toast.LENGTH_LONG
                 ).show()
             }
+        } else if (requestCode == 56) {
+            Log.i("Nearby", "Permissions granted")
         }
     }
 
@@ -502,14 +571,17 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
     public override fun onStop() {
         if (multiplayer != null) {
             Log.i("onStop", "disconnecting")
-            try {
-                Nearby.getMessagesClient(this).unpublish(mMessage!!)
-                Nearby.getMessagesClient(this).unsubscribe(
-                    mMessageListener!!
-                )
-            } catch (e: Exception) {
-                e.printStackTrace()
+            if (nearbyEnabled) {
+                try {
+                    Nearby.getMessagesClient(this).unpublish(mMessage!!)
+                    Nearby.getMessagesClient(this).unsubscribe(
+                        mMessageListener!!
+                    )
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
+
             multiplayer?.stopMultiplayer()
         }
         super.onStop()

@@ -10,20 +10,44 @@ import com.google.android.gms.nearby.connection.ConnectionResolution
 import com.google.android.gms.nearby.connection.DiscoveredEndpointInfo
 import com.google.android.gms.nearby.connection.DiscoveryOptions
 import com.google.android.gms.nearby.connection.EndpointDiscoveryCallback
-
+import com.google.gson.Gson
+import nl.koenhabets.yahtzeescore.model.NearbyMessage
+import java.util.Date
 
 class PlayerDiscovery(private val context: Context, private val userId: String) {
-    private fun startPublishing() {
+    private var listener: PlayerDiscoveryListener? = null
+    private val gson = Gson()
+
+    interface PlayerDiscoveryListener {
+        fun onMessageReceived(message: NearbyMessage)
+    }
+
+    fun setPlayerDiscoveryListener(listener: PlayerDiscoveryListener) {
+        this.listener = listener
+    }
+
+    private fun startPublishing(username: String? = null, score: Int? = null) {
+        val nearbyMessage = NearbyMessage(userId, username, score, Date().time)
+        var nearbyMessageJson = gson.toJson(nearbyMessage)
+        if (nearbyMessageJson.length > 130) {
+            nearbyMessage.u = null
+            nearbyMessageJson = gson.toJson(nearbyMessage)
+        }
+        if (nearbyMessageJson.length > 130) {
+            nearbyMessage.s = null
+            nearbyMessageJson = gson.toJson(nearbyMessage)
+        }
+
         // Using the default advertising option is enough since  connecting is not required.
         val advertisingOptions = AdvertisingOptions.Builder().build()
         Nearby.getConnectionsClient(context)
             .startAdvertising(
-                userId,
+                nearbyMessageJson,
                 "nl.koenhabets.yahtzeescore",
                 connectionLifecycleCallback,
                 advertisingOptions
             )
-            .addOnSuccessListener { unused: Void? -> }
+            .addOnSuccessListener { _: Void? -> }
             .addOnFailureListener { e: Exception? -> e?.printStackTrace() }
     }
 
@@ -47,6 +71,11 @@ class PlayerDiscovery(private val context: Context, private val userId: String) 
         startSubscription()
     }
 
+    fun updatePlayer(username: String? = null, score: Int? = null) {
+        Nearby.getConnectionsClient(context).stopAdvertising()
+        startPublishing(username, score)
+    }
+
     fun stopDiscovery() {
         Nearby.getConnectionsClient(context).stopAdvertising()
         Nearby.getConnectionsClient(context).stopDiscovery()
@@ -58,13 +87,12 @@ class PlayerDiscovery(private val context: Context, private val userId: String) 
             override fun onEndpointFound(endpointId: String, info: DiscoveredEndpointInfo) {
                 // A remote advertising endpoint is found.
                 // To retrieve the published message data.
-                val message = info.endpointInfo
-                Log.i("Discovery", "message: $message")
+                val message = info.endpointInfo.toString(Charsets.UTF_8)
+                Log.i("PlayerDiscovery", "message: $message")
+                listener?.onMessageReceived(gson.fromJson(message, NearbyMessage::class.java))
             }
 
-            override fun onEndpointLost(endpointId: String) {
-                // A previously discovered endpoint has gone away.
-            }
+            override fun onEndpointLost(endpointId: String) {}
         }
 
     private val connectionLifecycleCallback: ConnectionLifecycleCallback =

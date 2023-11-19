@@ -9,7 +9,7 @@ data class PlayerItem(
     var fullScore: JsonObject?,
     var lastUpdate: Long,
     val isLocal: Boolean,
-    var game: String
+    var game: String?
 ) : Comparable<PlayerItem> {
     override fun compareTo(other: PlayerItem): Int {
         other.score?.let {

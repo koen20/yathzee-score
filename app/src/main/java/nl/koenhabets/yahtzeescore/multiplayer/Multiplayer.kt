@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import nl.koenhabets.yahtzeescore.BuildConfig
 import nl.koenhabets.yahtzeescore.data.dao.SubscriptionDao
+import nl.koenhabets.yahtzeescore.model.NearbyMessage
 import nl.koenhabets.yahtzeescore.model.PlayerItem
 import nl.koenhabets.yahtzeescore.model.Response
 import nl.koenhabets.yahtzeescore.model.Response.ScoreResponse
@@ -32,6 +33,7 @@ class Multiplayer(
     private var score = 0
     private var fullScore: JSONObject? = null
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
+    private var playerDiscovery: PlayerDiscovery? = null
 
     var pairCode: String = getRandomString(10)
         private set
@@ -106,8 +108,16 @@ class Multiplayer(
         }, 6000, 30000)
 
         userId?.let {
-            val playerDiscovery = PlayerDiscovery(context, it)
-            playerDiscovery.startDiscovery()
+            playerDiscovery = PlayerDiscovery(context, it)
+            playerDiscovery?.startDiscovery()
+            playerDiscovery?.setPlayerDiscoveryListener(object :
+                PlayerDiscovery.PlayerDiscoveryListener {
+                override fun onMessageReceived(message: NearbyMessage) {
+                    subscribe(message.id)
+                    //todo there are still problems with messages arriving late, disabled for now
+                    //processNearbyMessage(message)
+                }
+            })
         }
     }
 
@@ -117,14 +127,36 @@ class Multiplayer(
         }
     }
 
+    private fun processNearbyMessage(message: NearbyMessage) {
+        if (message.id != userId) {
+            /* val lastMessage = subscriptions.find { it.userId == message.id }
+             if (lastMessage == null || message.t > lastMessage.lastSeen!!) {
+
+             }*/
+            subscriptions.forEach {
+                if (it.userId == message.id) {
+                    it.name = message.u
+                    it.lastSeen = Date().time
+                    return@forEach
+                }
+            }
+
+            val item = PlayerItem(
+                message.id,
+                message.u,
+                message.s,
+                null,
+                Date().time,
+                isLocal = false,
+                null
+            )
+            listener?.onPlayerChanged(item)
+        }
+    }
+
     private fun processScore(score: ScoreResponse) {
         subscriptions.forEach {
             if (it.userId == score.userId) {
-                if (it.name == null) {
-                    scope.launch {
-                        subscriptionDao.insertAll(it)
-                    }
-                }
                 it.name = score.username
                 it.lastSeen = Date().time
                 return@forEach
@@ -147,6 +179,7 @@ class Multiplayer(
         this.score = score
         fullScore = jsonObject
         yatzyServerClient?.setScore(score, jsonObject)
+        playerDiscovery?.updatePlayer(name, score)
     }
 
     fun setName(name: String) {
@@ -171,6 +204,7 @@ class Multiplayer(
         updateTimer?.cancel()
         updateTimer?.purge()
         yatzyServerClient?.disconnect()
+        playerDiscovery?.stopDiscovery()
     }
 
     fun subscribe(id: String, scannedPairCode: String? = null) {
