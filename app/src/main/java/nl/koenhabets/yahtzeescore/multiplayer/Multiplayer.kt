@@ -1,13 +1,16 @@
 package nl.koenhabets.yahtzeescore.multiplayer
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import nl.koenhabets.yahtzeescore.BuildConfig
+import nl.koenhabets.yahtzeescore.Permissions
 import nl.koenhabets.yahtzeescore.data.dao.SubscriptionDao
 import nl.koenhabets.yahtzeescore.model.NearbyMessage
 import nl.koenhabets.yahtzeescore.model.PlayerItem
@@ -107,17 +110,41 @@ class Multiplayer(
             }
         }, 6000, 30000)
 
+        var permissionGranted = nearbyPermissionGranted()
+        if (permissionGranted) {
+            startPlayerDiscovery()
+        }
+    }
+
+    fun nearbyPermissionGranted(): Boolean {
+        var permissionGranted = false
+        Permissions().getNearbyPermissions().forEach {
+            if (ContextCompat.checkSelfPermission(context, it)
+                == PackageManager.PERMISSION_DENIED
+            ) {
+                permissionGranted = false
+                return@forEach
+            } else {
+                permissionGranted = true
+            }
+        }
+        return permissionGranted
+    }
+
+    fun startPlayerDiscovery() {
         userId?.let {
-            playerDiscovery = PlayerDiscovery(context, it)
-            playerDiscovery?.startDiscovery()
-            playerDiscovery?.setPlayerDiscoveryListener(object :
-                PlayerDiscovery.PlayerDiscoveryListener {
-                override fun onMessageReceived(message: NearbyMessage) {
-                    subscribe(message.id)
-                    //todo there are still problems with messages arriving late, disabled for now
-                    //processNearbyMessage(message)
-                }
-            })
+            if (playerDiscovery == null) {
+                playerDiscovery = PlayerDiscovery(context, it)
+                playerDiscovery?.startDiscovery()
+                playerDiscovery?.setPlayerDiscoveryListener(object :
+                    PlayerDiscovery.PlayerDiscoveryListener {
+                    override fun onMessageReceived(message: NearbyMessage) {
+                        subscribe(message.id)
+                        //todo there are still problems with messages arriving late, disabled for now
+                        //processNearbyMessage(message)
+                    }
+                })
+            }
         }
     }
 

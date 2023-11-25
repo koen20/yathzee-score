@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -61,6 +60,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
     var score = 0
     var name: String? = null
     private var nearbyEnabled = true
+    private var permissionsRequested = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,9 +79,8 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
         binding.textViewTotal.text = getString(R.string.Total, 0)
         val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
 
-        nearbyEnabled = Date().time > sharedPref.getLong("nearbyMessages", 1717266612000)
+        nearbyEnabled = Date().time < sharedPref.getLong("nearbyMessages", 1717266612000)
 
-        Log.i("multiplayer main", sharedPref.getBoolean("multiplayer", false).toString() + "d")
         if (!sharedPref.contains("version") && !sharedPref.contains("multiplayer") && !sharedPref.contains(
                 "multiplayerAsked"
             )
@@ -203,11 +202,13 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
 
     private fun showUpdateToast(finalUpdateText: String) {
         runOnUiThread {
-            Toast.makeText(
-                this@MainActivity,
-                getString(R.string.update_available) + finalUpdateText,
-                Toast.LENGTH_LONG
-            ).show()
+            val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+            builder
+                .setMessage(getString(R.string.update_available_long) + finalUpdateText)
+                .setTitle(getString(R.string.update_available))
+                .setNeutralButton(R.string.close) { _, _ -> }
+            val dialog: AlertDialog = builder.create()
+            dialog.show()
         }
     }
 
@@ -319,6 +320,9 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
             multiplayer?.setGame(it.name)
         }
         setMultiplayerScore(score, scoreView.createJsonScores())
+        if (multiplayer?.nearbyPermissionGranted() == false) {
+            requestNearbyPermissions()
+        }
     }
 
     private fun setMultiplayerScore(score: Int, fullScore: JSONObject) {
@@ -338,6 +342,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
     }
 
     private fun initNearby() {
+        Log.i("MainActivity", "Init nearby")
         mMessageListener = object : MessageListener() {
             override fun onFound(message: Message) {
                 Log.d("t", "Found message: " + String(message.content))
@@ -380,47 +385,37 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
     }
 
     private fun requestNearbyPermissions() {
-        val REQUIRED_PERMISSIONS: Array<String>
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            REQUIRED_PERMISSIONS = arrayOf(
-                Manifest.permission.BLUETOOTH_SCAN,
-                Manifest.permission.BLUETOOTH_ADVERTISE,
-                Manifest.permission.BLUETOOTH_CONNECT,
-                Manifest.permission.ACCESS_WIFI_STATE,
-                Manifest.permission.CHANGE_WIFI_STATE,
-                Manifest.permission.NEARBY_WIFI_DEVICES
-            )
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            REQUIRED_PERMISSIONS = arrayOf(
-                Manifest.permission.BLUETOOTH_SCAN,
-                Manifest.permission.BLUETOOTH_ADVERTISE,
-                Manifest.permission.BLUETOOTH_CONNECT,
-                Manifest.permission.ACCESS_WIFI_STATE,
-                Manifest.permission.CHANGE_WIFI_STATE,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            )
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            REQUIRED_PERMISSIONS = arrayOf(
-                Manifest.permission.BLUETOOTH,
-                Manifest.permission.BLUETOOTH_ADMIN,
-                Manifest.permission.ACCESS_WIFI_STATE,
-                Manifest.permission.CHANGE_WIFI_STATE,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            )
-        } else {
-            REQUIRED_PERMISSIONS = arrayOf(
-                Manifest.permission.BLUETOOTH,
-                Manifest.permission.BLUETOOTH_ADMIN,
-                Manifest.permission.ACCESS_WIFI_STATE,
-                Manifest.permission.CHANGE_WIFI_STATE,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            )
+        if (!permissionsRequested) {
+            var showRationale = false
+            Permissions().getNearbyPermissions().forEach {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this@MainActivity, it)) {
+                    showRationale = true
+                    return@forEach
+                } else {
+                    showRationale = false
+                }
+            }
+            Log.i("MainActivity", "Request nearby permissions rationale: $showRationale")
+            if (showRationale) {
+                val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+                builder
+                    .setMessage(getString(R.string.nearby_permission_rationale))
+                    .setTitle(getString(R.string.nearby_permissions))
+                    .setPositiveButton(R.string.close) { dialog, which ->
+                        ActivityCompat.requestPermissions(
+                            this@MainActivity, Permissions().getNearbyPermissions(), 56
+                        )
+                    }
+
+                val dialog: AlertDialog = builder.create()
+                dialog.show()
+            } else {
+                ActivityCompat.requestPermissions(
+                    this@MainActivity, Permissions().getNearbyPermissions(), 56
+                )
+            }
+            permissionsRequested = true
         }
-        ActivityCompat.requestPermissions(
-            this@MainActivity, REQUIRED_PERMISSIONS, 56
-        )
     }
 
     override fun onRequestPermissionsResult(
@@ -433,14 +428,19 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 addPlayerDialog?.startCodeScanner()
             } else {
-                Toast.makeText(
-                    this@MainActivity,
-                    "Unable to add players without camera permission.",
-                    Toast.LENGTH_LONG
-                ).show()
+                val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+                builder
+                    .setMessage(getString(R.string.camera_permissions_denied_dialog))
+                    .setTitle(getString(R.string.camera_permission))
+                    .setNeutralButton(R.string.close) { _, _ -> }
+                val dialog: AlertDialog = builder.create()
+                dialog.show()
             }
         } else if (requestCode == 56) {
-            Log.i("Nearby", "Permissions granted")
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.i("Nearby", "Permissions granted")
+                multiplayer?.startPlayerDiscovery()
+            }
         }
     }
 

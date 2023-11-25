@@ -80,7 +80,7 @@
     <string name="multiplayer_question">Do you want to enable multiplayer?</string>
     <string name="app_icon">App icon</string>
     <string name="other">Other</string>
-    <string name="update_available">An update for the app is available. You are advised to update the app.</string>
+    <string name="update_available_long">An update for the app is available. You are advised to update the app.</string>
     <string name="stats_dialog_setting">Stats dialog after game</string>
     <string name="games_played">Games played</string>
     <string name="average_difference">Average (difference)</string>
@@ -110,4 +110,9 @@
     <string name="scan_code">Scan code</string>
     <string name="scan_code_description">Scan this code with another device to add the player</string>
     <string name="player_added">Player added</string>
+    <string name="nearby_permission_rationale">To automatically discover players in the same room the app needs nearby permissions. The app will now request permission to use nearby.</string>
+    <string name="nearby_permissions">Nearby permissions</string>
+    <string name="camera_permission">Camera permission</string>
+    <string name="camera_permissions_denied_dialog">Camera permissions have been denied. It is not possible to add players manually without camera permissions.</string>
+    <string name="update_available">Update available</string>
 </resources>

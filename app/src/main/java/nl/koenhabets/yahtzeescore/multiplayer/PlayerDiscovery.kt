@@ -52,17 +52,14 @@ class PlayerDiscovery(private val context: Context, private val userId: String) 
     }
 
     private fun startSubscription() {
-        // Using the default discovery option is enough since connection is not required.
         val discoveryOptions = DiscoveryOptions.Builder().build()
-        Nearby.getConnectionsClient(context) // The SERVICE_ID value must uniquely identify your app.
-            // As a best practice, use the package name of your app
-            // (for example, com.google.example.myapp).
+        Nearby.getConnectionsClient(context)
             .startDiscovery(
                 "nl.koenhabets.yahtzeescore",
                 endpointDiscoveryCallback,
                 discoveryOptions
             )
-            .addOnSuccessListener { unused: Void? -> }
+            .addOnSuccessListener { Log.i("PlayerDiscovery", "Started discovery") }
             .addOnFailureListener { e: java.lang.Exception? -> e?.printStackTrace() }
     }
 
@@ -85,8 +82,6 @@ class PlayerDiscovery(private val context: Context, private val userId: String) 
     private val endpointDiscoveryCallback: EndpointDiscoveryCallback =
         object : EndpointDiscoveryCallback() {
             override fun onEndpointFound(endpointId: String, info: DiscoveredEndpointInfo) {
-                // A remote advertising endpoint is found.
-                // To retrieve the published message data.
                 val message = info.endpointInfo.toString(Charsets.UTF_8)
                 Log.i("PlayerDiscovery", "message: $message")
                 listener?.onMessageReceived(gson.fromJson(message, NearbyMessage::class.java))

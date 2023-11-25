@@ -77,7 +77,7 @@
     <string name="welcome_to_yatzy_score">Welkom bij Yatzy score</string>
     <string name="app_icon">App icoon</string>
     <string name="other">Overig</string>
-    <string name="update_available">Er is een update voor de app beschikbaar. U wordt geadviseerd de app te updaten.</string>
+    <string name="update_available_long">Er is een update voor de app beschikbaar. U wordt geadviseerd de app te updaten.</string>
     <string name="stats_dialog_setting">Statistieken popup na spel</string>
     <string name="games_played">Spellen gespeeld</string>
     <string name="average_difference">Gemiddelde (verschil)</string>
@@ -109,4 +109,9 @@
     <string name="remove_player">Verwijder speler</string>
     <string name="discovered_players">Ontdekte spelers</string>
     <string name="player_added">Speler toegevoegd</string>
+    <string name="nearby_permission_rationale">Om automatisch spelers in dezelfde ruimte te vinden heeft de app permissies nodig om met apparaten in de buurt te verbinden. De app gaat nu vragen om deze permissie.</string>
+    <string name="nearby_permissions">Permissies</string>
+    <string name="camera_permission">Camera permissies</string>
+    <string name="camera_permissions_denied_dialog">Camera rechten zijn gewijgerd. Het is niet mogelijk om handmatig spelers toe te voegen zonder camera rechten.</string>
+    <string name="update_available">Update beschikbaar</string>
 </resources>
