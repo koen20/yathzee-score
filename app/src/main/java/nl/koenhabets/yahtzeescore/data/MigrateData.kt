@@ -42,7 +42,7 @@ class MigrateData(context: Context) {
             configVersion = 1
         }
 
-        // V2.1 (*) remove unused preferences from sharedPreferences
+        // V2.1 (54) remove unused preferences from sharedPreferences
         if (configVersion == 1) {
             editor.remove("players")
             editor.remove("qrCodeEnable")
