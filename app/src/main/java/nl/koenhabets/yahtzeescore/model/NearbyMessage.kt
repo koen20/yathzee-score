@@ -1,5 +1,8 @@
 package nl.koenhabets.yahtzeescore.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class NearbyMessage(
     //userId
     val id: String,

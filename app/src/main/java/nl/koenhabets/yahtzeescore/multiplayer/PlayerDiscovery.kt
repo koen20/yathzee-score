@@ -10,13 +10,16 @@ import com.google.android.gms.nearby.connection.ConnectionResolution
 import com.google.android.gms.nearby.connection.DiscoveredEndpointInfo
 import com.google.android.gms.nearby.connection.DiscoveryOptions
 import com.google.android.gms.nearby.connection.EndpointDiscoveryCallback
-import com.google.gson.Gson
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import nl.koenhabets.yahtzeescore.model.NearbyMessage
 import java.util.Date
 
 class PlayerDiscovery(private val context: Context, private val userId: String) {
     private var listener: PlayerDiscoveryListener? = null
-    private val gson = Gson()
+    private val json = Json {
+        ignoreUnknownKeys = true
+    }
 
     interface PlayerDiscoveryListener {
         fun onMessageReceived(message: NearbyMessage)
@@ -28,14 +31,14 @@ class PlayerDiscovery(private val context: Context, private val userId: String) 
 
     private fun startPublishing(username: String? = null, score: Int? = null) {
         val nearbyMessage = NearbyMessage(userId, username, score, Date().time)
-        var nearbyMessageJson = gson.toJson(nearbyMessage)
+        var nearbyMessageJson = json.encodeToString(nearbyMessage)
         if (nearbyMessageJson.length > 130) {
             nearbyMessage.u = null
-            nearbyMessageJson = gson.toJson(nearbyMessage)
+            nearbyMessageJson = json.encodeToString(nearbyMessage)
         }
         if (nearbyMessageJson.length > 130) {
             nearbyMessage.s = null
-            nearbyMessageJson = gson.toJson(nearbyMessage)
+            nearbyMessageJson = json.encodeToString(nearbyMessage)
         }
 
         // Using the default advertising option is enough since  connecting is not required.
@@ -82,9 +85,13 @@ class PlayerDiscovery(private val context: Context, private val userId: String) 
     private val endpointDiscoveryCallback: EndpointDiscoveryCallback =
         object : EndpointDiscoveryCallback() {
             override fun onEndpointFound(endpointId: String, info: DiscoveredEndpointInfo) {
-                val message = info.endpointInfo.toString(Charsets.UTF_8)
-                Log.i("PlayerDiscovery", "message: $message")
-                listener?.onMessageReceived(gson.fromJson(message, NearbyMessage::class.java))
+                try {
+                    val message = info.endpointInfo.toString(Charsets.UTF_8)
+                    Log.i("PlayerDiscovery", "message: $message")
+                    listener?.onMessageReceived(json.decodeFromString(message))
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
 
             override fun onEndpointLost(endpointId: String) {}
