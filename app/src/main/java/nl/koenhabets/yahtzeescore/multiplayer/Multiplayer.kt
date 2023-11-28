@@ -117,17 +117,19 @@ class Multiplayer(
     }
 
     fun nearbyPermissionGranted(): Boolean {
-        var permissionGranted = false
+        var permissionGranted = true
         Permissions().getNearbyPermissions().forEach {
+            Log.i(
+                "MultipalyerPermissions",
+                "$it : " + ContextCompat.checkSelfPermission(context, it)
+            )
             if (ContextCompat.checkSelfPermission(context, it)
                 == PackageManager.PERMISSION_DENIED
             ) {
                 permissionGranted = false
-                return@forEach
-            } else {
-                permissionGranted = true
             }
         }
+        Log.i("Multiplayer", "Nearby permission granted $permissionGranted")
         return permissionGranted
     }
 

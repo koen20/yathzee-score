@@ -144,8 +144,6 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
             },
             3000
         )
-
-        requestNearbyPermissions()
     }
 
     private fun initScoreView() {
@@ -396,7 +394,9 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
                 }
             }
             Log.i("MainActivity", "Request nearby permissions rationale: $showRationale")
-            if (showRationale) {
+            val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
+
+            if (showRationale || !sharedPref.getBoolean("nearbyPermissionRationaleShown", false)) {
                 val builder: AlertDialog.Builder = AlertDialog.Builder(this)
                 builder
                     .setMessage(getString(R.string.nearby_permission_rationale))
@@ -414,6 +414,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
                     this@MainActivity, Permissions().getNearbyPermissions(), 56
                 )
             }
+            sharedPref.edit().putBoolean("nearbyPermissionRationaleShown", true).apply()
             permissionsRequested = true
         }
     }
