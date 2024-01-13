@@ -20,4 +20,7 @@ interface SubscriptionDao {
 
     @Delete
     suspend fun delete(subscription: Subscription)
+
+    @Query("DELETE FROM subscription where userId IS NULL")
+    suspend fun deleteUserIdNull()
 }

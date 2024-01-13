@@ -39,12 +39,12 @@ class PlayerScoreDialog(private val context: Context) {
 
     private fun setScoreView(game: Game) {
         scoreView = ScoreView.getView(game, context)
-        binding.scorePopupConstraint.addView(scoreView)
+        binding.constraintScores.addView(scoreView)
         val set = ConstraintSet()
-        set.clone(binding.scorePopupConstraint)
+        set.clone(binding.constraintScores)
         set.connect(scoreView.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
         set.connect(scoreView.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-        set.applyTo(binding.scorePopupConstraint)
+        set.applyTo(binding.constraintScores)
         scoreView.disableEdit()
     }
 

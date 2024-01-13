@@ -1,10 +1,18 @@
 package nl.koenhabets.yahtzeescore.data
 
 import android.content.Context
+import android.util.Log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import nl.koenhabets.yahtzeescore.data.dao.SubscriptionDao
 
-class MigrateData(context: Context) {
+class MigrateData(context: Context, subscriptionDao: SubscriptionDao) {
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
+
     //run in onStart in main activity
     init {
+        Log.i("MigrateData", "Start")
         val sharedPref =
             context.getSharedPreferences("nl.koenhabets.yahtzeescore", Context.MODE_PRIVATE)
         if (sharedPref.contains("scores") || sharedPref.contains("name")) {
@@ -19,6 +27,7 @@ class MigrateData(context: Context) {
 
         // The version property was not being used correctly in previous versions. config-version is a new variable added in version 1.18.
         var configVersion = sharedPref.getInt("config-version", 0)
+        Log.i("MigrateData", "Current config version: $configVersion")
         val editor = sharedPref.edit()
 
         // This is to prevent the config version from skipping 0 if the app is upgraded from an old version to a future version.
@@ -50,6 +59,15 @@ class MigrateData(context: Context) {
             configVersion = 2
         }
 
+        // V2.1.1 (55) try to remove incorrect entries from database
+        if (configVersion == 2) {
+            scope.launch {
+                subscriptionDao.deleteUserIdNull();
+            }
+            configVersion = 3
+        }
+
+        Log.i("MigrateData", "Updated to: $configVersion")
         editor.putInt("config-version", configVersion)
         editor.apply()
     }

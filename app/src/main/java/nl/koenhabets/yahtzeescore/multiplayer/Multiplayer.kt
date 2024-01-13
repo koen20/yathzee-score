@@ -95,7 +95,9 @@ class Multiplayer(
             val subscriptions = subscriptionDao.getAll()
             Log.i("Multiplayer", "Subscribing to ${subscriptions.size} users")
             subscriptions.forEach {
-                subscribe(it.userId)
+                if (it.userId != null) {
+                    subscribe(it.userId)
+                }
             }
         }
 
@@ -110,7 +112,7 @@ class Multiplayer(
             }
         }, 6000, 30000)
 
-        var permissionGranted = nearbyPermissionGranted()
+        val permissionGranted = nearbyPermissionGranted()
         if (permissionGranted) {
             startPlayerDiscovery()
         }
@@ -237,30 +239,21 @@ class Multiplayer(
     }
 
     fun subscribe(id: String, scannedPairCode: String? = null) {
-        if (subscriptions.find { it.userId == id } == null && id != userId) {
-            yatzyServerClient?.subscribe(id, scannedPairCode)
-            scope.launch {
-                val fetchedSubscription = subscriptionDao.getUserById(id)
-                if (fetchedSubscription == null) {
-                    val subscription = Subscription(id, null, null)
-                    subscriptionDao.insertAll(subscription)
-                    subscriptions.add(subscription)
-                } else {
-                    subscriptions.add(fetchedSubscription)
+        if (id != null && id != "") {
+            if (subscriptions.find { it.userId == id } == null && id != userId) {
+                yatzyServerClient?.subscribe(id, scannedPairCode)
+                scope.launch {
+                    val fetchedSubscription = subscriptionDao.getUserById(id)
+                    if (fetchedSubscription == null) {
+                        val subscription = Subscription(id, null, null)
+                        subscriptionDao.insertAll(subscription)
+                        subscriptions.add(subscription)
+                    } else {
+                        subscriptions.add(fetchedSubscription)
+                    }
                 }
-            }
 
-        }
-    }
-
-    fun subscribeMessage(message: String) {
-        try {
-            val split = message.split(";")
-            if (split.size >= 4 && split[3] != "") {
-                subscribe(split[3])
             }
-        } catch (e: java.lang.Exception) {
-            e.printStackTrace()
         }
     }
 
