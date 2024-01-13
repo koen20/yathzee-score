@@ -41,7 +41,7 @@
     <string name="yahtzee_bonus">Yahtzee bonus</string>
     <string name="press_again">Press again to enter 0</string>
     <string name="multiplayer">Multiplayer</string>
-    <string name="total_games_played">Games played: %d</string>
+    <string name="games">Games: %d</string>
     <string name="cancel">Cancel</string>
     <string name="stats">Stats</string>
     <string name="export_scores">Export scores</string>
