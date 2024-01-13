@@ -159,7 +159,7 @@ open class ScoreView(context: Context, attributeSet: AttributeSet?) : Constraint
             "nl.koenhabets.yahtzeescore",
             AppCompatActivity.MODE_PRIVATE
         )
-        val dividableColorEnabled = sharedPref.getBoolean("dividableColorEnabled", false)
+        val dividableColorEnabled = sharedPref.getBoolean("dividableColorEnabled", true)
         val color = getColor()
         var yellow = Color.parseColor("#bfa600")
         var green = Color.parseColor("#008006")

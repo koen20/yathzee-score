@@ -25,6 +25,7 @@
             android:title="@string/stats_dialog_setting" />
         <SwitchPreferenceCompat
             app:key="dividableColorEnabled"
+            android:defaultValue="true"
             app:title="@string/colors_left_side"
             app:summary="@string/color_left_side_summary" />
         <ListPreference
