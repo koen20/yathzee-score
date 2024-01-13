@@ -267,7 +267,7 @@ class ScoresActivity : AppCompatActivity() {
                 R.string.average_d, Math.round(total / count * 10)
                     .toDouble() / 10.0
             )
-            binding.textViewAmount.text = getString(R.string.total_games_played, scoreItems.size)
+            binding.textViewAmount.text = getString(R.string.games, scoreItems.size)
         } catch (e: Exception) {
             e.printStackTrace()
         }
