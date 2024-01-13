@@ -21,10 +21,6 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.gms.nearby.Nearby
-import com.google.android.gms.nearby.messages.Message
-import com.google.android.gms.nearby.messages.MessageListener
-import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import nl.koenhabets.yahtzeescore.*
@@ -44,15 +40,13 @@ import nl.koenhabets.yahtzeescore.view.ScoreView
 import org.json.JSONObject
 import java.util.*
 
-class MainActivity : AppCompatActivity(), OnFailureListener {
+class MainActivity : AppCompatActivity() {
     var multiplayer: Multiplayer? = null
     var multiplayerEnabled = false
     private var playerAdapter: PlayerAdapter? = null
     private val multiplayerPlayers: MutableList<PlayerItem> = ArrayList()
     private var playerScoreDialog: PlayerScoreDialog? = null
     private var addPlayerDialog: AddPlayerDialog? = null
-    private var mMessageListener: MessageListener? = null
-    private var mMessage: Message? = null
     private lateinit var binding: ActivityMainBinding
     private lateinit var scoreView: ScoreView
     private var lastInitGame: Game? = null
@@ -151,14 +145,14 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
         val game = Game.valueOf(sharedPref.getString("game", Game.Yahtzee.toString())!!)
 
         scoreView.setScoreListener(object : ScoreView.ScoreListener {
-            override fun onScore(scoreReceived: Int, scores: JSONObject) {
+            override fun onScore(score: Int, scores: JSONObject) {
                 DataManager().saveScores(scores, applicationContext, game)
                 if (multiplayerEnabled && multiplayer != null) {
-                    setMultiplayerScore(scoreReceived, scores)
+                    setMultiplayerScore(score, scores)
                 }
 
-                score = scoreReceived
-                binding.textViewTotal.text = getString(R.string.Total, score)
+                this@MainActivity.score = score
+                binding.textViewTotal.text = getString(R.string.Total, this@MainActivity.score)
                 updateLocalPlayer()
             }
         })
@@ -280,10 +274,6 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
         val subscriptionDao = appDatabase.subscriptionDao()
         multiplayer = Multiplayer(this, name, subscriptionDao)
 
-        if (nearbyEnabled) {
-            initNearby()
-        }
-
         multiplayer?.setMultiplayerListener(object : MultiplayerListener {
             override fun onPlayerChanged(player: PlayerItem) {
                 Log.i("main", "player changed")
@@ -324,36 +314,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
     }
 
     private fun setMultiplayerScore(score: Int, fullScore: JSONObject) {
-        if (nearbyEnabled) {
-            Nearby.getMessagesClient(this).unpublish(mMessage!!)
-        }
-        val date = Date()
-        if (name != "" && multiplayer?.userId != null) {
-            val text = name + ";" + score + ";" + date.time + ";" + multiplayer!!.userId
-            Log.i("nearby", text)
-            mMessage = Message(text.toByteArray())
-            if (nearbyEnabled) {
-                Nearby.getMessagesClient(this).publish(mMessage!!).addOnFailureListener(this)
-            }
-        }
         multiplayer?.setScore(score, fullScore)
-    }
-
-    private fun initNearby() {
-        Log.i("MainActivity", "Init nearby")
-        mMessageListener = object : MessageListener() {
-            override fun onFound(message: Message) {
-                Log.d("t", "Found message: " + String(message.content))
-                multiplayer?.subscribeMessage(String(message.content))
-            }
-
-            override fun onLost(message: Message) {
-                Log.d("d", "Lost sight of message: " + String(message.content))
-            }
-        }
-        mMessage = Message("new player".toByteArray())
-        Nearby.getMessagesClient(this).publish(mMessage!!).addOnFailureListener(this)
-        Nearby.getMessagesClient(this).subscribe(mMessageListener!!)
     }
 
     private fun addPlayerDialog() {
@@ -469,10 +430,6 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
         playerAdapter?.notifyDataSetChanged()
     }
 
-    override fun onFailure(e: Exception) {
-        e.printStackTrace()
-    }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater = menuInflater
         inflater.inflate(R.menu.menu, menu)
@@ -538,7 +495,7 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
         super.onStart()
         Log.i("onStart", "start")
         val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
-        MigrateData(this)
+        MigrateData(this, appDatabase.subscriptionDao())
         if (Game.valueOf(
                 sharedPref.getString(
                     "game",
@@ -572,17 +529,6 @@ class MainActivity : AppCompatActivity(), OnFailureListener {
     public override fun onStop() {
         if (multiplayer != null) {
             Log.i("onStop", "disconnecting")
-            if (nearbyEnabled) {
-                try {
-                    Nearby.getMessagesClient(this).unpublish(mMessage!!)
-                    Nearby.getMessagesClient(this).unsubscribe(
-                        mMessageListener!!
-                    )
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
-
             multiplayer?.stopMultiplayer()
         }
         super.onStop()
