@@ -59,7 +59,7 @@ class MigrateData(context: Context, subscriptionDao: SubscriptionDao) {
             configVersion = 2
         }
 
-        // V2.1.1 (55) try to remove incorrect entries from database
+        // V2.1.1 (57) try to remove incorrect entries from database
         if (configVersion == 2) {
             scope.launch {
                 subscriptionDao.deleteUserIdNull();
