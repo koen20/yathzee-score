@@ -103,7 +103,7 @@ class Multiplayer(
 
 
         updateTimer = Timer()
-        updateTimer?.scheduleAtFixedRate(timerTask {
+        updateTimer?.schedule(timerTask {
             fullScore?.let {
                 yatzyServerClient?.setScore(score, it)
             }
@@ -187,10 +187,12 @@ class Multiplayer(
 
     private fun processScore(score: ScoreResponse) {
         subscriptions.forEach {
-            if (it.userId == score.userId) {
-                it.name = score.username
-                it.lastSeen = Date().time
-                return@forEach
+            if (it.userId != null) {
+                if (it.userId == score.userId) {
+                    it.name = score.username
+                    it.lastSeen = Date().time
+                    return@forEach
+                }
             }
         }
 
