@@ -66,7 +66,7 @@ repositories {
 }
 
 dependencies {
-    def ktor_version = '2.3.7'
+    def ktor_version = '3.0.3'
     def room_version = '2.6.1'
 
     implementation("androidx.room:room-runtime:$room_version")
@@ -76,7 +76,7 @@ dependencies {
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
     implementation 'com.github.AppIntro:AppIntro:6.3.1'
     implementation 'com.github.yuriy-budiyev:code-scanner:2.3.2'
 
@@ -84,7 +84,7 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:$ktor_version")
     implementation "io.ktor:ktor-client-websockets:$ktor_version"
     implementation "io.ktor:ktor-serialization-kotlinx-json:$ktor_version"
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.6'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7'
     implementation('org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3')
 
     implementation 'com.google.android.material:material:1.12.0'
