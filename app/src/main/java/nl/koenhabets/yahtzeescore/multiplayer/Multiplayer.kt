@@ -11,7 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import nl.koenhabets.yahtzeescore.BuildConfig
 import nl.koenhabets.yahtzeescore.Permissions
-import nl.koenhabets.yahtzeescore.data.dao.SubscriptionDao
+import nl.koenhabets.yahtzeescore.data.SubscriptionRepository
 import nl.koenhabets.yahtzeescore.model.NearbyMessage
 import nl.koenhabets.yahtzeescore.model.PlayerItem
 import nl.koenhabets.yahtzeescore.model.Response
@@ -27,7 +27,7 @@ import kotlin.concurrent.timerTask
 class Multiplayer(
     private val context: Context,
     private var name: String?,
-    private val subscriptionDao: SubscriptionDao
+    private val subscriptionRepository: SubscriptionRepository
 ) {
     private var listener: MultiplayerListener? = null
     private val subscriptions: MutableList<Subscription> = ArrayList()
@@ -92,15 +92,12 @@ class Multiplayer(
         }
 
         scope.launch {
-            val subscriptions = subscriptionDao.getAll()
+            val subscriptions = subscriptionRepository.getAll()
             Log.i("Multiplayer", "Subscribing to ${subscriptions.size} users")
             subscriptions.forEach {
-                if (it.userId != null) {
-                    subscribe(it.userId)
-                }
+                subscribe(it.userId)
             }
         }
-
 
         updateTimer = Timer()
         updateTimer?.schedule(timerTask {
@@ -108,7 +105,7 @@ class Multiplayer(
                 yatzyServerClient?.setScore(score, it)
             }
             scope.launch {
-                subscriptionDao.insertAll(*subscriptions.toTypedArray())
+                subscriptionRepository.insert(subscriptions)
             }
         }, 6000, 30000)
 
@@ -122,7 +119,7 @@ class Multiplayer(
         var permissionGranted = true
         Permissions().getNearbyPermissions().forEach {
             Log.i(
-                "MultipalyerPermissions",
+                "MultiplayerPermissions",
                 "$it : " + ContextCompat.checkSelfPermission(context, it)
             )
             if (ContextCompat.checkSelfPermission(context, it)
@@ -187,12 +184,10 @@ class Multiplayer(
 
     private fun processScore(score: ScoreResponse) {
         subscriptions.forEach {
-            if (it.userId != null) {
-                if (it.userId == score.userId) {
-                    it.name = score.username
-                    it.lastSeen = Date().time
-                    return@forEach
-                }
+            if (it.userId == score.userId) {
+                it.name = score.username
+                it.lastSeen = Date().time
+                return@forEach
             }
         }
 
@@ -241,21 +236,19 @@ class Multiplayer(
     }
 
     fun subscribe(id: String, scannedPairCode: String? = null) {
-        if (id != null && id != "") {
-            if (subscriptions.find { it.userId == id } == null && id != userId) {
-                yatzyServerClient?.subscribe(id, scannedPairCode)
-                scope.launch {
-                    val fetchedSubscription = subscriptionDao.getUserById(id)
-                    if (fetchedSubscription == null) {
-                        val subscription = Subscription(id, null, null)
-                        subscriptionDao.insertAll(subscription)
-                        subscriptions.add(subscription)
-                    } else {
-                        subscriptions.add(fetchedSubscription)
-                    }
+        if (subscriptions.find { it.userId == id } == null && id != userId) {
+            yatzyServerClient?.subscribe(id, scannedPairCode)
+            scope.launch {
+                val fetchedSubscription = subscriptionRepository.getUserById(id)
+                if (fetchedSubscription == null) {
+                    val subscription = Subscription(id, null, null)
+                    subscriptionRepository.insert(subscription)
+                    subscriptions.add(subscription)
+                } else {
+                    subscriptions.add(fetchedSubscription)
                 }
-
             }
+
         }
     }
 

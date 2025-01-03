@@ -23,12 +23,17 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import nl.koenhabets.yahtzeescore.*
+import nl.koenhabets.yahtzeescore.AppUpdates
+import nl.koenhabets.yahtzeescore.BuildConfig
+import nl.koenhabets.yahtzeescore.Permissions
+import nl.koenhabets.yahtzeescore.R
+import nl.koenhabets.yahtzeescore.Rules
 import nl.koenhabets.yahtzeescore.adapters.PlayerAdapter
 import nl.koenhabets.yahtzeescore.data.AppDatabase
 import nl.koenhabets.yahtzeescore.data.DataManager
 import nl.koenhabets.yahtzeescore.data.Game
 import nl.koenhabets.yahtzeescore.data.MigrateData
+import nl.koenhabets.yahtzeescore.data.SubscriptionRepository
 import nl.koenhabets.yahtzeescore.databinding.ActivityMainBinding
 import nl.koenhabets.yahtzeescore.dialog.AddPlayerDialog
 import nl.koenhabets.yahtzeescore.dialog.GameEndDialog
@@ -38,9 +43,12 @@ import nl.koenhabets.yahtzeescore.multiplayer.Multiplayer
 import nl.koenhabets.yahtzeescore.multiplayer.Multiplayer.MultiplayerListener
 import nl.koenhabets.yahtzeescore.view.ScoreView
 import org.json.JSONObject
-import java.util.*
+import java.util.Date
+import java.util.Timer
+import java.util.TimerTask
 
 class MainActivity : AppCompatActivity() {
+    private val subscriptionRepository = SubscriptionRepository(this)
     var multiplayer: Multiplayer? = null
     var multiplayerEnabled = false
     private var playerAdapter: PlayerAdapter? = null
@@ -271,8 +279,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initMultiplayerObj() {
-        val subscriptionDao = appDatabase.subscriptionDao()
-        multiplayer = Multiplayer(this, name, subscriptionDao)
+        multiplayer = Multiplayer(this, name, subscriptionRepository)
 
         multiplayer?.setMultiplayerListener(object : MultiplayerListener {
             override fun onPlayerChanged(player: PlayerItem) {
@@ -495,7 +502,7 @@ class MainActivity : AppCompatActivity() {
         super.onStart()
         Log.i("onStart", "start")
         val sharedPref = getSharedPreferences("nl.koenhabets.yahtzeescore", MODE_PRIVATE)
-        MigrateData(this, appDatabase.subscriptionDao())
+        MigrateData(this, appDatabase.subscriptionDao(), subscriptionRepository)
         if (Game.valueOf(
                 sharedPref.getString(
                     "game",

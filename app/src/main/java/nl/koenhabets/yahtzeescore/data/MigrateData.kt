@@ -7,7 +7,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import nl.koenhabets.yahtzeescore.data.dao.SubscriptionDao
 
-class MigrateData(context: Context, subscriptionDao: SubscriptionDao) {
+
+class MigrateData(
+    context: Context,
+    subscriptionDao: SubscriptionDao,
+    subscriptionRepository: SubscriptionRepository
+) {
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 
     //run in onStart in main activity
@@ -39,7 +44,10 @@ class MigrateData(context: Context, subscriptionDao: SubscriptionDao) {
         if (configVersion == 0) {
             if (sharedPref.contains("scores")) {
                 if (sharedPref.getBoolean("yahtzeeBonus", false)) {
-                    editor.putString("scores-${Game.YahtzeeBonus}", sharedPref.getString("scores", ""))
+                    editor.putString(
+                        "scores-${Game.YahtzeeBonus}",
+                        sharedPref.getString("scores", "")
+                    )
                     editor.putString("game", Game.YahtzeeBonus.toString())
                 } else {
                     editor.putString("scores-${Game.Yahtzee}", sharedPref.getString("scores", ""))
@@ -62,9 +70,18 @@ class MigrateData(context: Context, subscriptionDao: SubscriptionDao) {
         // V2.1.1 (58) try to remove incorrect entries from database
         if (configVersion == 2) {
             scope.launch {
-                subscriptionDao.deleteUserIdNull();
+                subscriptionDao.deleteUserIdNull()
             }
             configVersion = 3
+        }
+
+        // V2.2 (59) Move subscriptions from database to file
+        if (configVersion == 3) {
+            scope.launch {
+                val existingSubscriptions = subscriptionDao.getAll()
+                subscriptionRepository.insert(existingSubscriptions)
+            }
+            configVersion = 4
         }
 
         Log.i("MigrateData", "Updated to: $configVersion")

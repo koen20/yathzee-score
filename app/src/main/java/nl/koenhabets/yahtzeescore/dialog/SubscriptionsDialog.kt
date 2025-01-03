@@ -12,11 +12,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import nl.koenhabets.yahtzeescore.R
 import nl.koenhabets.yahtzeescore.adapters.SubscriptionAdapter
-import nl.koenhabets.yahtzeescore.data.AppDatabase
+import nl.koenhabets.yahtzeescore.data.SubscriptionRepository
 import nl.koenhabets.yahtzeescore.databinding.SubscriptionsDialogBinding
 import nl.koenhabets.yahtzeescore.model.Subscription
 
-class SubscriptionsDialog(private var context: Context) {
+class SubscriptionsDialog(
+    private val context: Context,
+    private val subscriptionRepository: SubscriptionRepository
+) {
     private var subscriptions: MutableList<Subscription> = ArrayList()
     private lateinit var binding: SubscriptionsDialogBinding
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
@@ -32,10 +35,8 @@ class SubscriptionsDialog(private var context: Context) {
         val subscriptionAdapter = SubscriptionAdapter(context, subscriptions)
         binding.recylerViewSubscriptions.adapter = subscriptionAdapter
 
-        val subscriptionDao = AppDatabase.getDatabase(context).subscriptionDao()
-
         scope.launch {
-            subscriptions.addAll(subscriptionDao.getAll())
+            subscriptions.addAll(subscriptionRepository.getAll())
             subscriptions.sortBy { it.lastSeen }
             subscriptions.reverse()
             subscriptionAdapter.notifyItemRangeInserted(0, subscriptions.size)
@@ -48,7 +49,7 @@ class SubscriptionsDialog(private var context: Context) {
                 removeBuilder.setPositiveButton(R.string.remove) { _: DialogInterface?, _: Int ->
                     scope.launch {
                         val item = subscriptionAdapter.getItem(position)
-                        subscriptionDao.delete(item)
+                        subscriptionRepository.delete(item)
                         subscriptions.remove(item)
                     }
                     subscriptionAdapter.notifyItemRemoved(position)

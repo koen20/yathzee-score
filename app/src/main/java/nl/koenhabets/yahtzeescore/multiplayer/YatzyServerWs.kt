@@ -72,7 +72,7 @@ class YatzyServerWs(
         }
 
         reconnectTimer = Timer()
-        reconnectTimer?.scheduleAtFixedRate(object : TimerTask() {
+        reconnectTimer?.schedule(object : TimerTask() {
             override fun run() {
                 scope.launch {
                     if ((webSocketSession == null || !loggedIn) && !connecting) {

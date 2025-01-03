@@ -33,20 +33,19 @@ class SubscriptionAdapter(context: Context?, data: List<Subscription>) :
     // binds the data to the TextView in each row
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = mData[position]
-        item.name?.let { name ->
-            holder.textViewName.text = name
-            item.lastSeen?.let { lastSeen ->
-                val dateFormat = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    android.icu.text.DateFormat.getDateTimeInstance(
-                        DateFormat.SHORT,
-                        DateFormat.SHORT
-                    )
-                } else {
-                    SimpleDateFormat("dd/MM/yy HH:mm")
-                }
-                holder.textViewLastSeen.text = dateFormat.format(Date(lastSeen))
+        holder.textViewName.text = item.name ?: "Name unknown"
+        item.lastSeen?.let { lastSeen ->
+            val dateFormat = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                android.icu.text.DateFormat.getDateTimeInstance(
+                    DateFormat.SHORT,
+                    DateFormat.SHORT
+                )
+            } else {
+                SimpleDateFormat("dd/MM/yy HH:mm")
             }
+            holder.textViewLastSeen.text = dateFormat.format(Date(lastSeen))
         }
+
     }
 
     override fun getItemCount(): Int {

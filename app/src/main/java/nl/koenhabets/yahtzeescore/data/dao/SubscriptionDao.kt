@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import nl.koenhabets.yahtzeescore.model.Subscription
 
+@Deprecated("Replaced by SubscriptionRepository")
 @Dao
 interface SubscriptionDao {
     @Query("SELECT * FROM subscription")
