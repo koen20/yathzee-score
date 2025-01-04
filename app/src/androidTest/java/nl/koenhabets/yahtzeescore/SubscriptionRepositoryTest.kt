@@ -7,7 +7,8 @@ import nl.koenhabets.yahtzeescore.model.Subscription
 import org.junit.Test
 
 class SubscriptionRepositoryTest {
-    val subscriptionRepository = SubscriptionRepository(ApplicationProvider.getApplicationContext())
+    private val subscriptionRepository =
+        SubscriptionRepository(ApplicationProvider.getApplicationContext())
 
     @Test
     fun getAll() = runTest {

@@ -21,7 +21,6 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.color.DynamicColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import nl.koenhabets.yahtzeescore.AppUpdates
 import nl.koenhabets.yahtzeescore.BuildConfig
@@ -69,7 +68,6 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(LayoutInflater.from(this))
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
-        DynamicColors.applyToActivitiesIfAvailable(application)
 
         val localPlayer = PlayerItem(id = "", null, null, null, 0, true, "")
         multiplayerPlayers.add(localPlayer)
